@@ -7,6 +7,8 @@ import '../../../../core/constants/hive_boxes.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../auth/presentation/providers/auth_state.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -20,6 +22,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   late AnimationController _controller;
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -34,44 +37,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     _scaleAnim = Tween<double>(begin: 0.8, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOutBack),
     );
-
     _controller.forward();
-    _navigate();
-  }
-
-  Future<void> _navigate() async {
-    // Minimum splash display time
-    await Future.delayed(const Duration(milliseconds: 1800));
-    if (!mounted) return;
-
-    final hasSeenOnboarding = _hasSeenOnboarding();
-    final isAuthenticated = _isAuthenticated();
-
-    if (!hasSeenOnboarding) {
-      context.go(RouteNames.onboarding);
-    } else if (!isAuthenticated) {
-      context.go(RouteNames.authPhone);
-    } else {
-      context.go(RouteNames.home);
-    }
-  }
-
-  bool _hasSeenOnboarding() {
-    try {
-      final box = Hive.box(HiveBoxes.settings);
-      return box.get('onboarding_done', defaultValue: false) as bool;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  bool _isAuthenticated() {
-    try {
-      final box = Hive.box(HiveBoxes.sessions);
-      return box.isNotEmpty;
-    } catch (_) {
-      return false;
-    }
   }
 
   @override
@@ -80,8 +46,51 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     super.dispose();
   }
 
+  void _navigate(AuthState authState) {
+    if (_navigated || !mounted) return;
+    if (authState.status == AuthStatus.initial) return; // still loading
+
+    _navigated = true;
+
+    final hasOnboarding = _hasSeenOnboarding();
+
+    if (!hasOnboarding) {
+      context.go(RouteNames.onboarding);
+    } else if (authState.isAuthenticated) {
+      context.go(RouteNames.home);
+    } else {
+      context.go(RouteNames.authPhone);
+    }
+  }
+
+  bool _hasSeenOnboarding() {
+    try {
+      return Hive.box(HiveBoxes.settings)
+              .get('onboarding_done', defaultValue: false) as bool;
+    } catch (_) {
+      return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    // When auth state resolves (not initial), navigate after min display time
+    ref.listen<AuthState>(authNotifierProvider, (_, next) async {
+      if (next.status != AuthStatus.initial) {
+        await Future.delayed(const Duration(milliseconds: 1600));
+        _navigate(next);
+      }
+    });
+
+    // Also handle case where state is already resolved on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final auth = ref.read(authNotifierProvider);
+      if (auth.status != AuthStatus.initial) {
+        await Future.delayed(const Duration(milliseconds: 1600));
+        _navigate(auth);
+      }
+    });
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: Center(
@@ -92,55 +101,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo placeholder — will be replaced by SVG asset
                 Container(
-                  width: 100,
-                  height: 100,
+                  width: 100, height: 100,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
                     boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.15),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
+                      BoxShadow(color: Colors.black.withOpacity(0.15),
+                          blurRadius: 20, offset: const Offset(0, 8)),
                     ],
                   ),
                   child: const Center(
-                    child: Text(
-                      'L',
-                      style: TextStyle(
-                        fontSize: 52,
-                        fontWeight: FontWeight.w900,
-                        color: AppColors.primary,
-                        fontFamily: 'Nunito',
-                      ),
-                    ),
+                    child: Text('L',
+                      style: TextStyle(fontSize: 52, fontWeight: FontWeight.w900,
+                          color: AppColors.primary, fontFamily: 'Nunito')),
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'LONIYA',
-                  style: TextStyle(
-                    fontSize: 36,
-                    fontWeight: FontWeight.w900,
-                    color: Colors.white,
-                    fontFamily: 'Nunito',
-                    letterSpacing: 4,
-                  ),
-                ),
+                const Text('LONIYA',
+                  style: TextStyle(fontSize: 36, fontWeight: FontWeight.w900,
+                      color: Colors.white, fontFamily: 'Nunito', letterSpacing: 4)),
                 const SizedBox(height: 6),
-                Text(
-                  'Apprendre partout, tout le temps',
-                  style: AppTextStyles.bodyMedium.copyWith(
-                    color: Colors.white70,
-                  ),
-                ),
+                Text('Apprendre partout, tout le temps',
+                  style: AppTextStyles.bodyMedium.copyWith(color: Colors.white70)),
                 const SizedBox(height: 64),
                 const SizedBox(
-                  width: 28,
-                  height: 28,
+                  width: 28, height: 28,
                   child: CircularProgressIndicator(
                     strokeWidth: 2.5,
                     valueColor: AlwaysStoppedAnimation<Color>(Colors.white54),

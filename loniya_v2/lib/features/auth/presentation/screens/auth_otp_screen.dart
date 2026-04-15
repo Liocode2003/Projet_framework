@@ -1,71 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/constants/app_constants.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../providers/auth_notifier.dart';
+import '../providers/auth_state.dart';
 
-class AuthOtpScreen extends StatefulWidget {
+class AuthOtpScreen extends ConsumerStatefulWidget {
   final String phone;
   const AuthOtpScreen({super.key, required this.phone});
 
   @override
-  State<AuthOtpScreen> createState() => _AuthOtpScreenState();
+  ConsumerState<AuthOtpScreen> createState() => _AuthOtpScreenState();
 }
 
-class _AuthOtpScreenState extends State<AuthOtpScreen> {
+class _AuthOtpScreenState extends ConsumerState<AuthOtpScreen> {
   final List<TextEditingController> _controllers =
       List.generate(4, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(4, (_) => FocusNode());
-  bool _isLoading = false;
-  String? _error;
 
   @override
   void dispose() {
-    for (final c in _controllers) {
-      c.dispose();
-    }
-    for (final f in _focusNodes) {
-      f.dispose();
-    }
+    for (final c in _controllers) c.dispose();
+    for (final f in _focusNodes) f.dispose();
     super.dispose();
   }
 
   String get _otp => _controllers.map((c) => c.text).join();
 
   Future<void> _verify() async {
-    if (_otp.length < 4) {
-      setState(() => _error = 'Entrez les 4 chiffres du code');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-      _error = null;
-    });
-
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    if (!mounted) return;
-
-    // Mock OTP validation — Phase 4 will implement real logic
-    if (_otp == AppConstants.mockOtpCode) {
-      setState(() => _isLoading = false);
-      context.go('${RouteNames.authPhone}/role');
-    } else {
-      setState(() {
-        _isLoading = false;
-        _error = 'Code incorrect. (Indice: ${AppConstants.mockOtpCode})';
-      });
-      // Clear fields
-      for (final c in _controllers) {
-        c.clear();
-      }
-      _focusNodes[0].requestFocus();
-    }
+    if (_otp.length < 4) return;
+    await ref.read(authNotifierProvider.notifier).verifyOtp(_otp);
   }
 
   void _onDigitEntered(int index, String value) {
@@ -77,15 +46,39 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
     if (_otp.length == 4) _verify();
   }
 
+  void _clearBoxes() {
+    for (final c in _controllers) c.clear();
+    _focusNodes[0].requestFocus();
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authNotifierProvider, (_, next) {
+      if (!mounted) return;
+      if (next.status == AuthStatus.otpVerified) {
+        context.go('${RouteNames.authPhone}/role');
+      } else if (next.status == AuthStatus.error) {
+        _clearBoxes();
+      }
+    });
+
+    final isLoading = ref.watch(
+      authNotifierProvider.select((s) => s.isLoading),
+    );
+    final error = ref.watch(
+      authNotifierProvider.select((s) => s.errorMessage),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Vérification'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            ref.read(authNotifierProvider.notifier).clearError();
+            context.pop();
+          },
         ),
       ),
       body: SafeArea(
@@ -104,39 +97,35 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-
-              // OTP input boxes
+              // OTP boxes
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: List.generate(4, (i) => _OtpBox(
                   controller: _controllers[i],
                   focusNode: _focusNodes[i],
                   onChanged: (v) => _onDigitEntered(i, v),
-                  hasError: _error != null,
+                  hasError: error != null,
                 )),
               ),
-
-              if (_error != null) ...[
+              if (error != null) ...[
                 const SizedBox(height: 16),
-                Text(
-                  _error!,
-                  style: AppTextStyles.bodySmall.copyWith(
-                    color: AppColors.error,
-                  ),
-                ),
+                Text(error,
+                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
               ],
-
               const SizedBox(height: 40),
               AppButton(
                 label: 'Vérifier',
                 onPressed: _verify,
-                isLoading: _isLoading,
+                isLoading: isLoading,
               ),
-
               const SizedBox(height: 20),
               Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: isLoading
+                      ? null
+                      : () => ref
+                          .read(authNotifierProvider.notifier)
+                          .sendOtp(widget.phone),
                   child: const Text('Renvoyer le code'),
                 ),
               ),
@@ -164,8 +153,7 @@ class _OtpBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 60,
-      height: 64,
+      width: 60, height: 64,
       child: TextFormField(
         controller: controller,
         focusNode: focusNode,

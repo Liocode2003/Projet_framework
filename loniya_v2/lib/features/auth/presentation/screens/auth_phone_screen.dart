@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../providers/auth_notifier.dart';
+import '../providers/auth_state.dart';
 
-class AuthPhoneScreen extends StatefulWidget {
+class AuthPhoneScreen extends ConsumerStatefulWidget {
   const AuthPhoneScreen({super.key});
 
   @override
-  State<AuthPhoneScreen> createState() => _AuthPhoneScreenState();
+  ConsumerState<AuthPhoneScreen> createState() => _AuthPhoneScreenState();
 }
 
-class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
+class _AuthPhoneScreenState extends ConsumerState<AuthPhoneScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
-  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -27,31 +29,43 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
-
-    // Simulate OTP send delay
-    await Future.delayed(const Duration(milliseconds: 800));
-
-    if (!mounted) return;
-    setState(() => _isLoading = false);
-
-    // Navigate to OTP screen, passing phone number
-    context.go(
-      '${RouteNames.authPhone}/otp',
-      extra: _phoneController.text.trim(),
-    );
+    await ref
+        .read(authNotifierProvider.notifier)
+        .sendOtp(_phoneController.text.trim());
   }
 
-  String? _validatePhone(String? value) {
-    if (value == null || value.isEmpty) return 'Numéro requis';
-    // Burkina Faso phone: starts with +226 or 0226, 8 digits
-    final cleaned = value.replaceAll(RegExp(r'\D'), '');
-    if (cleaned.length < 8) return 'Numéro invalide (min 8 chiffres)';
-    return null;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Listen for state changes and navigate accordingly
+    final authState = ref.read(authNotifierProvider);
+    _navigateIfNeeded(authState);
+  }
+
+  void _navigateIfNeeded(AuthState state) {
+    if (!mounted) return;
+    if (state.status == AuthStatus.otpSent) {
+      context.go(
+        '${RouteNames.authPhone}/otp',
+        extra: state.phone ?? '',
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // React to state changes
+    ref.listen<AuthState>(authNotifierProvider, (_, next) {
+      _navigateIfNeeded(next);
+    });
+
+    final isLoading = ref.watch(
+      authNotifierProvider.select((s) => s.isLoading),
+    );
+    final error = ref.watch(
+      authNotifierProvider.select((s) => s.errorMessage),
+    );
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -63,31 +77,23 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 40),
-
-                // Logo & welcome
+                // Logo
                 Center(
                   child: Container(
-                    width: 72,
-                    height: 72,
+                    width: 72, height: 72,
                     decoration: BoxDecoration(
                       color: AppColors.primary,
                       borderRadius: BorderRadius.circular(18),
                     ),
                     child: const Center(
-                      child: Text(
-                        'L',
-                        style: TextStyle(
-                          fontSize: 40,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          fontFamily: 'Nunito',
-                        ),
+                      child: Text('L',
+                        style: TextStyle(fontSize: 40, fontWeight: FontWeight.w900,
+                            color: Colors.white, fontFamily: 'Nunito'),
                       ),
                     ),
                   ),
                 ),
                 const SizedBox(height: 32),
-
                 Text('Bienvenue !', style: AppTextStyles.displayMedium),
                 const SizedBox(height: 8),
                 Text(
@@ -97,8 +103,6 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-
-                // Phone field
                 Text('Numéro de téléphone', style: AppTextStyles.labelLarge),
                 const SizedBox(height: 8),
                 TextFormField(
@@ -106,7 +110,12 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
                   keyboardType: TextInputType.phone,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   maxLength: 12,
-                  validator: _validatePhone,
+                  validator: (v) {
+                    if (v == null || v.isEmpty) return 'Numéro requis';
+                    final cleaned = v.replaceAll(RegExp(r'\D'), '');
+                    if (cleaned.length < 8) return 'Numéro invalide (min 8 chiffres)';
+                    return null;
+                  },
                   decoration: const InputDecoration(
                     hintText: '07XXXXXXXX',
                     prefixText: '+226 ',
@@ -115,20 +124,25 @@ class _AuthPhoneScreenState extends State<AuthPhoneScreen> {
                   ),
                   onFieldSubmitted: (_) => _submit(),
                 ),
+                if (error != null) ...[
+                  const SizedBox(height: 12),
+                  Text(error,
+                    style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
+                ],
                 const SizedBox(height: 32),
-
                 AppButton(
                   label: 'Recevoir le code',
                   onPressed: _submit,
-                  isLoading: _isLoading,
+                  isLoading: isLoading,
                   prefixIcon: Icons.sms_outlined,
                 ),
-
                 const SizedBox(height: 24),
                 Center(
                   child: Text(
-                    'Un code à 4 chiffres sera envoyé par SMS',
-                    style: AppTextStyles.caption,
+                    'Code de démonstration : 1234',
+                    style: AppTextStyles.caption.copyWith(
+                      color: AppColors.grey500,
+                    ),
                   ),
                 ),
               ],

@@ -9,7 +9,10 @@ import '../../features/auth/presentation/screens/auth_otp_screen.dart';
 import '../../features/auth/presentation/screens/auth_role_screen.dart';
 import '../../features/auth/presentation/screens/auth_consent_screen.dart';
 import '../../features/auth/presentation/screens/auth_pin_screen.dart';
+import '../../features/auth/presentation/providers/auth_notifier.dart';
+import '../../features/auth/presentation/providers/auth_state.dart';
 import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/widgets/app_shell.dart';
 import '../../features/marketplace/presentation/screens/marketplace_screen.dart';
 import '../../features/marketplace/presentation/screens/marketplace_detail_screen.dart';
 import '../../features/learning/presentation/screens/learning_screen.dart';
@@ -22,245 +25,172 @@ import '../../features/orientation/presentation/screens/orientation_result_scree
 import '../../features/teacher/presentation/screens/teacher_dashboard_screen.dart';
 import '../../features/local_classroom/presentation/screens/local_classroom_screen.dart';
 import '../constants/route_names.dart';
-import '../constants/hive_boxes.dart';
-import '../../features/home/presentation/widgets/app_shell.dart';
 
-// Provider for GoRouter instance — available app-wide via Riverpod
 final appRouterProvider = Provider<GoRouter>((ref) {
-  final authNotifier = ValueNotifier<bool>(_checkInitialAuth());
+  // Listenable that triggers router refresh when auth state changes
+  final authListenable = _AuthStateListenable(ref);
 
   return GoRouter(
     initialLocation: RouteNames.splash,
-    debugLogDiagnostics: false, // set true during dev
+    debugLogDiagnostics: false,
+    refreshListenable: authListenable,
 
-    // Redirect logic: guards protected routes
     redirect: (BuildContext context, GoRouterState state) {
-      final isAuthenticated = authNotifier.value;
-      final isSplash = state.matchedLocation == RouteNames.splash;
-      final isOnboarding = state.matchedLocation == RouteNames.onboarding;
-      final isAuthRoute = state.matchedLocation.startsWith('/auth');
+      final authState = ref.read(authNotifierProvider);
+      final isAuthenticated = authState.isAuthenticated;
+      final isInitial = authState.status == AuthStatus.initial;
 
-      // Always allow splash and onboarding
-      if (isSplash || isOnboarding) return null;
+      final loc = state.matchedLocation;
+      final isSplash     = loc == RouteNames.splash;
+      final isOnboarding = loc == RouteNames.onboarding;
+      final isAuthRoute  = loc.startsWith('/auth');
 
-      // Redirect unauthenticated users to phone auth
-      if (!isAuthenticated && !isAuthRoute) {
-        return RouteNames.authPhone;
-      }
+      // Never redirect while splash is doing its own routing
+      if (isSplash) return null;
+      // Allow onboarding freely
+      if (isOnboarding) return null;
+      // Wait for initial session check
+      if (isInitial) return RouteNames.splash;
 
-      // Redirect authenticated users away from auth screens
-      if (isAuthenticated && isAuthRoute) {
-        return RouteNames.home;
-      }
+      // Unauthenticated user trying to access app → send to auth
+      if (!isAuthenticated && !isAuthRoute) return RouteNames.authPhone;
+      // Authenticated user hitting auth screens → send home
+      if (isAuthenticated && isAuthRoute) return RouteNames.home;
 
       return null;
     },
 
     routes: [
-      // ─── Splash ───────────────────────────────────────────────────
+      // ─── Splash ─────────────────────────────────────────────────────
       GoRoute(
         path: RouteNames.splash,
         name: 'splash',
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const SplashScreen(),
-        ),
+        pageBuilder: (c, s) => _fade(s, const SplashScreen()),
       ),
 
-      // ─── Onboarding ───────────────────────────────────────────────
+      // ─── Onboarding ──────────────────────────────────────────────────
       GoRoute(
         path: RouteNames.onboarding,
         name: 'onboarding',
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const OnboardingScreen(),
-        ),
+        pageBuilder: (c, s) => _fade(s, const OnboardingScreen()),
       ),
 
-      // ─── Auth Flow ────────────────────────────────────────────────
+      // ─── Auth flow ────────────────────────────────────────────────────
       GoRoute(
         path: RouteNames.authPhone,
         name: 'auth-phone',
-        pageBuilder: (context, state) => _buildPage(
-          state: state,
-          child: const AuthPhoneScreen(),
-        ),
+        pageBuilder: (c, s) => _fade(s, const AuthPhoneScreen()),
         routes: [
           GoRoute(
             path: 'otp',
             name: 'auth-otp',
-            pageBuilder: (context, state) {
-              final phone = state.extra as String? ?? '';
-              return _buildPage(
-                state: state,
-                child: AuthOtpScreen(phone: phone),
-              );
-            },
+            pageBuilder: (c, s) => _fade(
+              s, AuthOtpScreen(phone: s.extra as String? ?? ''),
+            ),
           ),
           GoRoute(
             path: 'role',
             name: 'auth-role',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const AuthRoleScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const AuthRoleScreen()),
           ),
           GoRoute(
             path: 'consent',
             name: 'auth-consent',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const AuthConsentScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const AuthConsentScreen()),
           ),
           GoRoute(
             path: 'pin',
             name: 'auth-pin',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const AuthPinScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const AuthPinScreen()),
           ),
         ],
       ),
 
-      // ─── Main App Shell (with bottom navigation) ──────────────────
+      // ─── Main shell (bottom navigation) ─────────────────────────────
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
         routes: [
-          // Home Dashboard
           GoRoute(
             path: RouteNames.home,
             name: 'home',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const HomeScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const HomeScreen()),
           ),
-
-          // Marketplace
           GoRoute(
             path: RouteNames.marketplace,
             name: 'marketplace',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const MarketplaceScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const MarketplaceScreen()),
             routes: [
               GoRoute(
                 path: ':id',
                 name: 'marketplace-detail',
-                pageBuilder: (context, state) {
-                  final id = state.pathParameters['id']!;
-                  return _buildPage(
-                    state: state,
-                    child: MarketplaceDetailScreen(contentId: id),
-                  );
-                },
+                pageBuilder: (c, s) => _fade(
+                  s, MarketplaceDetailScreen(
+                      contentId: s.pathParameters['id']!),
+                ),
               ),
             ],
           ),
-
-          // Learning / APC Engine
           GoRoute(
             path: RouteNames.learning,
             name: 'learning',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const LearningScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const LearningScreen()),
             routes: [
               GoRoute(
                 path: ':lessonId',
                 name: 'lesson',
-                pageBuilder: (context, state) {
-                  final lessonId = state.pathParameters['lessonId']!;
-                  return _buildPage(
-                    state: state,
-                    child: LessonScreen(lessonId: lessonId),
-                  );
-                },
+                pageBuilder: (c, s) => _fade(
+                  s, LessonScreen(
+                      lessonId: s.pathParameters['lessonId']!),
+                ),
                 routes: [
                   GoRoute(
                     path: 'result',
                     name: 'lesson-result',
-                    pageBuilder: (context, state) {
-                      final lessonId = state.pathParameters['lessonId']!;
-                      return _buildPage(
-                        state: state,
-                        child: LessonResultScreen(lessonId: lessonId),
-                      );
-                    },
+                    pageBuilder: (c, s) => _fade(
+                      s, LessonResultScreen(
+                          lessonId: s.pathParameters['lessonId']!),
+                    ),
                   ),
                 ],
               ),
             ],
           ),
-
-          // AI Tutor
           GoRoute(
             path: RouteNames.aiTutor,
             name: 'ai-tutor',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const AiTutorScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const AiTutorScreen()),
           ),
-
-          // Gamification
           GoRoute(
             path: RouteNames.gamification,
             name: 'gamification',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const GamificationScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const GamificationScreen()),
           ),
-
-          // Orientation
           GoRoute(
             path: RouteNames.orientation,
             name: 'orientation',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const OrientationScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const OrientationScreen()),
             routes: [
               GoRoute(
                 path: 'result',
                 name: 'orientation-result',
-                pageBuilder: (context, state) => _buildPage(
-                  state: state,
-                  child: const OrientationResultScreen(),
-                ),
+                pageBuilder: (c, s) => _fade(s, const OrientationResultScreen()),
               ),
             ],
           ),
-
-          // Teacher Dashboard
           GoRoute(
             path: RouteNames.teacherDashboard,
             name: 'teacher',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const TeacherDashboardScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const TeacherDashboardScreen()),
           ),
-
-          // Local Classroom
           GoRoute(
             path: RouteNames.localClassroom,
             name: 'local-classroom',
-            pageBuilder: (context, state) => _buildPage(
-              state: state,
-              child: const LocalClassroomScreen(),
-            ),
+            pageBuilder: (c, s) => _fade(s, const LocalClassroomScreen()),
           ),
         ],
       ),
     ],
 
-    // Error page
     errorPageBuilder: (context, state) => MaterialPage(
       child: Scaffold(
         body: Center(
@@ -269,12 +199,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             children: [
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
-              Text(
-                'Page introuvable',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              Text(state.error?.message ?? 'Erreur de navigation'),
+              Text('Page introuvable',
+                style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () => context.go(RouteNames.home),
@@ -288,32 +214,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-// ─── Helper: build a page with fade transition (low-end optimized) ───────────
-CustomTransitionPage _buildPage({
-  required GoRouterState state,
-  required Widget child,
-}) {
+// ─── Fade page transition (low-end optimized) ─────────────────────────────────
+CustomTransitionPage _fade(GoRouterState state, Widget child) {
   return CustomTransitionPage(
     key: state.pageKey,
     child: child,
-    transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(
-        opacity: CurveTween(curve: Curves.easeIn).animate(animation),
-        child: child,
-      );
-    },
+    transitionsBuilder: (_, animation, __, child) =>
+        FadeTransition(
+          opacity: CurveTween(curve: Curves.easeIn).animate(animation),
+          child: child,
+        ),
     transitionDuration: const Duration(milliseconds: 180),
   );
 }
 
-// ─── Check initial auth state from Hive ──────────────────────────────────────
-bool _checkInitialAuth() {
-  // Will be replaced by actual session check in Phase 4 (Auth)
-  // For now returns false → redirect to auth flow
-  try {
-    final box = Hive.box(HiveBoxes.sessions);
-    return box.isNotEmpty;
-  } catch (_) {
-    return false;
+// ─── Listenable that notifies GoRouter when auth state changes ────────────────
+class _AuthStateListenable extends ChangeNotifier {
+  _AuthStateListenable(Ref ref) {
+    ref.listen<AuthState>(authNotifierProvider, (_, __) => notifyListeners());
   }
 }
