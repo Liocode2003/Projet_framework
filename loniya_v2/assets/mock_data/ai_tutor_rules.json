@@ -1,0 +1,67 @@
+{
+  "version": "1.0",
+  "rules": [
+    {
+      "id": "rule_fractions_def",
+      "tags": ["fraction", "fractions", "numérateur", "dénominateur", "qu'est-ce"],
+      "hint_templates": [
+        "Pense à comment tu partages quelque chose en parts égales. Le nombre total de parts, c'est quoi ?",
+        "Une fraction a deux parties : le haut et le bas. Lequel représente le tout ?",
+        "Si tu coupes une orange en 4 et tu prends 1 morceau, comment écrirais-tu cela ?"
+      ]
+    },
+    {
+      "id": "rule_fractions_compare",
+      "tags": ["comparer", "plus grand", "plus petit", "fraction", ">", "<"],
+      "hint_templates": [
+        "Quand les dénominateurs sont identiques, que compares-tu ?",
+        "Imagine deux pizzas de même taille coupées en 8 parts. Laquelle a plus : 3/8 ou 5/8 ?",
+        "Regarde seulement les numérateurs quand les dénominateurs sont les mêmes."
+      ]
+    },
+    {
+      "id": "rule_multiplication",
+      "tags": ["multiplication", "multiplier", "fois", "produit", "table"],
+      "hint_templates": [
+        "La multiplication, c'est une addition répétée. Que se passe-t-il si tu additionnes le même nombre plusieurs fois ?",
+        "Essaie de décomposer le problème : 6×7 = 6×5 + 6×2. Est-ce plus facile ?",
+        "Tu connais les tables de 1 à 5 ? Commence par là."
+      ]
+    },
+    {
+      "id": "rule_narration",
+      "tags": ["narration", "histoire", "raconter", "début", "fin", "personnage"],
+      "hint_templates": [
+        "Toute bonne histoire a 3 parties. Lesquelles sont-elles ?",
+        "Qui sont les personnages ? Où sont-ils ? Quel est leur problème ?",
+        "Comment ton histoire finit-elle ? Le personnage résout-il son problème ?"
+      ]
+    },
+    {
+      "id": "rule_electricite",
+      "tags": ["électricité", "courant", "tension", "résistance", "circuit", "ohm"],
+      "hint_templates": [
+        "Pense à l'eau dans un tuyau. Le courant, c'est comme le débit d'eau. Qu'est-ce qui correspond à la pression ?",
+        "La loi d'Ohm relie trois grandeurs. Laquelle connais-tu déjà ?",
+        "Dessine le circuit. Quelle est la différence entre un circuit en série et en parallèle ?"
+      ]
+    },
+    {
+      "id": "rule_default",
+      "tags": [],
+      "hint_templates": [
+        "C'est une bonne question ! Essaie de reformuler le problème avec tes propres mots.",
+        "Qu'est-ce que tu sais déjà sur ce sujet ? Commence par là.",
+        "Relis l'étape précédente. Y a-t-il un indice qui peut t'aider ?"
+      ]
+    }
+  ],
+  "no_direct_answer_message": "Je ne peux pas te donner la réponse directement, mais je peux t'aider à la trouver toi-même. C'est comme ça qu'on apprend vraiment !",
+  "encouragement_messages": [
+    "Tu y es presque ! Continue.",
+    "Bonne réflexion ! Tu progresses.",
+    "Chaque erreur est une leçon. Réessaie !",
+    "Tu peux le faire ! Prends ton temps.",
+    "Excellent effort ! Continue dans cette direction."
+  ]
+}

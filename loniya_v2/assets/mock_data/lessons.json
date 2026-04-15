@@ -1,0 +1,83 @@
+[
+  {
+    "id": "lesson_001",
+    "title": "Les Fractions — Introduction",
+    "subject": "Mathématiques",
+    "grade_level": "CM2",
+    "situation": "Aminata partage une tarte en 8 parts égales. Elle en mange 3. Quelle partie de la tarte a-t-elle mangée ?",
+    "content_item_id": "item_001",
+    "estimated_minutes": 45,
+    "competencies": [
+      "Représenter une fraction comme partie d'un entier",
+      "Comparer des fractions simples",
+      "Résoudre des problèmes concrets avec des fractions"
+    ],
+    "tags": ["fractions", "cm2", "maths"],
+    "created_at": "2024-09-01T08:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "La situation",
+        "content": "Aminata a une tarte ronde. Elle la coupe en **8 parts égales**.\n\nElle mange **3 parts**.\n\nComment écrire ce qu'elle a mangé en mathématiques ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [
+          "Pense à comment on écrit une partie d'un tout en maths",
+          "Le total de parts est le dénominateur",
+          "Les parts mangées sont le numérateur"
+        ],
+        "keywords": ["tarte", "parts", "partager", "fractions", "écrire"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Découverte : Qu'est-ce qu'une fraction ?",
+        "content": "Une **fraction** s'écrit avec deux nombres séparés par une barre :\n\n$$\\frac{numérateur}{dénominateur}$$\n\n- Le **dénominateur** (bas) = nombre total de parts égales\n- Le **numérateur** (haut) = nombre de parts prises\n\nPour Aminata : elle a mangé **3/8** (trois huitièmes) de la tarte.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["fraction", "numérateur", "dénominateur", "définition"],
+        "xp_reward": 10
+      },
+      {
+        "index": 2,
+        "title": "Exercice : Écris la fraction",
+        "content": "Un gâteau est partagé en **6 parts égales**. Kofi en prend **2**.\n\nQuelle fraction représente ce que Kofi a pris ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "2/6",
+        "hints": [
+          "Combien de parts au total ?",
+          "Combien de parts Kofi a-t-il pris ?",
+          "La fraction s'écrit : parts prises / total de parts"
+        ],
+        "keywords": ["gâteau", "parts", "fraction", "exercice"],
+        "xp_reward": 20
+      },
+      {
+        "index": 3,
+        "title": "Comparer des fractions",
+        "content": "Pour comparer deux fractions avec le **même dénominateur**, on compare les numérateurs.\n\nExemple : 3/8 et 5/8\n- Les dénominateurs sont les mêmes (8)\n- On compare 3 et 5\n- 5 > 3 donc **5/8 > 3/8**",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["comparer", "fractions", "dénominateur", "numérateur", "plus grand"],
+        "xp_reward": 10
+      },
+      {
+        "index": 4,
+        "title": "Validation finale",
+        "content": "**Bravo !** Tu as appris les fractions.\n\nRécapitulatif :\n- Une fraction = numérateur / dénominateur\n- Numérateur = parties prises\n- Dénominateur = total de parts égales\n- Pour comparer (même dénominateur) : comparer les numérateurs\n\nTu gagnes **50 XP** pour avoir terminé cette leçon !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["validation", "fin", "résumé", "fractions"],
+        "xp_reward": 50
+      }
+    ]
+  }
+]
