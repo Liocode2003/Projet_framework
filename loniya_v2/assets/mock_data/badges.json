@@ -1,0 +1,82 @@
+[
+  {
+    "id": "badge_first_lesson",
+    "title": "Première leçon",
+    "description": "Félicitations ! Tu as terminé ta première leçon.",
+    "icon_asset": "assets/icons/badge_first.svg",
+    "category": "milestone",
+    "xp_reward": 100,
+    "condition": "Terminer sa première leçon",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_streak_3",
+    "title": "3 jours de suite",
+    "description": "Tu as appris 3 jours consécutifs. Continue !",
+    "icon_asset": "assets/icons/badge_streak_3.svg",
+    "category": "streak",
+    "xp_reward": 150,
+    "condition": "Maintenir une série de 3 jours",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_streak_7",
+    "title": "Semaine parfaite",
+    "description": "7 jours d'apprentissage consécutifs. Excellent !",
+    "icon_asset": "assets/icons/badge_streak_7.svg",
+    "category": "streak",
+    "xp_reward": 300,
+    "condition": "Maintenir une série de 7 jours",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_streak_30",
+    "title": "Mois de champion",
+    "description": "30 jours sans interruption. Tu es une légende !",
+    "icon_asset": "assets/icons/badge_streak_30.svg",
+    "category": "streak",
+    "xp_reward": 1000,
+    "condition": "Maintenir une série de 30 jours",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_maths_10",
+    "title": "Mathématicien",
+    "description": "10 leçons de Maths complétées.",
+    "icon_asset": "assets/icons/badge_maths.svg",
+    "category": "subject",
+    "xp_reward": 200,
+    "condition": "Compléter 10 leçons de Mathématiques",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_level_5",
+    "title": "Niveau 5 atteint",
+    "description": "Tu as atteint le niveau 5. Bien joué !",
+    "icon_asset": "assets/icons/badge_level5.svg",
+    "category": "milestone",
+    "xp_reward": 250,
+    "condition": "Atteindre le niveau 5",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_level_10",
+    "title": "Niveau 10",
+    "description": "Niveau 10 ! Tu deviens un expert.",
+    "icon_asset": "assets/icons/badge_level10.svg",
+    "category": "milestone",
+    "xp_reward": 500,
+    "condition": "Atteindre le niveau 10",
+    "unlocked_at": null
+  },
+  {
+    "id": "badge_offline_hero",
+    "title": "Héros offline",
+    "description": "5 leçons complétées sans connexion internet.",
+    "icon_asset": "assets/icons/badge_offline.svg",
+    "category": "special",
+    "xp_reward": 300,
+    "condition": "Compléter 5 leçons en mode hors-ligne",
+    "unlocked_at": null
+  }
+]
