@@ -1,38 +1,31 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 
-import '../../../../core/constants/hive_boxes.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
-import '../../../../core/widgets/app_button.dart';
+import '../providers/auth_notifier.dart';
+import '../providers/auth_state.dart';
 
-/// PIN creation screen — sets the local security PIN stored via AES-256.
-/// Phase 3 (Offline Core) will inject EncryptionService for real hashing.
-class AuthPinScreen extends StatefulWidget {
+class AuthPinScreen extends ConsumerStatefulWidget {
   const AuthPinScreen({super.key});
 
   @override
-  State<AuthPinScreen> createState() => _AuthPinScreenState();
+  ConsumerState<AuthPinScreen> createState() => _AuthPinScreenState();
 }
 
-class _AuthPinScreenState extends State<AuthPinScreen> {
+class _AuthPinScreenState extends ConsumerState<AuthPinScreen> {
   final List<String> _pin = [];
   final List<String> _confirmPin = [];
   bool _isConfirming = false;
-  String? _error;
-  bool _isLoading = false;
+  String? _localError;
 
   List<String> get _currentPin => _isConfirming ? _confirmPin : _pin;
 
   void _addDigit(String digit) {
     if (_currentPin.length >= 4) return;
-    setState(() {
-      _currentPin.add(digit);
-      _error = null;
-    });
+    setState(() { _currentPin.add(digit); _localError = null; });
     if (_currentPin.length == 4) _onPinComplete();
   }
 
@@ -44,36 +37,42 @@ class _AuthPinScreenState extends State<AuthPinScreen> {
   Future<void> _onPinComplete() async {
     if (!_isConfirming) {
       setState(() => _isConfirming = true);
-    } else {
-      // Compare PINs
-      if (_pin.join() != _confirmPin.join()) {
-        setState(() {
-          _error = 'Les codes ne correspondent pas. Réessayez.';
-          _confirmPin.clear();
-        });
-        return;
-      }
-      await _saveAndContinue();
+      return;
     }
-  }
-
-  Future<void> _saveAndContinue() async {
-    setState(() => _isLoading = true);
-
-    // Store a mock session — Phase 3 will encrypt properly
-    final box = Hive.box(HiveBoxes.sessions);
-    await box.put('current', {
-      'pin_set': true,
-      'created_at': DateTime.now().toIso8601String(),
-      'role': 'student', // Will come from auth role in Phase 4
-    });
-
-    if (!mounted) return;
-    context.go(RouteNames.home);
+    // Validate match
+    if (_pin.join() != _confirmPin.join()) {
+      setState(() {
+        _localError = 'Les codes ne correspondent pas. Réessayez.';
+        _confirmPin.clear();
+      });
+      return;
+    }
+    // Delegate to notifier
+    await ref.read(authNotifierProvider.notifier).createPin(_pin.join());
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AuthState>(authNotifierProvider, (_, next) {
+      if (!mounted) return;
+      if (next.status == AuthStatus.authenticated) {
+        context.go(RouteNames.home);
+      } else if (next.errorMessage != null) {
+        setState(() {
+          _localError = next.errorMessage;
+          _pin.clear();
+          _confirmPin.clear();
+          _isConfirming = false;
+        });
+        ref.read(authNotifierProvider.notifier).clearError();
+      }
+    });
+
+    final isLoading = ref.watch(
+      authNotifierProvider.select((s) => s.isLoading),
+    );
+    final displayError = _localError;
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(title: const Text('Code PIN')),
@@ -89,13 +88,11 @@ class _AuthPinScreenState extends State<AuthPinScreen> {
             Text(
               _isConfirming
                   ? 'Répétez votre code à 4 chiffres'
-                  : 'Ce code sécurise l\'accès à l\'application',
+                  : 'Ce code sécurisera l\'accès à l\'application',
               style: AppTextStyles.bodyMedium.copyWith(
-                color: AppColors.onSurfaceVariant,
-              ),
+                  color: AppColors.onSurfaceVariant),
             ),
             const SizedBox(height: 40),
-
             // PIN dots
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -104,13 +101,12 @@ class _AuthPinScreenState extends State<AuthPinScreen> {
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 150),
                   margin: const EdgeInsets.symmetric(horizontal: 10),
-                  width: 18,
-                  height: 18,
+                  width: 18, height: 18,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: filled ? AppColors.primary : AppColors.grey200,
                     border: Border.all(
-                      color: _error != null
+                      color: displayError != null
                           ? AppColors.error
                           : (filled ? AppColors.primary : AppColors.grey300),
                       width: 1.5,
@@ -119,22 +115,18 @@ class _AuthPinScreenState extends State<AuthPinScreen> {
                 );
               }),
             ),
-
-            if (_error != null) ...[
+            if (displayError != null) ...[
               const SizedBox(height: 16),
-              Text(
-                _error!,
-                style: AppTextStyles.bodySmall.copyWith(color: AppColors.error),
-              ),
+              Text(displayError,
+                style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.error)),
             ],
-
+            if (isLoading) ...[
+              const SizedBox(height: 24),
+              const CircularProgressIndicator(),
+            ],
             const Spacer(),
-
-            // Numpad
-            _NumPad(
-              onDigit: _addDigit,
-              onDelete: _removeDigit,
-            ),
+            _NumPad(onDigit: _addDigit, onDelete: _removeDigit),
             const SizedBox(height: 32),
           ],
         ),
@@ -146,22 +138,18 @@ class _AuthPinScreenState extends State<AuthPinScreen> {
 class _NumPad extends StatelessWidget {
   final ValueChanged<String> onDigit;
   final VoidCallback onDelete;
-
   const _NumPad({required this.onDigit, required this.onDelete});
+
+  static const _rows = [
+    ['1','2','3'], ['4','5','6'], ['7','8','9'], ['','0','del'],
+  ];
 
   @override
   Widget build(BuildContext context) {
-    const digits = [
-      ['1', '2', '3'],
-      ['4', '5', '6'],
-      ['7', '8', '9'],
-      ['', '0', 'del'],
-    ];
-
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40),
       child: Column(
-        children: digits.map((row) => Row(
+        children: _rows.map((row) => Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: row.map((d) {
             if (d.isEmpty) return const SizedBox(width: 72, height: 72);
@@ -185,7 +173,6 @@ class _NumPad extends StatelessWidget {
 class _NumKey extends StatelessWidget {
   final VoidCallback onTap;
   final Widget child;
-
   const _NumKey({required this.onTap, required this.child});
 
   @override
@@ -193,11 +180,9 @@ class _NumKey extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(36),
-      child: Container(
-        width: 72,
-        height: 72,
-        alignment: Alignment.center,
-        child: child,
+      child: SizedBox(
+        width: 72, height: 72,
+        child: Center(child: child),
       ),
     );
   }
