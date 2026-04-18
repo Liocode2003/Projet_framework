@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/services/database/database_service.dart';
+import '../../../../core/services/sync/sync_notifier.dart';
 import '../../data/models/badge_model.dart';
 import '../../data/models/gamification_model.dart';
 import '../../data/services/badge_evaluator.dart';
@@ -137,6 +138,18 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
       updated = updated.addXp(bonusXp);
     }
     await db.saveGamification(updated);
+
+    // Enqueue badge unlock sync actions
+    final userId = updated.userId;
+    final sync = _ref.read(syncNotifierProvider.notifier);
+    for (final id in newIds) {
+      await sync.enqueue(
+        type: 'gamification.badge',
+        entityId: '${userId}_$id',
+        payload: {'userId': userId, 'badgeId': id},
+      );
+    }
+
     return updated;
   }
 }

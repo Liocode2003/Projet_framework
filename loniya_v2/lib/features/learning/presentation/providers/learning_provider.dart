@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/failures.dart';
 import '../../../../core/services/database/database_service.dart';
+import '../../../../core/services/sync/sync_notifier.dart';
 import '../../data/datasources/learning_local_datasource.dart';
 import '../../data/models/progress_model.dart';
 import '../../data/repositories/learning_repository_impl.dart';
@@ -304,6 +305,31 @@ class LessonNotifier extends StateNotifier<AsyncValue<LessonState>> {
     await _ref
         .read(databaseServiceProvider)
         .addXp(userId, xp, subject: lesson.subject);
+
+    // Enqueue remote sync actions
+    final sync = _ref.read(syncNotifierProvider.notifier);
+    await sync.enqueue(
+      type: 'progress.update',
+      entityId: progress.id,
+      payload: {
+        'userId': userId,
+        'lessonId': lesson.id,
+        'currentStepIndex': progress.currentStepIndex,
+        'isCompleted': true,
+        'score': score,
+        'xpEarned': xp,
+        'startedAt': progress.startedAt,
+        'completedAt': progress.completedAt,
+        'completedSteps': progress.completedSteps,
+        'attempts': progress.attempts,
+        'version': progress.version,
+      },
+    );
+    await sync.enqueue(
+      type: 'gamification.xp',
+      entityId: userId,
+      payload: {'userId': userId, 'xp': xp, 'subject': lesson.subject},
+    );
 
     state = AsyncData(_s.copyWith(isSaving: false));
   }
