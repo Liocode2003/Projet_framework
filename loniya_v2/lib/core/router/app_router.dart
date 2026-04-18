@@ -24,6 +24,8 @@ import '../../features/orientation/presentation/screens/orientation_screen.dart'
 import '../../features/orientation/presentation/screens/orientation_result_screen.dart';
 import '../../features/teacher/presentation/screens/teacher_dashboard_screen.dart';
 import '../../features/local_classroom/presentation/screens/local_classroom_screen.dart';
+import '../../features/local_classroom/presentation/screens/local_classroom_host_screen.dart';
+import '../../features/local_classroom/presentation/screens/local_classroom_join_screen.dart';
 import '../constants/route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -186,6 +188,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.localClassroom,
             name: 'local-classroom',
             pageBuilder: (c, s) => _fade(s, const LocalClassroomScreen()),
+            routes: [
+              GoRoute(
+                path: 'host',
+                name: 'local-classroom-host',
+                pageBuilder: (c, s) =>
+                    _fade(s, const LocalClassroomHostScreen()),
+              ),
+              GoRoute(
+                path: 'join',
+                name: 'local-classroom-join',
+                pageBuilder: (c, s) =>
+                    _fade(s, const LocalClassroomJoinScreen()),
+              ),
+            ],
           ),
         ],
       ),
