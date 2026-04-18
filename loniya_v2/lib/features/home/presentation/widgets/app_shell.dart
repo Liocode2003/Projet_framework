@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/constants/route_names.dart';
+import '../../../../core/services/sync/sync_notifier.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/widgets/offline_banner.dart';
 import '../providers/shell_provider.dart';
@@ -75,8 +76,9 @@ class _AppShellState extends ConsumerState<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final isOffline = ref.watch(offlineStatusProvider);
-    final userRole = ref.watch(userRoleProvider);
+    final isOffline   = ref.watch(offlineStatusProvider);
+    final userRole    = ref.watch(userRoleProvider);
+    final syncPending = ref.watch(syncNotifierProvider).pendingCount;
 
     return Scaffold(
       body: Column(
@@ -91,21 +93,29 @@ class _AppShellState extends ConsumerState<AppShell> {
       bottomNavigationBar: NavigationBar(
         selectedIndex: _currentIndex,
         onDestinationSelected: _onItemTapped,
-        destinations: _buildDestinations(userRole),
+        destinations: _buildDestinations(userRole, syncPending),
       ),
     );
   }
 
-  List<NavigationDestination> _buildDestinations(String? role) {
-    final items = role == 'teacher'
-        ? _teacherNavItems
-        : _navItems;
+  List<NavigationDestination> _buildDestinations(String? role, int syncPending) {
+    final items = role == 'teacher' ? _teacherNavItems : _navItems;
 
-    return items.map((item) => NavigationDestination(
-      icon: Icon(item.icon),
-      selectedIcon: Icon(item.activeIcon),
-      label: item.label,
-    )).toList();
+    return items.map((item) {
+      // Show sync badge on the Accueil tab when there are pending actions
+      final showBadge = item.route == RouteNames.home && syncPending > 0;
+      return NavigationDestination(
+        icon: showBadge
+            ? Badge(
+                label: Text('$syncPending'),
+                backgroundColor: AppColors.warning,
+                child: Icon(item.icon),
+              )
+            : Icon(item.icon),
+        selectedIcon: Icon(item.activeIcon),
+        label: item.label,
+      );
+    }).toList();
   }
 
   static const List<_NavItem> _teacherNavItems = [
