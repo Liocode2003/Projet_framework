@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../../core/constants/route_names.dart';
+import '../../../../core/services/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../../../core/widgets/error_widget.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../teacher/data/models/purchase_model.dart';
 import '../../domain/entities/content_entity.dart';
 import '../providers/marketplace_provider.dart';
+
+// ── Purchase providers ─────────────────────────────────────────────────────────
+
+final _contentPriceProvider = Provider.family<int, String>((ref, contentId) {
+  final db = ref.read(databaseServiceProvider);
+  return db.getMarketplaceItem(contentId)?.priceFcfa ?? 0;
+});
+
+final _isPurchasedProvider = Provider.family<bool, String>((ref, contentId) {
+  final db = ref.read(databaseServiceProvider);
+  final userId = ref.read(authNotifierProvider).userId ?? '';
+  return db.hasPurchased(userId, contentId);
+});
+
+// ── Screen ────────────────────────────────────────────────────────────────────
 
 class MarketplaceDetailScreen extends ConsumerWidget {
   final String contentId;
@@ -54,12 +73,13 @@ class _DetailView extends ConsumerWidget {
     final progress     = dlState?.progress ?? 0.0;
     final hasError     = dlState?.hasError ?? false;
     final errorMsg     = dlState?.error;
+    final priceFcfa    = ref.watch(_contentPriceProvider(content.id));
+    final isPurchased  = ref.watch(_isPurchasedProvider(content.id));
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          // ─── Hero header ──────────────────────────────────────────────
           SliverAppBar(
             expandedHeight: 200,
             pinned: true,
@@ -95,12 +115,9 @@ class _DetailView extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-
-                // ─── Title ────────────────────────────────────────────
                 Text(content.title, style: AppTextStyles.headlineLarge),
                 const SizedBox(height: 12),
 
-                // ─── Meta chips ───────────────────────────────────────
                 Wrap(spacing: 8, runSpacing: 6, children: [
                   _MetaChip(content.gradeLevel, Icons.school_outlined),
                   _MetaChip(content.subject, Icons.book_outlined),
@@ -115,16 +132,25 @@ class _DetailView extends ConsumerWidget {
                     '${content.downloadCount} téléch.',
                     Icons.download_outlined,
                   ),
+                  // Price chip
+                  if (priceFcfa > 0)
+                    _MetaChip(
+                      isPurchased ? 'Acheté ✓' : '$priceFcfa FCFA',
+                      isPurchased
+                          ? Icons.check_circle_rounded
+                          : Icons.sell_rounded,
+                      color: isPurchased
+                          ? AppColors.success
+                          : AppColors.primary,
+                    ),
                 ]),
                 const SizedBox(height: 20),
 
-                // ─── Description ──────────────────────────────────────
                 Text('Description', style: AppTextStyles.titleMedium),
                 const SizedBox(height: 8),
                 Text(content.description, style: AppTextStyles.bodyMedium),
                 const SizedBox(height: 20),
 
-                // ─── Tags ─────────────────────────────────────────────
                 if (content.tags.isNotEmpty) ...[
                   Text('Mots-clés', style: AppTextStyles.titleMedium),
                   const SizedBox(height: 8),
@@ -139,13 +165,11 @@ class _DetailView extends ConsumerWidget {
                   const SizedBox(height: 20),
                 ],
 
-                // ─── Download progress ─────────────────────────────────
                 if (isDownloading) ...[
                   _ProgressCard(progress: progress),
                   const SizedBox(height: 16),
                 ],
 
-                // ─── Error ────────────────────────────────────────────
                 if (hasError && errorMsg != null) ...[
                   Container(
                     padding: const EdgeInsets.all(12),
@@ -167,7 +191,7 @@ class _DetailView extends ConsumerWidget {
                   const SizedBox(height: 16),
                 ],
 
-                // ─── Actions ──────────────────────────────────────────
+                // ── Actions ──────────────────────────────────────────
                 const SizedBox(height: 8),
                 if (content.isDownloaded) ...[
                   AppButton(
@@ -186,14 +210,22 @@ class _DetailView extends ConsumerWidget {
                     prefixIcon: Icons.delete_outline_rounded,
                     onPressed: () => _confirmDelete(context, ref),
                   ),
+                ] else if (priceFcfa > 0 && !isPurchased) ...[
+                  // Paid content not yet purchased
+                  AppButton(
+                    label: 'Acheter — $priceFcfa FCFA',
+                    prefixIcon: Icons.shopping_cart_rounded,
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: AppColors.onPrimary,
+                    onPressed: () =>
+                        _showPurchaseDialog(context, ref, priceFcfa),
+                  ),
                 ] else ...[
                   AppButton(
                     label: isDownloading
                         ? 'Téléchargement en cours...'
                         : 'Télécharger (${content.formattedSize})',
-                    prefixIcon: isDownloading
-                        ? null
-                        : Icons.download_rounded,
+                    prefixIcon: isDownloading ? null : Icons.download_rounded,
                     isLoading: isDownloading,
                     onPressed: isDownloading
                         ? null
@@ -207,6 +239,105 @@ class _DetailView extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showPurchaseDialog(
+      BuildContext context, WidgetRef ref, int price) {
+    final codeCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isLoading = false;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          title: const Text('Paiement mobile'),
+          content: Form(
+            key: formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Montant : $price FCFA\n'
+                  'Payez via Orange Money / Moov Money puis entrez le code de transaction.',
+                  style: AppTextStyles.bodySmall,
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: codeCtrl,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Code de transaction',
+                    hintText: 'Ex: 2401234567',
+                    prefixIcon: Icon(Icons.receipt_long_rounded),
+                  ),
+                  validator: (v) =>
+                      (v?.trim().length ?? 0) < 8
+                          ? 'Code trop court (min. 8 chiffres)'
+                          : null,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Annuler'),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: AppColors.onPrimary),
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (!formKey.currentState!.validate()) return;
+                      setState(() => isLoading = true);
+                      await Future.delayed(
+                          const Duration(seconds: 2)); // simulate
+
+                      final db = ref.read(databaseServiceProvider);
+                      final userId =
+                          ref.read(authNotifierProvider).userId ?? '';
+                      final item = db.getMarketplaceItem(content.id);
+
+                      final purchase = PurchaseModel(
+                        id: const Uuid().v4(),
+                        userId: userId,
+                        contentId: content.id,
+                        contentTitle: content.title,
+                        priceFcfa: price,
+                        purchasedAt: DateTime.now().toIso8601String(),
+                        paymentRef: codeCtrl.text.trim(),
+                        teacherId: item?.authorId ?? '',
+                      );
+                      await db.savePurchase(purchase);
+
+                      if (ctx.mounted) {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('Achat confirmé ! Vous pouvez maintenant télécharger.'),
+                            backgroundColor: AppColors.success,
+                          ),
+                        );
+                        // Invalidate to refresh purchase state
+                        ref.invalidate(_isPurchasedProvider(content.id));
+                      }
+                    },
+              child: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                          strokeWidth: 2, color: Colors.white))
+                  : Text('Payer $price FCFA'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -226,13 +357,10 @@ class _DetailView extends ConsumerWidget {
             child: const Text('Annuler'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error),
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () {
               Navigator.pop(context);
-              ref
-                  .read(downloadNotifierProvider.notifier)
-                  .delete(content.id);
+              ref.read(downloadNotifierProvider.notifier).delete(content.id);
             },
             child: const Text('Supprimer'),
           ),
@@ -260,12 +388,10 @@ class _ProgressCard extends StatelessWidget {
           const Icon(Icons.download_rounded, color: AppColors.info, size: 18),
           const SizedBox(width: 8),
           Text('Téléchargement en cours...',
-              style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.info)),
+              style: AppTextStyles.labelMedium.copyWith(color: AppColors.info)),
           const Spacer(),
           Text('${(progress * 100).toInt()}%',
-              style: AppTextStyles.labelMedium.copyWith(
-                  color: AppColors.info)),
+              style: AppTextStyles.labelMedium.copyWith(color: AppColors.info)),
         ]),
         const SizedBox(height: 8),
         ClipRRect(
@@ -278,10 +404,8 @@ class _ProgressCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Text(
-          'Compression + chiffrement AES-256 en cours',
-          style: AppTextStyles.caption,
-        ),
+        Text('Compression + chiffrement AES-256 en cours',
+            style: AppTextStyles.caption),
       ]),
     );
   }
@@ -306,8 +430,7 @@ class _MetaChip extends StatelessWidget {
       child: Row(mainAxisSize: MainAxisSize.min, children: [
         Icon(icon, size: 13, color: c),
         const SizedBox(width: 4),
-        Text(label,
-            style: AppTextStyles.labelSmall.copyWith(color: c)),
+        Text(label, style: AppTextStyles.labelSmall.copyWith(color: c)),
       ]),
     );
   }

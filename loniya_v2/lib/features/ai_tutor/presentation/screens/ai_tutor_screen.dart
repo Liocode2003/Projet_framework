@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/tts/tts_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../domain/entities/ai_message_entity.dart';
@@ -53,27 +54,39 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   Widget build(BuildContext context) {
     final chatState = ref.watch(aiTutorNotifierProvider);
     final aiContext = ref.watch(aiTutorContextProvider);
+    final ttsEnabled = ref.watch(ttsEnabledProvider);
 
     // Auto-scroll whenever messages change
-    ref.listen<AiTutorState>(aiTutorNotifierProvider, (_, __) {
+    ref.listen<AiTutorState>(aiTutorNotifierProvider, (prev, next) {
       _scrollToBottom();
+      // Speak new AI messages when TTS is enabled
+      if (ttsEnabled && next.messages.length > (prev?.messages.length ?? 0)) {
+        final last = next.messages.last;
+        if (!last.isFromUser) {
+          ref.read(ttsServiceProvider).speak(last.content);
+        }
+      }
     });
 
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Column(
         children: [
-          // ── Header ────────────────────────────────────────────────────
           _AiHeader(
+            ttsEnabled: ttsEnabled,
             onClear: () =>
                 ref.read(aiTutorNotifierProvider.notifier).clearChat(),
+            onToggleTts: () {
+              final newValue = !ttsEnabled;
+              ref.read(ttsEnabledProvider.notifier).state = newValue;
+              ref.read(ttsServiceProvider).setEnabled(newValue);
+              if (!newValue) ref.read(ttsServiceProvider).stop();
+            },
           ),
 
-          // ── Context banner ────────────────────────────────────────────
           if (aiContext != null)
             _ContextBanner(context: aiContext, ref: ref),
 
-          // ── Messages list ─────────────────────────────────────────────
           Expanded(
             child: ListView.builder(
               controller: _scroll,
@@ -89,11 +102,9 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
             ),
           ),
 
-          // ── Error banner ──────────────────────────────────────────────
           if (chatState.errorMessage != null)
             _ErrorBanner(message: chatState.errorMessage!),
 
-          // ── Input bar ─────────────────────────────────────────────────
           _InputBar(
             ctrl:     _ctrl,
             focus:    _focus,
@@ -109,8 +120,14 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
 // ─── Sub-widgets ──────────────────────────────────────────────────────────────
 
 class _AiHeader extends StatelessWidget {
+  final bool ttsEnabled;
   final VoidCallback onClear;
-  const _AiHeader({required this.onClear});
+  final VoidCallback onToggleTts;
+  const _AiHeader({
+    required this.ttsEnabled,
+    required this.onClear,
+    required this.onToggleTts,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +139,6 @@ class _AiHeader extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
           child: Row(children: [
-            // AI avatar
             Container(
               width: 40,
               height: 40,
@@ -169,6 +185,19 @@ class _AiHeader extends StatelessWidget {
                   ]),
                 ],
               ),
+            ),
+            // TTS toggle
+            IconButton(
+              tooltip: ttsEnabled
+                  ? 'Désactiver la voix'
+                  : 'Activer la lecture vocale',
+              icon: Icon(
+                ttsEnabled
+                    ? Icons.volume_up_rounded
+                    : Icons.volume_off_rounded,
+                color: ttsEnabled ? AppColors.aiTutor : AppColors.grey500,
+              ),
+              onPressed: onToggleTts,
             ),
             IconButton(
               tooltip: 'Nouvelle conversation',

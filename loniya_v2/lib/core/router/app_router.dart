@@ -18,18 +18,25 @@ import '../../features/marketplace/presentation/screens/marketplace_detail_scree
 import '../../features/learning/presentation/screens/learning_screen.dart';
 import '../../features/learning/presentation/screens/lesson_screen.dart';
 import '../../features/learning/presentation/screens/lesson_result_screen.dart';
+import '../../features/learning/presentation/screens/qcm_screen.dart';
+import '../../features/learning/presentation/screens/performance_screen.dart';
 import '../../features/ai_tutor/presentation/screens/ai_tutor_screen.dart';
 import '../../features/gamification/presentation/screens/gamification_screen.dart';
+import '../../features/gamification/presentation/screens/leaderboard_screen.dart';
 import '../../features/orientation/presentation/screens/orientation_screen.dart';
 import '../../features/orientation/presentation/screens/orientation_result_screen.dart';
 import '../../features/teacher/presentation/screens/teacher_dashboard_screen.dart';
+import '../../features/teacher/presentation/screens/teacher_subscription_screen.dart';
+import '../../features/teacher/presentation/screens/teacher_revenue_screen.dart';
 import '../../features/local_classroom/presentation/screens/local_classroom_screen.dart';
 import '../../features/local_classroom/presentation/screens/local_classroom_host_screen.dart';
 import '../../features/local_classroom/presentation/screens/local_classroom_join_screen.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/settings/presentation/screens/accessibility_screen.dart';
+import '../../features/parent/presentation/screens/parent_dashboard_screen.dart';
 import '../constants/route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
-  // Listenable that triggers router refresh when auth state changes
   final authListenable = _AuthStateListenable(ref);
 
   return GoRouter(
@@ -47,16 +54,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final isOnboarding = loc == RouteNames.onboarding;
       final isAuthRoute  = loc.startsWith('/auth');
 
-      // Never redirect while splash is doing its own routing
       if (isSplash) return null;
-      // Allow onboarding freely
       if (isOnboarding) return null;
-      // Wait for initial session check
       if (isInitial) return RouteNames.splash;
-
-      // Unauthenticated user trying to access app → send to auth
       if (!isAuthenticated && !isAuthRoute) return RouteNames.authPhone;
-      // Authenticated user hitting auth screens → send home
       if (isAuthenticated && isAuthRoute) return RouteNames.home;
 
       return null;
@@ -108,6 +109,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
+      // ─── Top-level pages (no bottom nav) ─────────────────────────────
+      GoRoute(
+        path: RouteNames.settings,
+        name: 'settings',
+        pageBuilder: (c, s) => _fade(s, const SettingsScreen()),
+        routes: [
+          GoRoute(
+            path: 'accessibility',
+            name: 'accessibility',
+            pageBuilder: (c, s) => _fade(s, const AccessibilityScreen()),
+          ),
+        ],
+      ),
+
+      GoRoute(
+        path: RouteNames.parentDashboard,
+        name: 'parent',
+        pageBuilder: (c, s) => _fade(s, const ParentDashboardScreen()),
+      ),
+
       // ─── Main shell (bottom navigation) ─────────────────────────────
       ShellRoute(
         builder: (context, state, child) => AppShell(child: child),
@@ -138,6 +159,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder: (c, s) => _fade(s, const LearningScreen()),
             routes: [
               GoRoute(
+                path: 'performance',
+                name: 'performance',
+                pageBuilder: (c, s) => _fade(s, const PerformanceScreen()),
+              ),
+              GoRoute(
                 path: ':lessonId',
                 name: 'lesson',
                 pageBuilder: (c, s) => _fade(
@@ -150,6 +176,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: 'lesson-result',
                     pageBuilder: (c, s) => _fade(
                       s, LessonResultScreen(
+                          lessonId: s.pathParameters['lessonId']!),
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'qcm',
+                    name: 'qcm',
+                    pageBuilder: (c, s) => _fade(
+                      s, QcmScreen(
                           lessonId: s.pathParameters['lessonId']!),
                     ),
                   ),
@@ -166,6 +200,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.gamification,
             name: 'gamification',
             pageBuilder: (c, s) => _fade(s, const GamificationScreen()),
+            routes: [
+              GoRoute(
+                path: 'leaderboard',
+                name: 'leaderboard',
+                pageBuilder: (c, s) => _fade(s, const LeaderboardScreen()),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.orientation,
@@ -175,19 +216,36 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'result',
                 name: 'orientation-result',
-                pageBuilder: (c, s) => _fade(s, const OrientationResultScreen()),
+                pageBuilder: (c, s) =>
+                    _fade(s, const OrientationResultScreen()),
               ),
             ],
           ),
           GoRoute(
             path: RouteNames.teacherDashboard,
             name: 'teacher',
-            pageBuilder: (c, s) => _fade(s, const TeacherDashboardScreen()),
+            pageBuilder: (c, s) =>
+                _fade(s, const TeacherDashboardScreen()),
+            routes: [
+              GoRoute(
+                path: 'subscription',
+                name: 'teacher-subscription',
+                pageBuilder: (c, s) =>
+                    _fade(s, const TeacherSubscriptionScreen()),
+              ),
+              GoRoute(
+                path: 'revenue',
+                name: 'teacher-revenue',
+                pageBuilder: (c, s) =>
+                    _fade(s, const TeacherRevenueScreen()),
+              ),
+            ],
           ),
           GoRoute(
             path: RouteNames.localClassroom,
             name: 'local-classroom',
-            pageBuilder: (c, s) => _fade(s, const LocalClassroomScreen()),
+            pageBuilder: (c, s) =>
+                _fade(s, const LocalClassroomScreen()),
             routes: [
               GoRoute(
                 path: 'host',
@@ -216,7 +274,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               Text('Page introuvable',
-                style: Theme.of(context).textTheme.headlineSmall),
+                  style: Theme.of(context).textTheme.headlineSmall),
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: () => context.go(RouteNames.home),
@@ -230,7 +288,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   );
 });
 
-// ─── Fade page transition (low-end optimized) ─────────────────────────────────
 CustomTransitionPage _fade(GoRouterState state, Widget child) {
   return CustomTransitionPage(
     key: state.pageKey,
@@ -244,7 +301,6 @@ CustomTransitionPage _fade(GoRouterState state, Widget child) {
   );
 }
 
-// ─── Listenable that notifies GoRouter when auth state changes ────────────────
 class _AuthStateListenable extends ChangeNotifier {
   _AuthStateListenable(Ref ref) {
     ref.listen<AuthState>(authNotifierProvider, (_, __) => notifyListeners());

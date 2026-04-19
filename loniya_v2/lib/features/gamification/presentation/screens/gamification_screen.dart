@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_overlay.dart';
@@ -25,7 +27,6 @@ class GamificationScreen extends ConsumerWidget {
     final g      = gs.data;
     final badges = gs.mergedBadges;
 
-    // Badge unlock snackbar
     ref.listen<GamificationState>(gamificationNotifierProvider, (_, next) {
       if (next.newlyUnlockedIds.isNotEmpty) {
         final names = next.newlyUnlockedIds
@@ -41,7 +42,7 @@ class GamificationScreen extends ConsumerWidget {
                   color: AppColors.xpGold),
               const SizedBox(width: 8),
               Expanded(
-                child: Text('Badge débloqué : $names ! 🎉',
+                child: Text('Badge débloqué : $names !',
                     style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
             ]),
@@ -60,20 +61,36 @@ class GamificationScreen extends ConsumerWidget {
             ref.read(gamificationNotifierProvider.notifier).refresh(),
         child: CustomScrollView(
           slivers: [
-            // ── App bar ────────────────────────────────────────────────
             SliverAppBar(
               expandedHeight: 80,
               pinned: true,
+              actions: [
+                IconButton(
+                  tooltip: 'Classement',
+                  icon: const Icon(Icons.leaderboard_rounded,
+                      color: Colors.white),
+                  onPressed: () => context.push(RouteNames.leaderboard),
+                ),
+                IconButton(
+                  tooltip: 'Performances',
+                  icon: const Icon(Icons.bar_chart_rounded,
+                      color: Colors.white),
+                  onPressed: () => context.push(RouteNames.performance),
+                ),
+                IconButton(
+                  tooltip: 'Paramètres',
+                  icon: const Icon(Icons.settings_rounded,
+                      color: Colors.white),
+                  onPressed: () => context.push(RouteNames.settings),
+                ),
+              ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.levelPurple,
-                        Color(0xFF4A148C),
-                      ],
+                      colors: [AppColors.levelPurple, Color(0xFF4A148C)],
                     ),
                   ),
                 ),
@@ -90,8 +107,7 @@ class GamificationScreen extends ConsumerWidget {
                     ),
                   ),
                 ]),
-                titlePadding:
-                    const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                titlePadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                 collapseMode: CollapseMode.pin,
               ),
             ),
@@ -103,14 +119,10 @@ class GamificationScreen extends ConsumerWidget {
             else
               SliverList(
                 delegate: SliverChildListDelegate([
-                  // XP / Level card
                   XpLevelCard(g: g),
-
-                  // Streak card
                   StreakCard(g: g),
                   const SizedBox(height: 4),
 
-                  // ── Daily missions ───────────────────────────────────
                   _Section(
                     title: 'Missions du jour',
                     icon: Icons.flag_rounded,
@@ -122,10 +134,8 @@ class GamificationScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // ── Badges ───────────────────────────────────────────
                   _Section(
-                    title:
-                        'Badges (${g.unlockedBadgeIds.length}/${badges.length})',
+                    title: 'Badges (${g.unlockedBadgeIds.length}/${badges.length})',
                     icon: Icons.military_tech_rounded,
                     iconColor: AppColors.levelPurple,
                     child: badges.isEmpty
@@ -135,8 +145,7 @@ class GamificationScreen extends ConsumerWidget {
                           )
                         : GridView.builder(
                             shrinkWrap: true,
-                            physics:
-                                const NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3,
@@ -145,8 +154,7 @@ class GamificationScreen extends ConsumerWidget {
                               childAspectRatio: 0.82,
                             ),
                             itemCount: badges.length,
-                            itemBuilder: (_, i) =>
-                                BadgeCard(badge: badges[i]),
+                            itemBuilder: (_, i) => BadgeCard(badge: badges[i]),
                           ),
                   ),
 
@@ -160,7 +168,6 @@ class GamificationScreen extends ConsumerWidget {
   }
 }
 
-// ─── Section wrapper ──────────────────────────────────────────────────────────
 class _Section extends StatelessWidget {
   final String title;
   final IconData icon;

@@ -17,6 +17,8 @@ class HiveBoxes {
   static const String orientation = 'orientation';
   static const String classroom = 'classroom';
   static const String marketplace = 'marketplace';
+  static const String subscriptions = 'subscriptions';
+  static const String purchases = 'purchases';
 }
 
 // Hive type IDs — must be unique across all models
@@ -37,4 +39,6 @@ class HiveTypeIds {
   static const int marketplaceItemModel = 11;
   static const int lessonModel = 12;
   static const int stepModel = 13;
+  static const int subscriptionModel = 14;
+  static const int purchaseModel = 15;
 }

@@ -7,20 +7,21 @@ part 'marketplace_item_model.g.dart';
 class MarketplaceItemModel extends HiveObject {
   @HiveField(0)  final String id;
   @HiveField(1)  final String title;
-  @HiveField(2)  final String subject;       // Maths, Français, Sciences…
-  @HiveField(3)  final String gradeLevel;    // CM2, 6ème, 3ème…
-  @HiveField(4)  final String type;          // lesson | exercise | video | document
+  @HiveField(2)  final String subject;
+  @HiveField(3)  final String gradeLevel;
+  @HiveField(4)  final String type;
   @HiveField(5)  final String description;
   @HiveField(6)  final String? thumbnailPath;
   @HiveField(7)  final int fileSizeBytes;
   @HiveField(8)  final bool isDownloaded;
-  @HiveField(9)  final String? localPath;    // path after download
+  @HiveField(9)  final String? localPath;
   @HiveField(10) final String createdAt;
   @HiveField(11) final String authorId;
   @HiveField(12) final List<String> tags;
   @HiveField(13) final int downloadCount;
-  @HiveField(14) final double rating;        // 0.0 – 5.0
+  @HiveField(14) final double rating;
   @HiveField(15) final bool isEncrypted;
+  @HiveField(16) final int priceFcfa;   // 0 = free, else price in FCFA
 
   MarketplaceItemModel({
     required this.id,
@@ -39,7 +40,10 @@ class MarketplaceItemModel extends HiveObject {
     this.downloadCount = 0,
     this.rating = 0.0,
     this.isEncrypted = true,
+    this.priceFcfa = 0,
   });
+
+  bool get isFree => priceFcfa == 0;
 
   factory MarketplaceItemModel.fromJson(Map<String, dynamic> j) =>
       MarketplaceItemModel(
@@ -59,6 +63,7 @@ class MarketplaceItemModel extends HiveObject {
         downloadCount: j['download_count'] as int? ?? 0,
         rating: (j['rating'] as num?)?.toDouble() ?? 0.0,
         isEncrypted: j['is_encrypted'] as bool? ?? true,
+        priceFcfa: j['price_fcfa'] as int? ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -78,6 +83,7 @@ class MarketplaceItemModel extends HiveObject {
         'download_count': downloadCount,
         'rating': rating,
         'is_encrypted': isEncrypted,
+        'price_fcfa': priceFcfa,
       };
 
   MarketplaceItemModel copyWith({
@@ -85,6 +91,7 @@ class MarketplaceItemModel extends HiveObject {
     String? localPath,
     int? downloadCount,
     double? rating,
+    int? priceFcfa,
   }) =>
       MarketplaceItemModel(
         id: id, title: title, subject: subject, gradeLevel: gradeLevel,
@@ -95,6 +102,7 @@ class MarketplaceItemModel extends HiveObject {
         localPath: localPath ?? this.localPath,
         downloadCount: downloadCount ?? this.downloadCount,
         rating: rating ?? this.rating,
+        priceFcfa: priceFcfa ?? this.priceFcfa,
       );
 }
 
@@ -122,6 +130,7 @@ class MarketplaceItemModelAdapter extends TypeAdapter<MarketplaceItemModel> {
       downloadCount: f[13] as int? ?? 0,
       rating: (f[14] as num?)?.toDouble() ?? 0.0,
       isEncrypted: f[15] as bool? ?? true,
+      priceFcfa: f[16] as int? ?? 0,
     );
   }
 
@@ -133,6 +142,7 @@ class MarketplaceItemModelAdapter extends TypeAdapter<MarketplaceItemModel> {
       7: obj.fileSizeBytes, 8: obj.isDownloaded, 9: obj.localPath,
       10: obj.createdAt, 11: obj.authorId, 12: obj.tags,
       13: obj.downloadCount, 14: obj.rating, 15: obj.isEncrypted,
+      16: obj.priceFcfa,
     });
   }
 }
