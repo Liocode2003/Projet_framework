@@ -1,5 +1,3 @@
-// Named routes for GoRouter
-
 class RouteNames {
   RouteNames._();
 
@@ -20,33 +18,29 @@ class RouteNames {
   // Marketplace
   static const String marketplace = '/marketplace';
   static const String marketplaceDetail = '/marketplace/:id';
-  static const String marketplaceDownload = '/marketplace/:id/download';
 
   // Learning
   static const String learning = '/learning';
   static const String learningLesson = '/learning/:lessonId';
-  static const String learningStep = '/learning/:lessonId/step/:stepIndex';
   static const String learningResult = '/learning/:lessonId/result';
+  static const String qcm = '/learning/:lessonId/qcm';
+  static const String performance = '/learning/performance';
 
   // AI Tutor
   static const String aiTutor = '/ai-tutor';
 
   // Gamification
   static const String gamification = '/gamification';
-  static const String badges = '/gamification/badges';
-  static const String missions = '/gamification/missions';
   static const String leaderboard = '/gamification/leaderboard';
 
   // Orientation
   static const String orientation = '/orientation';
   static const String orientationResult = '/orientation/result';
-  static const String orientationReport = '/orientation/report';
 
   // Teacher
   static const String teacherDashboard = '/teacher';
-  static const String teacherClassroom = '/teacher/classroom';
-  static const String teacherStudents = '/teacher/students';
-  static const String teacherContent = '/teacher/content';
+  static const String teacherSubscription = '/teacher/subscription';
+  static const String teacherRevenue = '/teacher/revenue';
 
   // Local Classroom
   static const String localClassroom = '/local-classroom';
@@ -55,6 +49,8 @@ class RouteNames {
 
   // Settings
   static const String settings = '/settings';
-  static const String settingsProfile = '/settings/profile';
-  static const String settingsLanguage = '/settings/language';
+  static const String accessibility = '/settings/accessibility';
+
+  // Parent
+  static const String parentDashboard = '/parent';
 }

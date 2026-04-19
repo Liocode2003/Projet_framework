@@ -26,6 +26,8 @@ import 'features/marketplace/data/models/marketplace_item_model.dart';
 import 'features/ai_tutor/data/models/ai_cache_entry_model.dart';
 import 'features/local_classroom/data/models/classroom_model.dart';
 import 'features/orientation/data/models/orientation_result_model.dart';
+import 'features/teacher/data/models/subscription_model.dart';
+import 'features/teacher/data/models/purchase_model.dart';
 
 Future<void> main() async {
   // ── Error handlers (installed before runApp) ─────────────────────────────
@@ -89,4 +91,6 @@ void _registerHiveAdapters() {
   reg(OrientationResultModelAdapter());
   reg(AiCacheEntryModelAdapter());
   reg(ClassroomModelAdapter());
+  reg(SubscriptionModelAdapter());
+  reg(PurchaseModelAdapter());
 }

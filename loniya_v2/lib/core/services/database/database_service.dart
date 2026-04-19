@@ -13,10 +13,9 @@ import '../../../features/gamification/data/models/badge_model.dart';
 import '../../../features/marketplace/data/models/marketplace_item_model.dart';
 import '../../../features/ai_tutor/data/models/ai_cache_entry_model.dart';
 import '../../../features/local_classroom/data/models/classroom_model.dart';
+import '../../../features/teacher/data/models/subscription_model.dart';
+import '../../../features/teacher/data/models/purchase_model.dart';
 
-/// High-level database service — single API for all local persistence.
-/// All repositories use this instead of Hive directly, keeping
-/// the data layer cleanly decoupled from the storage implementation.
 class DatabaseService {
   const DatabaseService();
 
@@ -81,6 +80,12 @@ class DatabaseService {
     return getAllMarketplaceItems().where((i) => i.isDownloaded).toList();
   }
 
+  List<MarketplaceItemModel> getTeacherPublishedItems(String teacherId) {
+    return getAllMarketplaceItems()
+        .where((i) => i.authorId == teacherId)
+        .toList();
+  }
+
   List<MarketplaceItemModel> filterItems({
     String? subject,
     String? gradeLevel,
@@ -126,21 +131,14 @@ class DatabaseService {
     return (existing as GamificationModel?) ?? GamificationModel.empty(userId);
   }
 
-  Future<GamificationModel> addXp(
-    String userId,
-    int xp, {
-    String? subject,
-  }) async {
+  Future<GamificationModel> addXp(String userId, int xp, {String? subject}) async {
     final current = getOrCreateGamification(userId);
     final updated = current.addXp(xp, subject: subject).updateStreak();
     await saveGamification(updated);
     return updated;
   }
 
-  Future<GamificationModel> unlockBadge(
-    String userId,
-    String badgeId,
-  ) async {
+  Future<GamificationModel> unlockBadge(String userId, String badgeId) async {
     final current = getOrCreateGamification(userId);
     if (current.unlockedBadgeIds.contains(badgeId)) return current;
     final updated = current.copyWith(
@@ -148,6 +146,14 @@ class DatabaseService {
     );
     await saveGamification(updated);
     return updated;
+  }
+
+  List<GamificationModel> getLeaderboard() {
+    return Hive.box(HiveBoxes.gamification)
+        .values
+        .whereType<GamificationModel>()
+        .toList()
+      ..sort((a, b) => b.totalXp.compareTo(a.totalXp));
   }
 
   // ─── BADGES ──────────────────────────────────────────────────────────
@@ -246,28 +252,70 @@ class DatabaseService {
         .firstOrNull;
   }
 
-  // ─── GLOBAL UTILS ────────────────────────────────────────────────────
+  // ─── SUBSCRIPTIONS ───────────────────────────────────────────────────
+  Future<void> saveSubscription(SubscriptionModel sub) async {
+    await Hive.box(HiveBoxes.subscriptions).put(sub.userId, sub);
+  }
 
-  /// Returns total size (in bytes) of all downloaded content.
+  SubscriptionModel? getSubscription(String userId) {
+    return Hive.box(HiveBoxes.subscriptions).get(userId) as SubscriptionModel?;
+  }
+
+  bool hasActiveSubscription(String userId) {
+    return getSubscription(userId)?.isValid ?? false;
+  }
+
+  // ─── PURCHASES ───────────────────────────────────────────────────────
+  Future<void> savePurchase(PurchaseModel purchase) async {
+    await Hive.box(HiveBoxes.purchases).put(purchase.id, purchase);
+  }
+
+  List<PurchaseModel> getUserPurchases(String userId) {
+    return Hive.box(HiveBoxes.purchases)
+        .values
+        .whereType<PurchaseModel>()
+        .where((p) => p.userId == userId)
+        .toList();
+  }
+
+  List<PurchaseModel> getTeacherRevenue(String teacherId) {
+    return Hive.box(HiveBoxes.purchases)
+        .values
+        .whereType<PurchaseModel>()
+        .where((p) => p.teacherId == teacherId)
+        .toList()
+      ..sort((a, b) => b.purchasedAt.compareTo(a.purchasedAt));
+  }
+
+  bool hasPurchased(String userId, String contentId) {
+    return Hive.box(HiveBoxes.purchases)
+        .values
+        .whereType<PurchaseModel>()
+        .any((p) => p.userId == userId && p.contentId == contentId);
+  }
+
+  int teacherTotalEarnings(String teacherId) {
+    return getTeacherRevenue(teacherId).fold(0, (s, p) => s + p.priceFcfa);
+  }
+
+  // ─── GLOBAL UTILS ────────────────────────────────────────────────────
   int get downloadedContentSizeBytes {
     return getDownloadedItems().fold(0, (sum, i) => sum + i.fileSizeBytes);
   }
 
-  /// Clears all non-encrypted user data (for logout / account reset).
   Future<void> clearUserData(String userId) async {
     await clearSession();
     final box = Hive.box(HiveBoxes.gamification);
     await box.delete(userId);
-    // Progress and content are retained (offline value)
   }
 
-  /// Full factory wipe — called on account deletion only.
   Future<void> clearAll() async {
     for (final boxName in [
       HiveBoxes.users, HiveBoxes.sessions, HiveBoxes.contents,
       HiveBoxes.progress, HiveBoxes.gamification, HiveBoxes.syncQueue,
       HiveBoxes.aiCache, HiveBoxes.settings, HiveBoxes.orientation,
       HiveBoxes.classroom, HiveBoxes.marketplace,
+      HiveBoxes.subscriptions, HiveBoxes.purchases,
     ]) {
       await Hive.box(boxName).clear();
     }

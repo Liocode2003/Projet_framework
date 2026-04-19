@@ -5,40 +5,46 @@ import 'core/router/app_router.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_text_styles.dart';
 import 'core/theme/app_theme.dart';
+import 'features/settings/presentation/providers/settings_provider.dart';
 
 class LoniyaApp extends ConsumerWidget {
   const LoniyaApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final router = ref.watch(appRouterProvider);
+    final router   = ref.watch(appRouterProvider);
+    final settings = ref.watch(currentSettingsProvider);
+
+    final ThemeData activeLight = settings.isHighContrast
+        ? _highContrastTheme
+        : AppTheme.lightTheme;
+    final ThemeData activeDark = settings.isHighContrast
+        ? _highContrastTheme
+        : AppTheme.darkTheme;
+    final ThemeMode themeMode = settings.isHighContrast
+        ? ThemeMode.dark
+        : (settings.darkMode ? ThemeMode.dark : ThemeMode.system);
 
     return MaterialApp.router(
       title: 'LONIYA V2',
       debugShowCheckedModeBanner: false,
 
-      theme:     AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      theme:     activeLight,
+      darkTheme: activeDark,
+      themeMode: themeMode,
 
       routerConfig: router,
 
       locale: const Locale('fr', 'BF'),
-      supportedLocales: const [
-        Locale('fr', 'BF'),
-        Locale('fr'),
-      ],
+      supportedLocales: const [Locale('fr', 'BF'), Locale('fr')],
 
-      // Global widget-tree error boundary — catches errors during build/layout.
       builder: (context, child) {
-        // Clamp text scaling so layout never breaks on accessibility settings
         final media = MediaQuery.of(context);
-        final bounded = media.copyWith(
-          textScaler: media.textScaler.clamp(
-            minScaleFactor: 0.8,
-            maxScaleFactor: 1.3,
-          ),
-        );
+        // Large-text mode locks to 1.3×; otherwise honour system within 0.8–1.3
+        final scale = settings.isLargeText
+            ? 1.3
+            : media.textScaler.scale(1.0).clamp(0.8, 1.3);
+        final bounded = media.copyWith(textScaler: TextScaler.linear(scale));
         return MediaQuery(
           data: bounded,
           child: _AppErrorBoundary(child: child ?? const SizedBox.shrink()),
@@ -46,6 +52,34 @@ class LoniyaApp extends ConsumerWidget {
       },
     );
   }
+
+  // High-contrast theme: black background, gold primary, white text
+  static final ThemeData _highContrastTheme = ThemeData(
+    brightness: Brightness.dark,
+    colorScheme: const ColorScheme.dark(
+      primary: Color(0xFFFFD700),
+      onPrimary: Colors.black,
+      secondary: Color(0xFF00FF88),
+      onSecondary: Colors.black,
+      surface: Color(0xFF121212),
+      onSurface: Colors.white,
+      error: Color(0xFFFF5252),
+      onError: Colors.black,
+    ),
+    scaffoldBackgroundColor: Colors.black,
+    appBarTheme: const AppBarTheme(
+      backgroundColor: Colors.black,
+      foregroundColor: Color(0xFFFFD700),
+      elevation: 0,
+    ),
+    iconTheme: const IconThemeData(color: Color(0xFFFFD700)),
+    switchTheme: SwitchThemeData(
+      thumbColor: WidgetStateProperty.all(const Color(0xFFFFD700)),
+      trackColor: WidgetStateProperty.all(
+          const Color(0xFFFFD700).withOpacity(0.3)),
+    ),
+    useMaterial3: true,
+  );
 }
 
 // ─── Error boundary ───────────────────────────────────────────────────────────
@@ -78,12 +112,8 @@ class _AppErrorBoundaryState extends State<_AppErrorBoundary> {
     return widget.child;
   }
 
-  // Called by ErrorWidget when an uncaught error occurs in the widget tree
   static Widget errorBuilder(FlutterErrorDetails details) {
-    return _FatalErrorScreen(
-      error: details.exception,
-      onRetry: null,
-    );
+    return _FatalErrorScreen(error: details.exception, onRetry: null);
   }
 }
 
@@ -114,8 +144,8 @@ class _FatalErrorScreen extends StatelessWidget {
                 Text(
                   'L\'application a rencontré un problème. '
                   'Vos données locales sont sécurisées.',
-                  style: AppTextStyles.bodySmall.copyWith(
-                      color: AppColors.onSurfaceVariant),
+                  style: AppTextStyles.bodySmall
+                      .copyWith(color: AppColors.onSurfaceVariant),
                   textAlign: TextAlign.center,
                 ),
                 if (onRetry != null) ...[
