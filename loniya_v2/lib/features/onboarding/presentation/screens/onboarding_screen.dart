@@ -6,7 +6,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../../../core/constants/hive_boxes.dart';
 import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -24,32 +23,36 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
   static const _slides = [
     _Slide(
-      icon:     Icons.school_rounded,
-      gradient: [AppColors.primary, AppColors.primaryDark],
-      title:    'Apprends sans internet',
+      icon: Icons.school_rounded,
+      emoji: '📚',
+      colors: [Color(0xFF1A0A3E), AppColors.primaryDark, AppColors.primary],
+      title: 'Apprends sans internet',
       body:
-          'Tous tes cours APC sont disponibles hors ligne. Télécharge une fois et apprends partout — en classe, à la maison, au village.',
+          'Tous tes cours APC disponibles hors ligne. Télécharge une fois, apprends partout — en classe, à la maison, au village.',
     ),
     _Slide(
-      icon:     Icons.psychology_rounded,
-      gradient: [AppColors.aiTutor, Color(0xFF4A0072)],
-      title:    'Ton tuteur IA personnel',
+      icon: Icons.psychology_rounded,
+      emoji: '🤖',
+      colors: [Color(0xFF3D0030), Color(0xFF8B0050), AppColors.pink],
+      title: 'Ton tuteur IA',
       body:
-          'Pose tes questions à l\'assistant intelligent. Il te guide étape par étape sans jamais donner les réponses directement.',
+          'Pose tes questions à l\'assistant intelligent. Il te guide pas à pas, avec voix et explications personnalisées.',
     ),
     _Slide(
-      icon:     Icons.emoji_events_rounded,
-      gradient: [AppColors.gamification, Color(0xFFBF360C)],
-      title:    'Joue et progresse',
+      icon: Icons.emoji_events_rounded,
+      emoji: '🏆',
+      colors: [Color(0xFF3D2A00), Color(0xFF8B6000), AppColors.gold],
+      title: 'Joue et progresse',
       body:
-          'Gagne des XP, débloque des badges et monte en niveau chaque jour. L\'apprentissage devient une aventure.',
+          'Gagne des XP, débloque des badges, grimpe au classement. L\'apprentissage devient une aventure passionnante.',
     ),
     _Slide(
-      icon:     Icons.wifi_rounded,
-      gradient: [AppColors.localNetwork, Color(0xFF1A237E)],
-      title:    'Classe sans internet',
+      icon: Icons.wifi_rounded,
+      emoji: '📡',
+      colors: [Color(0xFF003D35), Color(0xFF006B60), AppColors.teal],
+      title: 'Classe sans réseau',
       body:
-          'L\'enseignant partage ses cours via Wi-Fi local. Les élèves reçoivent tout instantanément — pas besoin de réseau mobile.',
+          'L\'enseignant partage ses cours via Wi-Fi local. Les élèves reçoivent tout instantanément — zéro réseau mobile.',
     ),
   ];
 
@@ -58,7 +61,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     super.initState();
     _iconController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 700),
     )..forward();
   }
 
@@ -79,8 +82,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
   void _next() {
     if (_current < _slides.length - 1) {
       _pages.nextPage(
-          duration: const Duration(milliseconds: 350),
-          curve: Curves.easeInOut);
+          duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
     } else {
       _finish();
     }
@@ -98,30 +100,58 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
 
     return Scaffold(
       body: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 450),
+        curve: Curves.easeInOut,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: slide.gradient,
+            colors: slide.colors,
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
         ),
         child: SafeArea(
           child: Column(children: [
-            // ── Skip ────────────────────────────────────────────────────
-            Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: TextButton(
-                  onPressed: _finish,
-                  style: TextButton.styleFrom(foregroundColor: Colors.white70),
-                  child: const Text('Passer'),
-                ),
+            // ── Skip ──────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Page indicator dots
+                  Row(
+                    children: List.generate(_slides.length, (i) {
+                      final active = i == _current;
+                      return AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        margin: const EdgeInsets.only(right: 6),
+                        width: active ? 24 : 7,
+                        height: 7,
+                        decoration: BoxDecoration(
+                          color: active
+                              ? Colors.white
+                              : Colors.white.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      );
+                    }),
+                  ),
+                  TextButton(
+                    onPressed: _finish,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white70,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 6),
+                      shape: const StadiumBorder(),
+                      side: BorderSide(color: Colors.white24),
+                    ),
+                    child: const Text('Passer',
+                        style: TextStyle(fontFamily: 'Nunito')),
+                  ),
+                ],
               ),
             ),
 
-            // ── PageView ─────────────────────────────────────────────────
+            // ── PageView ──────────────────────────────────────────────────
             Expanded(
               child: PageView.builder(
                 controller: _pages,
@@ -135,45 +165,52 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
               ),
             ),
 
-            // ── Dots ──────────────────────────────────────────────────────
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_slides.length, (i) {
-                final active = i == _current;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: active ? 28 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: active
-                        ? Colors.white
-                        : Colors.white.withOpacity(0.35),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                );
-              }),
-            ),
-
-            const SizedBox(height: 32),
-
-            // ── CTA ───────────────────────────────────────────────────────
+            // ── CTA Button ────────────────────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: AppButton(
-                label: _current == _slides.length - 1
-                    ? 'Commencer'
-                    : 'Suivant',
-                prefixIcon: _current == _slides.length - 1
-                    ? Icons.rocket_launch_rounded
-                    : Icons.arrow_forward_rounded,
-                backgroundColor: Colors.white,
-                foregroundColor: slide.gradient.first,
-                onPressed: _next,
+              padding: const EdgeInsets.fromLTRB(28, 0, 28, 36),
+              child: GestureDetector(
+                onTap: _next,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.15),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        _current == _slides.length - 1
+                            ? 'Commencer'
+                            : 'Suivant',
+                        style: TextStyle(
+                          color: slide.colors.last,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w800,
+                          fontFamily: 'Nunito',
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Icon(
+                        _current == _slides.length - 1
+                            ? Icons.rocket_launch_rounded
+                            : Icons.arrow_forward_rounded,
+                        color: slide.colors.last,
+                        size: 20,
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-
-            const SizedBox(height: 32),
           ]),
         ),
       ),
@@ -199,33 +236,64 @@ class _SlideContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Animated icon
+          // Animated icon with emoji
           ScaleTransition(
             scale: CurvedAnimation(
               parent: iconController,
               curve: Curves.elasticOut,
             ),
-            child: Container(
-              width: 130,
-              height: 130,
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.18),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(slide.icon, size: 64, color: Colors.white),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                // Outer glow ring
+                Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                ),
+                // Inner circle
+                Container(
+                  width: 120,
+                  height: 120,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white.withOpacity(0.15),
+                  ),
+                  child: Center(
+                    child: Text(slide.emoji,
+                        style: const TextStyle(fontSize: 56)),
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(height: 48),
+
+          const SizedBox(height: 44),
+
           Text(
             slide.title,
-            style: AppTextStyles.headlineLarge.copyWith(
-                color: Colors.white, fontWeight: FontWeight.w800),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w900,
+              fontFamily: 'Nunito',
+            ),
             textAlign: TextAlign.center,
           ),
+
           const SizedBox(height: 16),
+
           Text(
             slide.body,
-            style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.75),
+              fontSize: 15,
+              height: 1.6,
+              fontFamily: 'Nunito',
+            ),
             textAlign: TextAlign.center,
           ),
         ],
@@ -236,12 +304,15 @@ class _SlideContent extends StatelessWidget {
 
 class _Slide {
   final IconData icon;
-  final List<Color> gradient;
+  final String emoji;
+  final List<Color> colors;
   final String title;
   final String body;
+
   const _Slide({
     required this.icon,
-    required this.gradient,
+    required this.emoji,
+    required this.colors,
     required this.title,
     required this.body,
   });
