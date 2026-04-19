@@ -16,138 +16,181 @@ class OnboardingScreen extends ConsumerStatefulWidget {
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
 
-class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
+    with TickerProviderStateMixin {
+  final PageController _pages = PageController();
+  late AnimationController _iconController;
+  int _current = 0;
 
-  static const List<_OnboardingPage> _pages = [
-    _OnboardingPage(
-      icon: Icons.school_rounded,
-      color: AppColors.primary,
-      title: 'Apprends sans internet',
-      subtitle:
-          'Tous tes cours APC sont disponibles même sans connexion. Télécharge et apprends où tu veux.',
+  static const _slides = [
+    _Slide(
+      icon:     Icons.school_rounded,
+      gradient: [AppColors.primary, AppColors.primaryDark],
+      title:    'Apprends sans internet',
+      body:
+          'Tous tes cours APC sont disponibles hors ligne. Télécharge une fois et apprends partout — en classe, à la maison, au village.',
     ),
-    _OnboardingPage(
-      icon: Icons.psychology_rounded,
-      color: AppColors.aiTutor,
-      title: 'Ton tuteur IA personnel',
-      subtitle:
-          'Pose des questions à ton assistant intelligent. Il te guide sans jamais donner les réponses directes.',
+    _Slide(
+      icon:     Icons.psychology_rounded,
+      gradient: [AppColors.aiTutor, Color(0xFF4A0072)],
+      title:    'Ton tuteur IA personnel',
+      body:
+          'Pose tes questions à l\'assistant intelligent. Il te guide étape par étape sans jamais donner les réponses directement.',
     ),
-    _OnboardingPage(
-      icon: Icons.emoji_events_rounded,
-      color: AppColors.gamification,
-      title: 'Joue et progresse',
-      subtitle:
-          'Gagne des XP, débloques des badges et monte en niveau chaque jour. L\'apprentissage devient un jeu.',
+    _Slide(
+      icon:     Icons.emoji_events_rounded,
+      gradient: [AppColors.gamification, Color(0xFFBF360C)],
+      title:    'Joue et progresse',
+      body:
+          'Gagne des XP, débloque des badges et monte en niveau chaque jour. L\'apprentissage devient une aventure.',
     ),
-    _OnboardingPage(
-      icon: Icons.wifi_rounded,
-      color: AppColors.localNetwork,
-      title: 'Classe sans internet',
-      subtitle:
-          'L\'enseignant partage les cours via Wi-Fi local. Les élèves reçoivent tout instantanément en classe.',
+    _Slide(
+      icon:     Icons.wifi_rounded,
+      gradient: [AppColors.localNetwork, Color(0xFF1A237E)],
+      title:    'Classe sans internet',
+      body:
+          'L\'enseignant partage ses cours via Wi-Fi local. Les élèves reçoivent tout instantanément — pas besoin de réseau mobile.',
     ),
   ];
 
-  void _nextPage() {
-    if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
+  @override
+  void initState() {
+    super.initState();
+    _iconController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..forward();
+  }
+
+  @override
+  void dispose() {
+    _pages.dispose();
+    _iconController.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() => _current = index);
+    _iconController
+      ..reset()
+      ..forward();
+  }
+
+  void _next() {
+    if (_current < _slides.length - 1) {
+      _pages.nextPage(
+          duration: const Duration(milliseconds: 350),
+          curve: Curves.easeInOut);
     } else {
       _finish();
     }
   }
 
   Future<void> _finish() async {
-    final box = Hive.box(HiveBoxes.settings);
-    await box.put('onboarding_done', true);
+    await Hive.box(HiveBoxes.settings).put('onboarding_done', true);
     if (!mounted) return;
     context.go(RouteNames.authPhone);
   }
 
   @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final slide = _slides[_current];
+
     return Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Skip button
+      body: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: slide.gradient,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(children: [
+            // ── Skip ────────────────────────────────────────────────────
             Align(
               alignment: Alignment.centerRight,
-              child: TextButton(
-                onPressed: _finish,
-                child: const Text('Passer'),
-              ),
-            ),
-
-            // Page view
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                itemCount: _pages.length,
-                itemBuilder: (context, i) => _PageContent(page: _pages[i]),
-              ),
-            ),
-
-            // Dots indicator
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                _pages.length,
-                (i) => AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: i == _currentPage ? 24 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: i == _currentPage
-                        ? AppColors.primary
-                        : AppColors.grey300,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: TextButton(
+                  onPressed: _finish,
+                  style: TextButton.styleFrom(foregroundColor: Colors.white70),
+                  child: const Text('Passer'),
                 ),
               ),
             ),
 
-            const SizedBox(height: 32),
-
-            // CTA Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: AppButton(
-                label: _currentPage == _pages.length - 1
-                    ? 'Commencer'
-                    : 'Suivant',
-                onPressed: _nextPage,
-                prefixIcon: _currentPage == _pages.length - 1
-                    ? Icons.rocket_launch_rounded
-                    : null,
+            // ── PageView ─────────────────────────────────────────────────
+            Expanded(
+              child: PageView.builder(
+                controller: _pages,
+                onPageChanged: _onPageChanged,
+                itemCount: _slides.length,
+                itemBuilder: (ctx, i) => _SlideContent(
+                  slide: _slides[i],
+                  iconController: _iconController,
+                  isActive: i == _current,
+                ),
               ),
             ),
 
-            const SizedBox(height: 24),
-          ],
+            // ── Dots ──────────────────────────────────────────────────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(_slides.length, (i) {
+                final active = i == _current;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: active ? 28 : 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: active
+                        ? Colors.white
+                        : Colors.white.withOpacity(0.35),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                );
+              }),
+            ),
+
+            const SizedBox(height: 32),
+
+            // ── CTA ───────────────────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: AppButton(
+                label: _current == _slides.length - 1
+                    ? 'Commencer'
+                    : 'Suivant',
+                prefixIcon: _current == _slides.length - 1
+                    ? Icons.rocket_launch_rounded
+                    : Icons.arrow_forward_rounded,
+                backgroundColor: Colors.white,
+                foregroundColor: slide.gradient.first,
+                onPressed: _next,
+              ),
+            ),
+
+            const SizedBox(height: 32),
+          ]),
         ),
       ),
     );
   }
 }
 
-class _PageContent extends StatelessWidget {
-  final _OnboardingPage page;
-  const _PageContent({required this.page});
+class _SlideContent extends StatelessWidget {
+  final _Slide slide;
+  final AnimationController iconController;
+  final bool isActive;
+
+  const _SlideContent({
+    required this.slide,
+    required this.iconController,
+    required this.isActive,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -156,27 +199,33 @@ class _PageContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              color: page.color.withOpacity(0.12),
-              shape: BoxShape.circle,
+          // Animated icon
+          ScaleTransition(
+            scale: CurvedAnimation(
+              parent: iconController,
+              curve: Curves.elasticOut,
             ),
-            child: Icon(page.icon, size: 60, color: page.color),
+            child: Container(
+              width: 130,
+              height: 130,
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.18),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(slide.icon, size: 64, color: Colors.white),
+            ),
           ),
-          const SizedBox(height: 40),
+          const SizedBox(height: 48),
           Text(
-            page.title,
-            style: AppTextStyles.headlineLarge,
+            slide.title,
+            style: AppTextStyles.headlineLarge.copyWith(
+                color: Colors.white, fontWeight: FontWeight.w800),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
           Text(
-            page.subtitle,
-            style: AppTextStyles.bodyLarge.copyWith(
-              color: AppColors.onSurfaceVariant,
-            ),
+            slide.body,
+            style: AppTextStyles.bodyLarge.copyWith(color: Colors.white70),
             textAlign: TextAlign.center,
           ),
         ],
@@ -185,15 +234,15 @@ class _PageContent extends StatelessWidget {
   }
 }
 
-class _OnboardingPage {
+class _Slide {
   final IconData icon;
-  final Color color;
+  final List<Color> gradient;
   final String title;
-  final String subtitle;
-  const _OnboardingPage({
+  final String body;
+  const _Slide({
     required this.icon,
-    required this.color,
+    required this.gradient,
     required this.title,
-    required this.subtitle,
+    required this.body,
   });
 }
