@@ -106,22 +106,6 @@ final qcmNotifierProvider =
 /// Loads lesson then seeds the QCM notifier.
 final qcmLoaderProvider =
     FutureProvider.autoDispose.family<void, String>((ref, lessonId) async {
-  final state = ref.watch(learningNotifierProvider);
-  LessonEntity? lesson = state.lessons.cast<LessonEntity?>().firstWhere(
-        (l) => l?.id == lessonId,
-        orElse: () => null,
-      );
-
-  if (lesson == null) {
-    await ref.read(learningNotifierProvider.notifier).loadLesson(lessonId);
-    final updated = ref.read(learningNotifierProvider);
-    lesson = updated.lessons.cast<LessonEntity?>().firstWhere(
-          (l) => l?.id == lessonId,
-          orElse: () => null,
-        );
-  }
-
-  if (lesson != null) {
-    ref.read(qcmNotifierProvider.notifier).loadFromLesson(lesson);
-  }
+  final lesson = await ref.watch(lessonProvider(lessonId).future);
+  ref.read(qcmNotifierProvider.notifier).loadFromLesson(lesson);
 });
