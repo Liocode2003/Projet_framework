@@ -23,7 +23,7 @@ class LoniyaApp extends ConsumerWidget {
         : AppTheme.darkTheme;
     final ThemeMode themeMode = settings.isHighContrast
         ? ThemeMode.dark
-        : (settings.darkMode ? ThemeMode.dark : ThemeMode.system);
+        : (settings.darkMode ? ThemeMode.dark : ThemeMode.light);
 
     return MaterialApp.router(
       title: 'LONIYA V2',

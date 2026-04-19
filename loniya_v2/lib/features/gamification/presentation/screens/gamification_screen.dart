@@ -55,7 +55,6 @@ class GamificationScreen extends ConsumerWidget {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: RefreshIndicator(
         onRefresh: () =>
             ref.read(gamificationNotifierProvider.notifier).refresh(),
@@ -151,7 +150,7 @@ class GamificationScreen extends ConsumerWidget {
                               crossAxisCount: 3,
                               crossAxisSpacing: 10,
                               mainAxisSpacing: 10,
-                              childAspectRatio: 0.82,
+                              childAspectRatio: 0.70,
                             ),
                             itemCount: badges.length,
                             itemBuilder: (_, i) => BadgeCard(badge: badges[i]),
