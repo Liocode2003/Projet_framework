@@ -1,70 +1,75 @@
 import 'package:flutter/material.dart';
 
-/// LONIYA V2 Color Palette
-/// Inspired by Burkina Faso cultural colors — warm, vibrant, accessible
 class AppColors {
   AppColors._();
 
-  // ─── Brand Colors ────────────────────────────────────────────────────
-  /// Primary: Warm amber/gold — represents knowledge, sun, education
-  static const Color primary = Color(0xFFE8A020);
-  static const Color primaryDark = Color(0xFFC4841A);
-  static const Color primaryLight = Color(0xFFFFC84A);
-  static const Color onPrimary = Color(0xFF1A1A1A);
+  // ── Primary: Violet électrique ───────────────────────────────────────
+  static const Color primary      = Color(0xFF6C47FF);
+  static const Color primaryDark  = Color(0xFF4A2FCC);
+  static const Color primaryLight = Color(0xFF9B7BFF);
+  static const Color onPrimary    = Colors.white;
 
-  /// Secondary: Deep green — represents growth, learning, nature
-  static const Color secondary = Color(0xFF2D7D32);
-  static const Color secondaryDark = Color(0xFF1B5E20);
-  static const Color secondaryLight = Color(0xFF4CAF50);
-  static const Color onSecondary = Color(0xFFFFFFFF);
+  // ── Accent: Corail vibrant ───────────────────────────────────────────
+  static const Color accent       = Color(0xFFFF6B35);
+  static const Color accentDark   = Color(0xFFCC4E1E);
+  static const Color accentLight  = Color(0xFFFF9268);
 
-  /// Tertiary: Warm terracotta — African earth tones
-  static const Color tertiary = Color(0xFFBF360C);
-  static const Color onTertiary = Color(0xFFFFFFFF);
+  // ── Teal: IA / Innovation ────────────────────────────────────────────
+  static const Color teal         = Color(0xFF00C9B1);
+  static const Color tealDark     = Color(0xFF00958A);
+  static const Color tealLight    = Color(0xFF4DDFCE);
 
-  // ─── Surface Colors ──────────────────────────────────────────────────
-  static const Color background = Color(0xFFFAF8F5);
-  static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceVariant = Color(0xFFF5F0E8);
-  static const Color onBackground = Color(0xFF1C1B19);
-  static const Color onSurface = Color(0xFF1C1B19);
-  static const Color onSurfaceVariant = Color(0xFF4E4639);
+  // ── Gold: Réussite ───────────────────────────────────────────────────
+  static const Color gold         = Color(0xFFFFB800);
+  static const Color goldDark     = Color(0xFFCC9200);
 
-  // ─── Dark Theme Surfaces ─────────────────────────────────────────────
-  static const Color backgroundDark = Color(0xFF1A1812);
-  static const Color surfaceDark = Color(0xFF252018);
-  static const Color surfaceVariantDark = Color(0xFF332D22);
-  static const Color onBackgroundDark = Color(0xFFEDE8E0);
-  static const Color onSurfaceDark = Color(0xFFEDE8E0);
+  // ── Pink: Gamification ───────────────────────────────────────────────
+  static const Color pink         = Color(0xFFFF3D9A);
+  static const Color pinkLight    = Color(0xFFFF78BB);
 
-  // ─── Semantic Colors ─────────────────────────────────────────────────
-  static const Color success = Color(0xFF2E7D32);
-  static const Color successLight = Color(0xFFE8F5E9);
-  static const Color warning = Color(0xFFE65100);
-  static const Color warningLight = Color(0xFFFFF3E0);
-  static const Color error = Color(0xFFB71C1C);
-  static const Color errorLight = Color(0xFFFFEBEE);
-  static const Color info = Color(0xFF0277BD);
-  static const Color infoLight = Color(0xFFE1F5FE);
+  // ── Surfaces ─────────────────────────────────────────────────────────
+  static const Color background        = Color(0xFFF5F3FF);
+  static const Color surface           = Color(0xFFFFFFFF);
+  static const Color surfaceVariant    = Color(0xFFEDE8FF);
+  static const Color onBackground      = Color(0xFF12001E);
+  static const Color onSurface         = Color(0xFF12001E);
+  static const Color onSurfaceVariant  = Color(0xFF5C5480);
 
-  // ─── Gamification Colors ─────────────────────────────────────────────
-  static const Color xpGold = Color(0xFFFFD700);
-  static const Color xpSilver = Color(0xFFC0C0C0);
-  static const Color xpBronze = Color(0xFFCD7F32);
-  static const Color streakOrange = Color(0xFFFF6D00);
-  static const Color levelPurple = Color(0xFF6A1B9A);
+  // ── Dark surfaces ─────────────────────────────────────────────────────
+  static const Color backgroundDark     = Color(0xFF0C0A1E);
+  static const Color surfaceDark        = Color(0xFF16122E);
+  static const Color surfaceVariantDark = Color(0xFF1E1A3A);
+  static const Color onBackgroundDark   = Color(0xFFF0EDFF);
+  static const Color onSurfaceDark      = Color(0xFFF0EDFF);
 
-  // ─── Feature Colors ──────────────────────────────────────────────────
-  static const Color marketplace = Color(0xFF1565C0);
-  static const Color learning = Color(0xFF2D7D32);
-  static const Color aiTutor = Color(0xFF6A1B9A);
-  static const Color gamification = Color(0xFFE65100);
-  static const Color orientation = Color(0xFF00695C);
-  static const Color teacher = Color(0xFF0277BD);
-  static const Color localNetwork = Color(0xFF37474F);
+  // ── Semantics ─────────────────────────────────────────────────────────
+  static const Color success      = Color(0xFF00C9B1);
+  static const Color successLight = Color(0xFFDFFAF7);
+  static const Color warning      = Color(0xFFFF6B35);
+  static const Color warningLight = Color(0xFFFFEDE6);
+  static const Color error        = Color(0xFFFF3D5A);
+  static const Color errorLight   = Color(0xFFFFE8EC);
+  static const Color info         = Color(0xFF6C47FF);
+  static const Color infoLight    = Color(0xFFEDE8FF);
 
-  // ─── Neutral Scale ───────────────────────────────────────────────────
-  static const Color grey50 = Color(0xFFFAFAFA);
+  // ── Gamification ──────────────────────────────────────────────────────
+  static const Color xpGold       = Color(0xFFFFB800);
+  static const Color xpSilver     = Color(0xFFC0C0C0);
+  static const Color xpBronze     = Color(0xFFCD7F32);
+  static const Color streakOrange = Color(0xFFFF6B35);
+  static const Color levelPurple  = Color(0xFF6C47FF);
+
+  // ── Feature Colors ────────────────────────────────────────────────────
+  static const Color marketplace  = Color(0xFF6C47FF);
+  static const Color learning     = Color(0xFF00C9B1);
+  static const Color aiTutor      = Color(0xFFFF3D9A);
+  static const Color gamification = Color(0xFFFFB800);
+  static const Color orientation  = Color(0xFF6C47FF);
+  static const Color teacher      = Color(0xFF00C9B1);
+  static const Color localNetwork = Color(0xFFFF6B35);
+
+  // ── Neutrals ──────────────────────────────────────────────────────────
+  static const Color grey50  = Color(0xFFFAFAFA);
   static const Color grey100 = Color(0xFFF5F5F5);
   static const Color grey200 = Color(0xFFEEEEEE);
   static const Color grey300 = Color(0xFFE0E0E0);
@@ -75,11 +80,9 @@ class AppColors {
   static const Color grey800 = Color(0xFF424242);
   static const Color grey900 = Color(0xFF212121);
 
-  // ─── Outline ─────────────────────────────────────────────────────────
-  static const Color outline = Color(0xFFD4C8B8);
-  static const Color outlineDark = Color(0xFF4A4030);
-
-  // ─── Shadow ──────────────────────────────────────────────────────────
-  static const Color shadow = Color(0x1A000000);
-  static const Color shadowMedium = Color(0x33000000);
+  // ── Outline / Shadow ──────────────────────────────────────────────────
+  static const Color outline      = Color(0xFFE0D9FF);
+  static const Color outlineDark  = Color(0xFF2A2448);
+  static const Color shadow       = Color(0x206C47FF);
+  static const Color shadowMedium = Color(0x406C47FF);
 }
