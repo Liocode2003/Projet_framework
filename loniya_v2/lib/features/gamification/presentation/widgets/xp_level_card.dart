@@ -9,7 +9,7 @@ class XpLevelCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return RepaintBoundary(child: Container(
       margin: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -185,6 +185,6 @@ class _SubjectChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
+    ));
   }
 }

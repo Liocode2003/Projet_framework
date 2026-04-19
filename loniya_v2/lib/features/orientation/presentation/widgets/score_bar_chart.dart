@@ -20,7 +20,8 @@ class ScoreBarChart extends StatelessWidget {
     final sorted = scores.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    return Column(
+    return RepaintBoundary(
+      child: Column(
       children: sorted.map((e) {
         final color = _barColor(e.value);
         final pct   = e.value / 20;
@@ -69,6 +70,7 @@ class ScoreBarChart extends StatelessWidget {
           ),
         );
       }).toList(),
+    ),
     );
   }
 }
