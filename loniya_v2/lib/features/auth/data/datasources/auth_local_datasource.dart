@@ -72,6 +72,20 @@ class AuthLocalDataSource {
     await _db.saveUser(updated);
   }
 
+  // ─── PROFILE ──────────────────────────────────────────────────────────
+  Future<void> saveProfile(
+      String userId, String name, String? gradeLevel) async {
+    final user = _requireUser(userId);
+    final updated = UserModel(
+      id: user.id, phone: user.phone, role: user.role,
+      name: name, avatarPath: user.avatarPath,
+      pinHash: user.pinHash, createdAt: user.createdAt,
+      schoolName: user.schoolName, gradeLevel: gradeLevel,
+      consentGiven: user.consentGiven, deviceId: user.deviceId,
+    );
+    await _db.saveUser(updated);
+  }
+
   // ─── CONSENT ──────────────────────────────────────────────────────────
   Future<void> saveConsent(String userId) async {
     final user = _requireUser(userId);

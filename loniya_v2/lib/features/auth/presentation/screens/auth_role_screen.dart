@@ -7,7 +7,6 @@ import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../providers/auth_notifier.dart';
 import '../providers/auth_state.dart';
 
@@ -21,16 +20,28 @@ class AuthRoleScreen extends ConsumerStatefulWidget {
 class _AuthRoleScreenState extends ConsumerState<AuthRoleScreen> {
   String? _selectedRole;
 
-  static const List<_RoleOption> _roles = [
-    _RoleOption(role: AppConstants.roleStudent, label: 'Élève',
+  static const _roles = [
+    _RoleOption(
+      role: AppConstants.roleStudent,
+      label: 'Élève',
+      emoji: '📚',
       description: 'J\'apprends et progresse à mon rythme',
-      icon: Icons.school_rounded, color: AppColors.learning),
-    _RoleOption(role: AppConstants.roleTeacher, label: 'Enseignant',
+      colors: [Color(0xFF1A0A3E), AppColors.primary],
+    ),
+    _RoleOption(
+      role: AppConstants.roleTeacher,
+      label: 'Enseignant',
+      emoji: '🎓',
       description: 'Je gère ma classe et partage des contenus',
-      icon: Icons.cast_for_education_rounded, color: AppColors.teacher),
-    _RoleOption(role: AppConstants.roleParent, label: 'Parent',
+      colors: [Color(0xFF003D35), AppColors.teal],
+    ),
+    _RoleOption(
+      role: AppConstants.roleParent,
+      label: 'Parent',
+      emoji: '👨‍👩‍👧',
       description: 'Je suis la progression de mon enfant',
-      icon: Icons.family_restroom_rounded, color: AppColors.orientation),
+      colors: [Color(0xFF3D1A00), AppColors.accent],
+    ),
   ];
 
   Future<void> _continue() async {
@@ -48,80 +59,130 @@ class _AuthRoleScreenState extends ConsumerState<AuthRoleScreen> {
     });
 
     final isLoading = ref.watch(
-      authNotifierProvider.select((s) => s.isLoading),
-    );
-    final error = ref.watch(
-      authNotifierProvider.select((s) => s.errorMessage),
-    );
+        authNotifierProvider.select((s) => s.isLoading));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(title: const Text('Votre profil')),
+      backgroundColor: const Color(0xFFF5F3FF),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Qui êtes-vous ?', style: AppTextStyles.headlineLarge),
-              const SizedBox(height: 8),
-              Text(
-                'Choisissez votre profil pour personnaliser l\'expérience.',
-                style: AppTextStyles.bodyLarge.copyWith(
-                  color: AppColors.onSurfaceVariant,
+              const SizedBox(height: 12),
+              // Header
+              const Text(
+                'Qui es-tu ?',
+                style: TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: AppColors.onSurface,
                 ),
               ),
+              const SizedBox(height: 6),
+              Text(
+                'Choisis ton profil pour personnaliser LONIYA.',
+                style: AppTextStyles.bodyLarge
+                    .copyWith(color: AppColors.onSurfaceVariant),
+              ),
               const SizedBox(height: 32),
+
+              // Role cards
               Expanded(
-                child: ListView.separated(
-                  itemCount: _roles.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 12),
-                  itemBuilder: (context, i) {
-                    final role = _roles[i];
+                child: Column(
+                  children: _roles.map((role) {
                     final isSelected = _selectedRole == role.role;
-                    return AppCard(
+                    return GestureDetector(
                       onTap: () => setState(() => _selectedRole = role.role),
-                      backgroundColor:
-                          isSelected ? role.color.withOpacity(0.08) : null,
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 52, height: 52,
-                            decoration: BoxDecoration(
-                              color: role.color.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(14),
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 220),
+                        margin: const EdgeInsets.only(bottom: 14),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: isSelected
+                              ? LinearGradient(
+                                  colors: role.colors,
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                )
+                              : null,
+                          color: isSelected ? null : Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isSelected
+                                  ? role.colors.last.withOpacity(0.35)
+                                  : AppColors.shadow.withOpacity(0.08),
+                              blurRadius: isSelected ? 20 : 10,
+                              offset: const Offset(0, 6),
                             ),
-                            child: Icon(role.icon, color: role.color, size: 28),
+                          ],
+                        ),
+                        child: Row(children: [
+                          // Emoji
+                          Container(
+                            width: 56, height: 56,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Colors.white.withOpacity(0.2)
+                                  : role.colors.last.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Center(
+                              child: Text(role.emoji,
+                                  style: const TextStyle(fontSize: 28)),
+                            ),
                           ),
                           const SizedBox(width: 16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(role.label, style: AppTextStyles.titleLarge),
+                                Text(
+                                  role.label,
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppColors.onSurface,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
-                                Text(role.description,
-                                    style: AppTextStyles.bodySmall),
+                                Text(
+                                  role.description,
+                                  style: TextStyle(
+                                    fontFamily: 'Nunito',
+                                    fontSize: 13,
+                                    color: isSelected
+                                        ? Colors.white70
+                                        : AppColors.onSurfaceVariant,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          if (isSelected)
-                            Icon(Icons.check_circle_rounded,
-                                color: role.color, size: 24),
-                        ],
+                          Icon(
+                            isSelected
+                                ? Icons.check_circle_rounded
+                                : Icons.circle_outlined,
+                            color: isSelected
+                                ? Colors.white
+                                : AppColors.grey300,
+                            size: 24,
+                          ),
+                        ]),
                       ),
                     );
-                  },
+                  }).toList(),
                 ),
               ),
-              if (error != null) ...[
-                const SizedBox(height: 8),
-                Text(error,
-                  style: AppTextStyles.bodySmall.copyWith(color: AppColors.error)),
-              ],
-              const SizedBox(height: 16),
+
               AppButton(
                 label: 'Continuer',
+                prefixIcon: Icons.arrow_forward_rounded,
                 onPressed: _selectedRole == null ? null : _continue,
                 isLoading: isLoading,
               ),
@@ -134,9 +195,11 @@ class _AuthRoleScreenState extends ConsumerState<AuthRoleScreen> {
 }
 
 class _RoleOption {
-  final String role, label, description;
-  final IconData icon;
-  final Color color;
-  const _RoleOption({required this.role, required this.label,
-    required this.description, required this.icon, required this.color});
+  final String role, label, emoji, description;
+  final List<Color> colors;
+  const _RoleOption({
+    required this.role, required this.label,
+    required this.emoji, required this.description,
+    required this.colors,
+  });
 }

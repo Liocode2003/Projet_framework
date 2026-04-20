@@ -10,7 +10,8 @@ class RouteNames {
   static const String authOtp = '/auth/otp';
   static const String authRole = '/auth/role';
   static const String authConsent = '/auth/consent';
-  static const String authPin = '/auth/pin';
+  static const String authPin     = '/auth/pin';
+  static const String authProfile = '/auth/profile';
 
   // Main
   static const String home = '/home';

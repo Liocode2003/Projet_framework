@@ -184,6 +184,23 @@ class AuthNotifier extends StateNotifier<AuthState> {
     );
   }
 
+  // ─── Step 5b: Save profile (name + grade/subject) ────────────────────
+  Future<void> saveProfile(String name, String? gradeLevel) async {
+    if (state.userId == null) return;
+    state = state.copyWith(isLoading: true, errorMessage: null);
+    await _ref
+        .read(authLocalDataSourceProvider)
+        .saveProfile(state.userId!, name, gradeLevel);
+    final result = await _ref.read(getCurrentUserUseCaseProvider).call();
+    result.fold(
+      (_) => state = state.copyWith(isLoading: false),
+      (user) => state = state.copyWith(
+        isLoading: false,
+        user: user,
+      ),
+    );
+  }
+
   // ─── Logout ───────────────────────────────────────────────────────────
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);

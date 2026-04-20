@@ -33,6 +33,7 @@ import '../../features/local_classroom/presentation/screens/local_classroom_host
 import '../../features/local_classroom/presentation/screens/local_classroom_join_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/settings/presentation/screens/accessibility_screen.dart';
+import '../../features/auth/presentation/screens/auth_profile_screen.dart';
 import '../../features/parent/presentation/screens/parent_dashboard_screen.dart';
 import '../constants/route_names.dart';
 
@@ -58,7 +59,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (isOnboarding) return null;
       if (isInitial) return RouteNames.splash;
       if (!isAuthenticated && !isAuthRoute) return RouteNames.authPhone;
-      if (isAuthenticated && isAuthRoute) return RouteNames.home;
+      if (isAuthenticated) {
+        final hasProfile = (authState.user?.name ?? '').trim().isNotEmpty;
+        if (!hasProfile && loc != RouteNames.authProfile) {
+          return RouteNames.authProfile;
+        }
+        if (isAuthRoute && loc != RouteNames.authProfile) return RouteNames.home;
+      }
 
       return null;
     },
@@ -107,6 +114,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             pageBuilder: (c, s) => _fade(s, const AuthPinScreen()),
           ),
         ],
+      ),
+
+      // ─── Auth profile (post-registration) ────────────────────────────
+      GoRoute(
+        path: RouteNames.authProfile,
+        name: 'auth-profile',
+        pageBuilder: (c, s) => _fade(s, const AuthProfileScreen()),
       ),
 
       // ─── Top-level pages (no bottom nav) ─────────────────────────────
