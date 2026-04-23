@@ -11,6 +11,7 @@ class SecureKeyService {
   static const String _pinSaltAlias      = 'loniya_pin_salt';
   static const String _sessionTokenAlias = 'loniya_session_token';
   static const String _deviceIdAlias     = 'loniya_device_id';
+  static const String _groqApiKeyAlias   = 'loniya_groq_api_key';
 
   final FlutterSecureStorage _storage;
 
@@ -73,6 +74,20 @@ class SecureKeyService {
     await _storage.delete(key: _sessionTokenAlias);
   }
 
+  // ─── Groq API Key ────────────────────────────────────────────────────
+  Future<void> saveApiKey(String key) async {
+    await _storage.write(key: _groqApiKeyAlias, value: key.trim());
+  }
+
+  Future<String?> getApiKey() async {
+    return _storage.read(key: _groqApiKeyAlias);
+  }
+
+  Future<void> deleteApiKey() async {
+    await _storage.delete(key: _groqApiKeyAlias);
+  }
+
+  // ─── Full wipe ───────────────────────────────────────────────────────
   /// Full wipe — removes ALL keys. Use only on account deletion.
   Future<void> wipeAll() async {
     await _storage.deleteAll();

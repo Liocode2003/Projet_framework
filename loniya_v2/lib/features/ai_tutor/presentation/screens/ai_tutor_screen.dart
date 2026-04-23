@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/services/connectivity/connectivity_service.dart';
+import '../../../../core/services/storage/secure_key_service.dart';
 import '../../../../core/services/tts/tts_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -50,19 +52,110 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
     });
   }
 
+  Future<void> _showApiKeyDialog() async {
+    final currentKey = await ref.read(secureKeyServiceProvider).getApiKey() ?? '';
+    if (!mounted) return;
+
+    final ctrl = TextEditingController(text: currentKey);
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Container(
+            width: 36, height: 36,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                  colors: [AppColors.aiTutor, AppColors.levelPurple]),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: const Icon(Icons.vpn_key_rounded, color: Colors.white, size: 18),
+          ),
+          const SizedBox(width: 10),
+          const Text('Clé API Groq', style: TextStyle(
+              fontFamily: 'Nunito', fontWeight: FontWeight.w900, fontSize: 17)),
+        ]),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.aiTutor.withOpacity(0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Text(
+                '🔑 Obtiens une clé gratuite sur console.groq.com\n'
+                '⚡ Modèle : llama-3.3-70b-versatile\n'
+                '📱 Sans clé : mode hors-ligne activé',
+                style: TextStyle(
+                  fontFamily: 'Nunito', fontSize: 12,
+                  color: AppColors.onSurfaceVariant),
+              ),
+            ),
+            const SizedBox(height: 14),
+            TextField(
+              controller: ctrl,
+              obscureText: true,
+              decoration: InputDecoration(
+                labelText: 'Clé Groq (gsk_...)',
+                prefixIcon: const Icon(Icons.key_rounded),
+                filled: true,
+                fillColor: AppColors.surfaceVariant,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await ref.read(secureKeyServiceProvider).deleteApiKey();
+              ref.invalidate(hasApiKeyProvider);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Effacer', style: TextStyle(color: AppColors.error)),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppColors.aiTutor,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onPressed: () async {
+              final key = ctrl.text.trim();
+              if (key.isNotEmpty) {
+                await ref.read(secureKeyServiceProvider).saveApiKey(key);
+                ref.invalidate(hasApiKeyProvider);
+              }
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Enregistrer'),
+          ),
+        ],
+      ),
+    );
+    ctrl.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(aiTutorNotifierProvider);
-    final aiContext = ref.watch(aiTutorContextProvider);
+    final chatState  = ref.watch(aiTutorNotifierProvider);
+    final aiContext  = ref.watch(aiTutorContextProvider);
     final ttsEnabled = ref.watch(ttsEnabledProvider);
+    final isOnline   = ref.watch(isOnlineProvider).valueOrNull
+        ?? ref.read(connectivityServiceProvider).isConnected;
+    final hasKey     = ref.watch(hasApiKeyProvider).valueOrNull ?? false;
 
-    // Auto-scroll whenever messages change
+    // Auto-scroll + TTS
     ref.listen<AiTutorState>(aiTutorNotifierProvider, (prev, next) {
       _scrollToBottom();
-      // Speak new AI messages when TTS is enabled
       if (ttsEnabled && next.messages.length > (prev?.messages.length ?? 0)) {
         final last = next.messages.last;
-        if (!last.isFromUser) {
+        if (!last.isUser) {
           ref.read(ttsServiceProvider).speak(last.content);
         }
       }
@@ -73,16 +166,22 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
       body: Column(
         children: [
           _AiHeader(
-            ttsEnabled: ttsEnabled,
-            onClear: () =>
-                ref.read(aiTutorNotifierProvider.notifier).clearChat(),
+            isOnline:    isOnline,
+            hasKey:      hasKey,
+            ttsEnabled:  ttsEnabled,
+            onClear:     () => ref.read(aiTutorNotifierProvider.notifier).clearChat(),
             onToggleTts: () {
-              final newValue = !ttsEnabled;
-              ref.read(ttsEnabledProvider.notifier).state = newValue;
-              ref.read(ttsServiceProvider).setEnabled(newValue);
-              if (!newValue) ref.read(ttsServiceProvider).stop();
+              final v = !ttsEnabled;
+              ref.read(ttsEnabledProvider.notifier).state = v;
+              ref.read(ttsServiceProvider).setEnabled(v);
+              if (!v) ref.read(ttsServiceProvider).stop();
             },
+            onSetupKey: _showApiKeyDialog,
           ),
+
+          // Setup banner — shown when offline and no key configured
+          if (!hasKey)
+            _SetupBanner(onTap: _showApiKeyDialog),
 
           if (aiContext != null)
             _ContextBanner(context: aiContext, ref: ref),
@@ -91,12 +190,9 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
             child: ListView.builder(
               controller: _scroll,
               padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-              itemCount: chatState.messages.length +
-                  (chatState.isTyping ? 1 : 0),
+              itemCount: chatState.messages.length + (chatState.isTyping ? 1 : 0),
               itemBuilder: (_, i) {
-                if (i == chatState.messages.length) {
-                  return const TypingIndicator();
-                }
+                if (i == chatState.messages.length) return const TypingIndicator();
                 return ChatBubble(message: chatState.messages[i]);
               },
             ),
@@ -120,17 +216,28 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
 // ─── Sub-widgets ──────────────────────────────────────────────────────────────
 
 class _AiHeader extends StatelessWidget {
-  final bool ttsEnabled;
-  final VoidCallback onClear;
-  final VoidCallback onToggleTts;
+  final bool isOnline, hasKey, ttsEnabled;
+  final VoidCallback onClear, onToggleTts, onSetupKey;
+
   const _AiHeader({
+    required this.isOnline,
+    required this.hasKey,
     required this.ttsEnabled,
     required this.onClear,
     required this.onToggleTts,
+    required this.onSetupKey,
   });
 
   @override
   Widget build(BuildContext context) {
+    final llmActive = isOnline && hasKey;
+    final statusColor = llmActive ? AppColors.success
+        : isOnline ? AppColors.warning
+        : AppColors.grey400;
+    final statusLabel = llmActive  ? 'En ligne · Groq LLM'
+        : isOnline ? 'En ligne · clé manquante'
+        : 'Hors-ligne · Mode local';
+
     return Material(
       color: AppColors.surface,
       elevation: 1,
@@ -140,8 +247,7 @@ class _AiHeader extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
           child: Row(children: [
             Container(
-              width: 40,
-              height: 40,
+              width: 40, height: 40,
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [AppColors.aiTutor, AppColors.levelPurple],
@@ -150,15 +256,10 @@ class _AiHeader extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Center(
+              child: Center(
                 child: Text(
-                  'IA',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w900,
-                    fontFamily: 'Nunito',
-                  ),
+                  llmActive ? '🤖' : '📱',
+                  style: const TextStyle(fontSize: 20),
                 ),
               ),
             ),
@@ -169,32 +270,35 @@ class _AiHeader extends StatelessWidget {
                 children: [
                   Text('LONIYA IA Tuteur', style: AppTextStyles.titleSmall),
                   Row(children: [
-                    Container(
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 400),
                       width: 7, height: 7,
-                      decoration: const BoxDecoration(
-                        color: AppColors.success,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor, shape: BoxShape.circle),
                     ),
                     const SizedBox(width: 5),
-                    Text(
-                      'Actif · Mode hors-ligne',
-                      style: AppTextStyles.caption
-                          .copyWith(color: AppColors.onSurfaceVariant),
-                    ),
+                    Text(statusLabel,
+                        style: AppTextStyles.caption.copyWith(
+                            color: AppColors.onSurfaceVariant)),
                   ]),
                 ],
               ),
             ),
+            // API key setup
+            IconButton(
+              tooltip: 'Configurer la clé API',
+              icon: Icon(
+                Icons.vpn_key_rounded,
+                color: hasKey ? AppColors.aiTutor : AppColors.grey400,
+                size: 20,
+              ),
+              onPressed: onSetupKey,
+            ),
             // TTS toggle
             IconButton(
-              tooltip: ttsEnabled
-                  ? 'Désactiver la voix'
-                  : 'Activer la lecture vocale',
+              tooltip: ttsEnabled ? 'Désactiver la voix' : 'Activer la voix',
               icon: Icon(
-                ttsEnabled
-                    ? Icons.volume_up_rounded
-                    : Icons.volume_off_rounded,
+                ttsEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
                 color: ttsEnabled ? AppColors.aiTutor : AppColors.grey500,
               ),
               onPressed: onToggleTts,
@@ -206,6 +310,33 @@ class _AiHeader extends StatelessWidget {
             ),
           ]),
         ),
+      ),
+    );
+  }
+}
+
+class _SetupBanner extends StatelessWidget {
+  final VoidCallback onTap;
+  const _SetupBanner({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+        color: AppColors.aiTutor.withOpacity(0.1),
+        child: Row(children: [
+          const Icon(Icons.auto_awesome_rounded, size: 16, color: AppColors.aiTutor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Configure ta clé Groq gratuite pour activer l\'IA en ligne →',
+              style: AppTextStyles.labelSmall.copyWith(color: AppColors.aiTutor),
+            ),
+          ),
+        ]),
       ),
     );
   }
@@ -228,15 +359,13 @@ class _ContextBanner extends StatelessWidget {
         Expanded(
           child: Text(
             'Contexte : ${context.subject} — ${context.stepTitle}',
-            style: AppTextStyles.labelSmall
-                .copyWith(color: AppColors.aiTutor),
+            style: AppTextStyles.labelSmall.copyWith(color: AppColors.aiTutor),
           ),
         ),
         IconButton(
           constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
           padding: EdgeInsets.zero,
-          icon: const Icon(Icons.close_rounded,
-              size: 16, color: AppColors.aiTutor),
+          icon: const Icon(Icons.close_rounded, size: 16, color: AppColors.aiTutor),
           onPressed: () =>
               ref.read(aiTutorContextProvider.notifier).state = null,
         ),
@@ -260,8 +389,7 @@ class _ErrorBanner extends StatelessWidget {
         const SizedBox(width: 8),
         Expanded(
           child: Text(message,
-              style: AppTextStyles.labelSmall
-                  .copyWith(color: AppColors.error)),
+              style: AppTextStyles.labelSmall.copyWith(color: AppColors.error)),
         ),
       ]),
     );
@@ -291,17 +419,17 @@ class _InputBarState extends State<_InputBar> {
   @override
   void initState() {
     super.initState();
-    widget.ctrl.addListener(_onTextChanged);
+    widget.ctrl.addListener(_onChanged);
   }
 
-  void _onTextChanged() {
+  void _onChanged() {
     final has = widget.ctrl.text.trim().isNotEmpty;
     if (has != _hasText) setState(() => _hasText = has);
   }
 
   @override
   void dispose() {
-    widget.ctrl.removeListener(_onTextChanged);
+    widget.ctrl.removeListener(_onChanged);
     super.dispose();
   }
 
@@ -318,12 +446,12 @@ class _InputBarState extends State<_InputBar> {
           child: Row(children: [
             Expanded(
               child: TextField(
-                controller: widget.ctrl,
-                focusNode:  widget.focus,
-                enabled:    !widget.isTyping,
-                onSubmitted: (_) => widget.onSend(),
-                maxLines:    4,
-                minLines:    1,
+                controller:      widget.ctrl,
+                focusNode:       widget.focus,
+                enabled:         !widget.isTyping,
+                onSubmitted:     (_) => widget.onSend(),
+                maxLines:        4,
+                minLines:        1,
                 textInputAction: TextInputAction.send,
                 decoration: InputDecoration(
                   hintText: widget.isTyping
@@ -333,7 +461,7 @@ class _InputBarState extends State<_InputBar> {
                   fillColor: AppColors.surfaceVariant,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(24),
-                    borderSide: BorderSide.none,
+                    borderSide:   BorderSide.none,
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 10),
@@ -342,16 +470,15 @@ class _InputBarState extends State<_InputBar> {
             ),
             const SizedBox(width: 8),
             FloatingActionButton.small(
-              heroTag: 'ai_send',
-              onPressed: canSend ? widget.onSend : null,
-              backgroundColor:
-                  canSend ? AppColors.aiTutor : AppColors.grey300,
-              elevation: 0,
+              heroTag:         'ai_send',
+              onPressed:       canSend ? widget.onSend : null,
+              backgroundColor: canSend ? AppColors.aiTutor : AppColors.grey300,
+              elevation:       0,
               child: Icon(
                 widget.isTyping
                     ? Icons.hourglass_bottom_rounded
                     : Icons.send_rounded,
-                size: 18,
+                size:  18,
                 color: Colors.white,
               ),
             ),

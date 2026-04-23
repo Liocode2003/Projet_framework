@@ -55,6 +55,23 @@ class AiTutorLocalDataSource {
     return response;
   }
 
+  /// Saves an externally-generated response (e.g. from LLM) into cache.
+  Future<void> saveResponseToCache({
+    required String userId,
+    required String question,
+    required String stepId,
+    required String response,
+  }) async {
+    final entry = AiCacheEntryModel(
+      queryHash: _hash(userId, stepId, question),
+      question: question,
+      response: response,
+      stepId: stepId,
+      createdAt: DateTime.now().toIso8601String(),
+    );
+    await _db.saveAiCache(entry);
+  }
+
   /// Removes expired entries from cache.
   Future<void> pruneCache(int maxAgeHours) =>
       _db.pruneExpiredAiCache(maxAgeHours);
