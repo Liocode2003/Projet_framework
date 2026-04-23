@@ -35,6 +35,14 @@ import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/settings/presentation/screens/accessibility_screen.dart';
 import '../../features/auth/presentation/screens/auth_profile_screen.dart';
 import '../../features/parent/presentation/screens/parent_dashboard_screen.dart';
+import '../../features/game/presentation/screens/game_screen.dart';
+import '../../features/game/presentation/screens/game_sprint_screen.dart';
+import '../../features/game/presentation/screens/game_duel_screen.dart';
+import '../../features/game/presentation/screens/game_sage_screen.dart';
+import '../../features/homework/presentation/screens/homework_screen.dart';
+import '../../features/exam_mode/presentation/screens/exam_mode_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/credits/presentation/screens/credits_screen.dart';
 import '../constants/route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -137,10 +145,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
+      // ─── Top-level pages (no bottom nav) ─────────────────────────────
       GoRoute(
-        path: RouteNames.parentDashboard,
-        name: 'parent',
-        pageBuilder: (c, s) => _fade(s, const ParentDashboardScreen()),
+        path: RouteNames.credits,
+        name: 'credits',
+        pageBuilder: (c, s) => _fade(s, const CreditsScreen()),
       ),
 
       // ─── Main shell (bottom navigation) ─────────────────────────────
@@ -274,6 +283,48 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     _fade(s, const LocalClassroomJoinScreen()),
               ),
             ],
+          ),
+          GoRoute(
+            path: RouteNames.game,
+            name: 'game',
+            pageBuilder: (c, s) => _fade(s, const GameScreen()),
+            routes: [
+              GoRoute(
+                path: 'sprint',
+                name: 'game-sprint',
+                pageBuilder: (c, s) => _fade(s, const GameSprintScreen()),
+              ),
+              GoRoute(
+                path: 'duel',
+                name: 'game-duel',
+                pageBuilder: (c, s) => _fade(s, const GameDuelScreen()),
+              ),
+              GoRoute(
+                path: 'sage',
+                name: 'game-sage',
+                pageBuilder: (c, s) => _fade(s, const GameSageScreen()),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: RouteNames.homework,
+            name: 'homework',
+            pageBuilder: (c, s) => _fade(s, const HomeworkScreen()),
+          ),
+          GoRoute(
+            path: RouteNames.examMode,
+            name: 'exam-mode',
+            pageBuilder: (c, s) => _fade(s, const ExamModeScreen()),
+          ),
+          GoRoute(
+            path: RouteNames.profile,
+            name: 'profile',
+            pageBuilder: (c, s) => _fade(s, const ProfileScreen()),
+          ),
+          GoRoute(
+            path: RouteNames.parentDashboard,
+            name: 'parent',
+            pageBuilder: (c, s) => _fade(s, const ParentDashboardScreen()),
           ),
         ],
       ),

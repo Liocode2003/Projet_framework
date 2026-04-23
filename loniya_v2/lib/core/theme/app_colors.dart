@@ -85,6 +85,10 @@ class AppColors {
   static const Color grey800 = Color(0xFF424242);
   static const Color grey900 = Color(0xFF212121);
 
+  // ── Teal (Classe Connectée / enseignant) ─────────────────────────────
+  static const Color teal     = Color(0xFF00958A);
+  static const Color tealDark = Color(0xFF006B62);
+
   // ── Outline / Shadow ──────────────────────────────────────────────────
   static const Color outline      = Color(0xFFE8D4BA);
   static const Color outlineDark  = Color(0xFF4A3020);
