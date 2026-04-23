@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import '../../../../core/errors/failures.dart';
+import '../entities/ai_message_entity.dart';
 import '../repositories/ai_tutor_repository.dart';
 
 class AskQuestionUseCase {
@@ -9,9 +10,13 @@ class AskQuestionUseCase {
   Future<Either<Failure, String>> call({
     required String userId,
     required String question,
-    String stepId = '',
+    List<AiMessageEntity> history = const [],
+    String stepId       = '',
     List<String> stepKeywords = const [],
-    String subject = '',
+    String subject      = '',
+    String userRole     = 'student',
+    String grade        = '',
+    String stepTitle    = '',
   }) {
     if (question.trim().isEmpty) {
       return Future.value(
@@ -19,11 +24,15 @@ class AskQuestionUseCase {
       );
     }
     return _repo.askQuestion(
-      userId: userId,
-      question: question,
-      stepId: stepId,
+      userId:       userId,
+      question:     question,
+      history:      history,
+      stepId:       stepId,
       stepKeywords: stepKeywords,
-      subject: subject,
+      subject:      subject,
+      userRole:     userRole,
+      grade:        grade,
+      stepTitle:    stepTitle,
     );
   }
 }
