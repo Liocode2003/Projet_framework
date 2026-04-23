@@ -32,6 +32,9 @@ class HiveStorageService implements StorageService {
       Hive.openBox(HiveBoxes.marketplace),
       Hive.openBox(HiveBoxes.subscriptions),
       Hive.openBox(HiveBoxes.purchases),
+      Hive.openBox(HiveBoxes.credits),
+      Hive.openBox(HiveBoxes.exams),
+      Hive.openBox(HiveBoxes.homework),
     ]);
   }
 

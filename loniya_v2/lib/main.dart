@@ -28,6 +28,9 @@ import 'features/local_classroom/data/models/classroom_model.dart';
 import 'features/orientation/data/models/orientation_result_model.dart';
 import 'features/teacher/data/models/subscription_model.dart';
 import 'features/teacher/data/models/purchase_model.dart';
+import 'features/credits/data/models/credit_model.dart';
+import 'features/exam_mode/data/models/exam_mode_model.dart';
+import 'features/homework/data/models/homework_model.dart';
 
 Future<void> main() async {
   // ── Error handlers (installed before runApp) ─────────────────────────────
@@ -67,7 +70,7 @@ Future<void> main() async {
         encryptionServiceProvider.overrideWithValue(encryptionService),
       ],
       observers: [LoniyaProviderObserver()],
-      child: const LoniyaApp(),
+      child: const YikriApp(),
     ),
   );
 }
@@ -93,4 +96,7 @@ void _registerHiveAdapters() {
   reg(ClassroomModelAdapter());
   reg(SubscriptionModelAdapter());
   reg(PurchaseModelAdapter());
+  reg(CreditModelAdapter());
+  reg(ExamModeModelAdapter());
+  reg(HomeworkModelAdapter());
 }

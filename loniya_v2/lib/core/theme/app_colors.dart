@@ -86,8 +86,19 @@ class AppColors {
   static const Color grey900 = Color(0xFF212121);
 
   // ── Teal (Classe Connectée / enseignant) ─────────────────────────────
-  static const Color teal     = Color(0xFF00958A);
-  static const Color tealDark = Color(0xFF006B62);
+  static const Color teal      = Color(0xFF00958A);
+  static const Color tealDark  = Color(0xFF006B62);
+  static const Color tealLight = Color(0xFF5CC8C0);
+
+  // ── Secondary = Sky blue (Français, matières littéraires) ────────────
+  static const Color secondary      = Color(0xFF3A82C4);
+  static const Color secondaryDark  = Color(0xFF245F96);
+  static const Color secondaryLight = Color(0xFF72AFDF);
+
+  // ── Tertiary = Violet (Histoire-Géo, orientation) ─────────────────────
+  static const Color tertiary      = Color(0xFF7B5EA7);
+  static const Color tertiaryDark  = Color(0xFF5A3F82);
+  static const Color tertiaryLight = Color(0xFFA98ED4);
 
   // ── Outline / Shadow ──────────────────────────────────────────────────
   static const Color outline      = Color(0xFFE8D4BA);

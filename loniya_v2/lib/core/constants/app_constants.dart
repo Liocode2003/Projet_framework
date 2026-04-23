@@ -82,10 +82,15 @@ class AppConstants {
   ];
 
   // ── Le Sage ───────────────────────────────────────────────────────────
-  static const String sageName         = 'Le Sage';
-  static const String sageGreeting     = 'Bonjour ! Je suis Le Sage 🌿\nPose-moi une question, je te guiderai vers la réponse.';
-  static const int    sageCacheHours   = 72;
-  static const int    sageMaxHistory   = 12;
+  static const String sageName           = 'Le Sage';
+  static const String sageGreeting       = 'Bonjour ! Je suis Le Sage 🌿\nPose-moi une question, je te guiderai vers la réponse.';
+  static const int    sageCacheHours     = 72;
+  static const int    sageMaxHistory     = 12;
+  static const int    aiCacheExpiryHours = 72;   // durée cache réponses IA
+  static const int    maxCachedImages    = 100;  // quota images en cache
+
+  // ── Auth / OTP ────────────────────────────────────────────────────────
+  static const String mockOtpCode = '1234';  // code OTP mode démo
 
   // ── Réseau local (Classe Connectée) ──────────────────────────────────
   static const int    localServerPort  = 8080;

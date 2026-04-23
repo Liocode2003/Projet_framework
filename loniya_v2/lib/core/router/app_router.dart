@@ -43,6 +43,8 @@ import '../../features/homework/presentation/screens/homework_screen.dart';
 import '../../features/exam_mode/presentation/screens/exam_mode_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/credits/presentation/screens/credits_screen.dart';
+import '../../features/teacher/presentation/screens/teacher_publish_screen.dart';
+import '../../features/parent/presentation/screens/parent_link_screen.dart';
 import '../constants/route_names.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -150,6 +152,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RouteNames.credits,
         name: 'credits',
         pageBuilder: (c, s) => _fade(s, const CreditsScreen()),
+      ),
+      GoRoute(
+        path: RouteNames.parentLink,
+        name: 'parent-link',
+        pageBuilder: (c, s) => _fade(s, const ParentLinkScreen()),
       ),
 
       // ─── Main shell (bottom navigation) ─────────────────────────────
@@ -261,6 +268,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: 'teacher-revenue',
                 pageBuilder: (c, s) =>
                     _fade(s, const TeacherRevenueScreen()),
+              ),
+              GoRoute(
+                path: 'publish',
+                name: 'teacher-publish',
+                pageBuilder: (c, s) =>
+                    _fade(s, const TeacherPublishScreen()),
               ),
             ],
           ),
