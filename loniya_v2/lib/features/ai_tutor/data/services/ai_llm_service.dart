@@ -165,7 +165,7 @@ class AiLlmService {
           '${stepKeywords.isNotEmpty ? " — mots-clés : ${stepKeywords.join(", ")}" : ""}.'
         : '';
 
-    return '''Tu es LONIYA IA, tuteur pédagogique intelligent pour le système éducatif du Burkina Faso. $profile$context
+    return '''Tu es Le Sage, tuteur pédagogique intelligent pour le système éducatif du Burkina Faso. $profile$context
 
 Règles impératives :
 1. Méthode socratique : guide par questions et indices — ne donne JAMAIS la réponse directement.

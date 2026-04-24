@@ -50,7 +50,7 @@ class PdfExportService {
     final bytes = await File(filePath).readAsBytes();
     await Printing.sharePdf(
       bytes: bytes,
-      filename: 'Orientation_LONIYA.pdf',
+      filename: 'Orientation_yikri.pdf',
     );
   }
 
@@ -78,7 +78,7 @@ class PdfExportService {
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
               pw.Text(
-                'LONIYA V2 — Rapport d\'Orientation',
+                'yikri — Rapport d\'Orientation',
                 style: pw.TextStyle(
                   color: PdfColors.white,
                   fontSize: 14,
@@ -301,7 +301,7 @@ class PdfExportService {
         border:
             pw.Border(top: pw.BorderSide(color: PdfColors.grey300))),
       child: pw.Text(
-        'Généré par LONIYA V2 · Plateforme éducative offline · Burkina Faso',
+        'Généré par yikri · Plateforme éducative offline · Burkina Faso',
         style: const pw.TextStyle(
             fontSize: 8, color: PdfColors.grey500),
         textAlign: pw.TextAlign.center,

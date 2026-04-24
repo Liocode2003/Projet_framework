@@ -271,7 +271,7 @@ class _EmptyState extends StatelessWidget {
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
             Text(
-              'Les enfants utilisant LONIYA sur cet appareil '
+              'Les enfants utilisant yikri sur cet appareil '
               'apparaîtront ici automatiquement.',
               style: AppTextStyles.bodySmall
                   .copyWith(color: AppColors.onSurfaceVariant),

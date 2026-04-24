@@ -51,7 +51,7 @@ class SettingsScreen extends ConsumerWidget {
           _SettingsCard(children: [
             _LinkTile(
               icon: Icons.accessibility_new_rounded,
-              iconColor: AppColors.pink,
+              iconColor: AppColors.levelPurple,
               title: 'Options d\'accessibilité',
               subtitle: 'Contraste élevé, grands textes, voix',
               onTap: () => context.push(RouteNames.accessibility),
