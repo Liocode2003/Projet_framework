@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../../core/constants/hive_boxes.dart';
-import '../../../../core/services/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../auth/data/models/user_model.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 
 class ParentLinkScreen extends ConsumerStatefulWidget {
@@ -20,18 +18,14 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
   final _codeCtrl = TextEditingController();
   bool _isLoading = false;
   String? _error;
-  String? _linkedName;
+  String? _linkedCode;
+
+  static final _ykRegex = RegExp(r'^YK-\d{4}-BF$');
 
   @override
   void dispose() {
     _codeCtrl.dispose();
     super.dispose();
-  }
-
-  String _ykCode(String userId) {
-    if (userId.isEmpty) return 'YK-0000-BF';
-    final hash = userId.hashCode.abs() % 10000;
-    return 'YK-${hash.toString().padLeft(4, '0')}-BF';
   }
 
   Future<void> _link() async {
@@ -41,59 +35,56 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
     setState(() {
       _isLoading = true;
       _error = null;
-      _linkedName = null;
+      _linkedCode = null;
     });
 
-    await Future.delayed(const Duration(milliseconds: 600));
+    await Future.delayed(const Duration(milliseconds: 500));
     if (!mounted) return;
 
-    final db = ref.read(databaseServiceProvider);
-    final students = db
-        .getAllUsers()
-        .where((u) => u.role == 'student')
-        .toList();
-
-    UserModel? found;
-    for (final student in students) {
-      if (_ykCode(student.id) == code) {
-        found = student;
-        break;
-      }
-    }
-
-    if (found != null) {
-      final parentId = ref.read(authNotifierProvider).userId ?? '';
-      if (parentId.isEmpty) {
-        setState(() {
-          _isLoading = false;
-          _error = 'Erreur : session invalide. Reconnecte-toi.';
-        });
-        return;
-      }
-
-      final box = Hive.box(HiveBoxes.settings);
-      final key = 'parent_links_$parentId';
-      final existing = (box.get(key) as String?) ?? '';
-      final linked = existing.isEmpty
-          ? <String>[]
-          : existing.split(',').where((s) => s.isNotEmpty).toList();
-      if (!linked.contains(found.id)) {
-        linked.add(found.id);
-        await box.put(key, linked.join(','));
-      }
-
+    // Validate format only — no device lookup required
+    if (!_ykRegex.hasMatch(code)) {
       setState(() {
         _isLoading = false;
-        _linkedName = '${found!.name ?? found.phone} lié(e) avec succès ! 🎉';
+        _error = 'Format invalide. Le code doit être du type YK-XXXX-BF '
+            '(ex : YK-4823-BF).';
       });
-    } else {
+      return;
+    }
+
+    final parentId = ref.read(authNotifierProvider).userId ?? '';
+    if (parentId.isEmpty) {
       setState(() {
         _isLoading = false;
-        _error =
-            'Code introuvable. Vérifie que ton enfant utilise bien yikri '
-            'sur cet appareil, et que son code est exact.';
+        _error = 'Erreur : session invalide. Reconnecte-toi.';
       });
+      return;
     }
+
+    // Store the YK code (works cross-device — no local user lookup)
+    final box = Hive.box(HiveBoxes.settings);
+    final key = 'parent_links_$parentId';
+    final existing = (box.get(key) as String?) ?? '';
+    final linked = existing.isEmpty
+        ? <String>[]
+        : existing.split(',').where((s) => s.isNotEmpty).toList();
+
+    if (linked.contains(code)) {
+      setState(() {
+        _isLoading = false;
+        _linkedCode = code;
+        _error = null;
+      });
+      // Already linked — just confirm
+      return;
+    }
+
+    linked.add(code);
+    await box.put(key, linked.join(','));
+
+    setState(() {
+      _isLoading = false;
+      _linkedCode = code;
+    });
   }
 
   @override
@@ -127,26 +118,28 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                 Text('👨‍👩‍👧', style: TextStyle(fontSize: 36)),
                 SizedBox(width: 14),
                 Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Lier ton enfant',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Lier ton enfant',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Nunito',
+                              fontSize: 17,
+                              fontWeight: FontWeight.w800)),
+                      SizedBox(height: 4),
+                      Text(
+                        'Entre le code yikri de ton enfant. '
+                        'Fonctionne même si vous avez des téléphones différents.',
                         style: TextStyle(
-                            color: Colors.white,
+                            color: Colors.white70,
                             fontFamily: 'Nunito',
-                            fontSize: 17,
-                            fontWeight: FontWeight.w800)),
-                    SizedBox(height: 4),
-                    Text(
-                      'Demande le code yikri de ton enfant depuis son Profil.',
-                      style: TextStyle(
-                          color: Colors.white70,
-                          fontFamily: 'Nunito',
-                          fontSize: 12,
-                          height: 1.4),
-                    ),
-                  ],
-                )),
+                            fontSize: 12,
+                            height: 1.4),
+                      ),
+                    ],
+                  ),
+                ),
               ]),
             ),
             const SizedBox(height: 32),
@@ -168,13 +161,13 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
               decoration: const InputDecoration(
                 hintText: 'YK-0000-BF',
                 prefixIcon: Icon(Icons.qr_code_rounded),
-                hintStyle:
-                    TextStyle(fontFamily: 'Nunito', letterSpacing: 2),
+                hintStyle: TextStyle(
+                    fontFamily: 'Nunito', letterSpacing: 2),
               ),
               style: const TextStyle(
                   fontFamily: 'Nunito',
-                  fontSize: 18,
-                  letterSpacing: 3,
+                  fontSize: 20,
+                  letterSpacing: 4,
                   fontWeight: FontWeight.w700),
             ),
 
@@ -200,7 +193,7 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
               ),
             ],
 
-            if (_linkedName != null) ...[
+            if (_linkedCode != null) ...[
               const SizedBox(height: 12),
               Container(
                 padding: const EdgeInsets.all(16),
@@ -210,18 +203,33 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                   border: Border.all(
                       color: AppColors.success.withOpacity(0.3)),
                 ),
-                child: Row(children: [
-                  const Icon(Icons.check_circle_rounded,
-                      color: AppColors.success, size: 24),
-                  const SizedBox(width: 12),
-                  Expanded(
-                      child: Text(_linkedName!,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(children: [
+                      const Icon(Icons.check_circle_rounded,
+                          color: AppColors.success, size: 22),
+                      const SizedBox(width: 10),
+                      Text(_linkedCode!,
                           style: const TextStyle(
                               fontFamily: 'Nunito',
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AppColors.success))),
-                ]),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 2,
+                              color: AppColors.success)),
+                    ]),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Code enregistré ! La progression apparaîtra '
+                      'dès que ton enfant se connecte à yikri.',
+                      style: TextStyle(
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          color: AppColors.success,
+                          height: 1.4),
+                    ),
+                  ],
+                ),
               ),
             ],
 
@@ -258,10 +266,10 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                     fontWeight: FontWeight.w700,
                     color: AppColors.onSurface)),
             const SizedBox(height: 12),
-            _Step('1', 'Ton enfant ouvre l\'app yikri sur ce téléphone'),
-            _Step('2', 'Il va dans Profil (icône en bas à droite)'),
-            _Step('3', 'Il copie son code YK-XXXX-BF affiché'),
-            _Step('4', 'Il te l\'envoie et tu le saisis ici'),
+            _Step('1', 'Ton enfant ouvre yikri sur son téléphone'),
+            _Step('2', 'Il va dans Profil → copie son code YK-XXXX-BF'),
+            _Step('3', 'Il te l\'envoie par WhatsApp, SMS ou voix'),
+            _Step('4', 'Tu saisis le code ici — c\'est tout !'),
           ],
         ),
       ),
@@ -279,8 +287,7 @@ class _Step extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(children: [
         Container(
-          width: 26,
-          height: 26,
+          width: 26, height: 26,
           decoration: BoxDecoration(
             color: AppColors.accent.withOpacity(0.15),
             shape: BoxShape.circle,
