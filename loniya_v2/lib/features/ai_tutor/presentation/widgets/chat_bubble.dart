@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
@@ -29,8 +31,7 @@ class _UserBubble extends StatelessWidget {
         children: [
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.primary,
                 borderRadius: const BorderRadius.only(
@@ -41,29 +42,108 @@ class _UserBubble extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.primary.withOpacity(0.2),
+                    color:      AppColors.primary.withOpacity(0.2),
                     blurRadius: 6,
-                    offset: const Offset(0, 2),
+                    offset:     const Offset(0, 2),
                   ),
                 ],
               ),
-              child: Text(
-                msg.content,
-                style: AppTextStyles.bodyMedium.copyWith(
-                  color: AppColors.onPrimary,
-                ),
-              ),
+              child: _UserBubbleContent(msg),
             ),
           ),
           const SizedBox(width: 8),
           const CircleAvatar(
-            radius: 14,
+            radius:          14,
             backgroundColor: AppColors.primary,
-            child: Icon(Icons.person_rounded,
-                size: 16, color: Colors.white),
+            child: Icon(Icons.person_rounded, size: 16, color: Colors.white),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _UserBubbleContent extends StatelessWidget {
+  final AiMessageEntity msg;
+  const _UserBubbleContent(this.msg);
+
+  @override
+  Widget build(BuildContext context) {
+    if (msg.type == AiMessageType.image && msg.attachmentPath != null) {
+      return _ImageContent(path: msg.attachmentPath!, caption: msg.content);
+    }
+    if (msg.type == AiMessageType.audio) {
+      return _AudioContent(text: msg.content);
+    }
+    return Text(
+      msg.content,
+      style: AppTextStyles.bodyMedium.copyWith(color: AppColors.onPrimary),
+    );
+  }
+}
+
+class _ImageContent extends StatelessWidget {
+  final String path;
+  final String caption;
+  const _ImageContent({required this.path, required this.caption});
+
+  @override
+  Widget build(BuildContext context) {
+    final file = File(path);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: file.existsSync()
+              ? Image.file(
+                  file,
+                  width:  220,
+                  height: 180,
+                  fit:    BoxFit.cover,
+                )
+              : Container(
+                  width: 220, height: 120,
+                  color: Colors.white24,
+                  child: const Icon(Icons.image_not_supported_rounded,
+                      color: Colors.white54, size: 40),
+                ),
+        ),
+        if (caption.isNotEmpty && caption != '📷 Image envoyée') ...[
+          const SizedBox(height: 6),
+          Text(caption,
+              style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.onPrimary)),
+        ],
+      ],
+    );
+  }
+}
+
+class _AudioContent extends StatelessWidget {
+  final String text;
+  const _AudioContent({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.mic_rounded, color: Colors.white70, size: 18),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            text,
+            style: AppTextStyles.bodyMedium.copyWith(
+              color: AppColors.onPrimary,
+              fontStyle: text == '🎤 Message vocal'
+                  ? FontStyle.italic
+                  : FontStyle.normal,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -80,37 +160,30 @@ class _TutorBubble extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          // Avatar
           Container(
-            width: 28,
-            height: 28,
+            width: 28, height: 28,
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [AppColors.aiTutor, AppColors.levelPurple],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin:  Alignment.topLeft,
+                end:    Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Center(
-              child: Text(
-                'IA',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Nunito',
-                ),
-              ),
+              child: Text('IA',
+                  style: TextStyle(
+                    color:      Colors.white,
+                    fontSize:   10,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Nunito',
+                  )),
             ),
           ),
           const SizedBox(width: 8),
-
-          // Bubble
           Flexible(
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: const BorderRadius.only(
@@ -120,13 +193,12 @@ class _TutorBubble extends StatelessWidget {
                   bottomRight: Radius.circular(16),
                 ),
                 border: Border.all(
-                  color: AppColors.aiTutor.withOpacity(0.15),
-                ),
+                    color: AppColors.aiTutor.withOpacity(0.15)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color:      Colors.black.withOpacity(0.04),
                     blurRadius: 8,
-                    offset: const Offset(0, 2),
+                    offset:     const Offset(0, 2),
                   ),
                 ],
               ),
@@ -136,7 +208,7 @@ class _TutorBubble extends StatelessWidget {
                   Text(
                     msg.content,
                     style: AppTextStyles.bodyMedium.copyWith(
-                      color: AppColors.onSurface,
+                      color:  AppColors.onSurface,
                       height: 1.5,
                     ),
                   ),
