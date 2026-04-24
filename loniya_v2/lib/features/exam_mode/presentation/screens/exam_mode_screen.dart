@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import 'exam_composition_screen.dart';
 
 class ExamModeScreen extends ConsumerStatefulWidget {
   const ExamModeScreen({super.key});
@@ -133,29 +134,56 @@ class _ExamModeScreenState extends ConsumerState<ExamModeScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20)),
         title: Text('Commencer $subject',
-            style: const TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800)),
+            style: const TextStyle(
+                fontFamily: 'Nunito', fontWeight: FontWeight.w800)),
         content: Text(
-          'Tu vas simuler une épreuve de $subject. '
-          'Le Sage sera désactivé pendant toute la durée.\n\nPrêt(e) ?',
+          'Tu vas simuler une épreuve de $subject avec '
+          '${_questionCount(subject)} questions.\n\n'
+          'Le Sage est désactivé pendant l\'examen.\n\nPrêt(e) ?',
           style: const TextStyle(fontFamily: 'Nunito', fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Annuler',
-                style: TextStyle(fontFamily: 'Nunito', color: AppColors.onSurfaceVariant)),
+                style: TextStyle(
+                    fontFamily: 'Nunito',
+                    color: AppColors.onSurfaceVariant)),
           ),
           FilledButton(
-            onPressed: () => Navigator.pop(ctx),
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      ExamCompositionScreen(subject: subject),
+                ),
+              );
+            },
+            style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primary),
             child: const Text('Commencer',
-                style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w700)),
+                style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontWeight: FontWeight.w700)),
           ),
         ],
       ),
     );
+  }
+
+  int _questionCount(String subject) {
+    const counts = {
+      'Mathématiques': 10,
+      'Physique-Chimie': 10,
+      'Français': 10,
+      'Histoire-Géographie': 10,
+    };
+    return counts[subject] ?? 10;
   }
 }
 

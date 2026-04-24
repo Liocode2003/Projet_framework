@@ -65,6 +65,12 @@ class _Body extends StatelessWidget {
     final top3 = entries.take(3).toList();
     final rest = entries.skip(3).toList();
 
+    // Check if current user is already visible (rank 1-3 or in rest list)
+    final currentUser = entries.where((e) => e.isCurrentUser).firstOrNull;
+    final currentInTop3 = top3.any((e) => e.isCurrentUser);
+    final currentInRest = rest.any((e) => e.isCurrentUser);
+    final showStickyUser = currentUser != null && !currentInTop3 && !currentInRest;
+
     return ListView(
       children: [
         // Podium
@@ -82,6 +88,21 @@ class _Body extends StatelessWidget {
                 style: AppTextStyles.titleMedium),
           ),
           ...rest.map((e) => _RankTile(entry: e)),
+        ],
+
+        // Always show current user at bottom if not already visible
+        if (showStickyUser) ...[
+          const Padding(
+            padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+            child: Divider(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Text('Ta position',
+                style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.onSurfaceVariant)),
+          ),
+          _RankTile(entry: currentUser!),
         ],
 
         const SizedBox(height: 80),

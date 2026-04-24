@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../../../core/constants/hive_boxes.dart';
+import '../../../../core/services/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/data/models/user_model.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
 
 class ParentLinkScreen extends ConsumerStatefulWidget {
   const ParentLinkScreen({super.key});
@@ -23,24 +28,70 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
     super.dispose();
   }
 
+  String _ykCode(String userId) {
+    if (userId.isEmpty) return 'YK-0000-BF';
+    final hash = userId.hashCode.abs() % 10000;
+    return 'YK-${hash.toString().padLeft(4, '0')}-BF';
+  }
+
   Future<void> _link() async {
     final code = _codeCtrl.text.trim().toUpperCase();
     if (code.isEmpty) return;
 
-    setState(() { _isLoading = true; _error = null; });
+    setState(() {
+      _isLoading = true;
+      _error = null;
+      _linkedName = null;
+    });
 
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(const Duration(milliseconds: 600));
+    if (!mounted) return;
 
-    // Mock: any code starting with "YK-" is valid
-    if (code.startsWith('YK-') && code.length >= 8) {
+    final db = ref.read(databaseServiceProvider);
+    final students = db
+        .getAllUsers()
+        .where((u) => u.role == 'student')
+        .toList();
+
+    UserModel? found;
+    for (final student in students) {
+      if (_ykCode(student.id) == code) {
+        found = student;
+        break;
+      }
+    }
+
+    if (found != null) {
+      final parentId = ref.read(authNotifierProvider).userId ?? '';
+      if (parentId.isEmpty) {
+        setState(() {
+          _isLoading = false;
+          _error = 'Erreur : session invalide. Reconnecte-toi.';
+        });
+        return;
+      }
+
+      final box = Hive.box(HiveBoxes.settings);
+      final key = 'parent_links_$parentId';
+      final existing = (box.get(key) as String?) ?? '';
+      final linked = existing.isEmpty
+          ? <String>[]
+          : existing.split(',').where((s) => s.isNotEmpty).toList();
+      if (!linked.contains(found.id)) {
+        linked.add(found.id);
+        await box.put(key, linked.join(','));
+      }
+
       setState(() {
         _isLoading = false;
-        _linkedName = 'Élève lié avec succès !';
+        _linkedName = '${found!.name ?? found.phone} lié(e) avec succès ! 🎉';
       });
     } else {
       setState(() {
         _isLoading = false;
-        _error = 'Code invalide. Le code doit commencer par YK-';
+        _error =
+            'Code introuvable. Vérifie que ton enfant utilise bien yikri '
+            'sur cet appareil, et que son code est exact.';
       });
     }
   }
@@ -51,12 +102,13 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('Lier un enfant',
-            style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w800)),
+            style: TextStyle(
+                fontFamily: 'Nunito', fontWeight: FontWeight.w800)),
         backgroundColor: AppColors.background,
         foregroundColor: AppColors.onSurface,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,18 +126,24 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
               child: const Row(children: [
                 Text('👨‍👩‍👧', style: TextStyle(fontSize: 36)),
                 SizedBox(width: 14),
-                Expanded(child: Column(
+                Expanded(
+                    child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Lier ton enfant',
-                        style: TextStyle(color: Colors.white,
-                            fontFamily: 'Nunito', fontSize: 17,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Nunito',
+                            fontSize: 17,
                             fontWeight: FontWeight.w800)),
                     SizedBox(height: 4),
                     Text(
-                      'Demande à ton enfant de partager son code yikri depuis son profil.',
-                      style: TextStyle(color: Colors.white70,
-                          fontFamily: 'Nunito', fontSize: 12, height: 1.4),
+                      'Demande le code yikri de ton enfant depuis son Profil.',
+                      style: TextStyle(
+                          color: Colors.white70,
+                          fontFamily: 'Nunito',
+                          fontSize: 12,
+                          height: 1.4),
                     ),
                   ],
                 )),
@@ -94,8 +152,11 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
             const SizedBox(height: 32),
 
             const Text('Code de ton enfant',
-                style: TextStyle(fontFamily: 'Nunito', fontSize: 15,
-                    fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface)),
             const SizedBox(height: 8),
             TextField(
               controller: _codeCtrl,
@@ -105,13 +166,18 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                 LengthLimitingTextInputFormatter(12),
               ],
               decoration: const InputDecoration(
-                hintText: 'YK-XXXX-BF',
+                hintText: 'YK-0000-BF',
                 prefixIcon: Icon(Icons.qr_code_rounded),
-                hintStyle: TextStyle(fontFamily: 'Nunito', letterSpacing: 2),
+                hintStyle:
+                    TextStyle(fontFamily: 'Nunito', letterSpacing: 2),
               ),
-              style: const TextStyle(fontFamily: 'Nunito',
-                  fontSize: 18, letterSpacing: 3, fontWeight: FontWeight.w700),
+              style: const TextStyle(
+                  fontFamily: 'Nunito',
+                  fontSize: 18,
+                  letterSpacing: 3,
+                  fontWeight: FontWeight.w700),
             ),
+
             if (_error != null) ...[
               const SizedBox(height: 10),
               Container(
@@ -121,14 +187,19 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(children: [
-                  const Icon(Icons.error_outline, color: AppColors.error, size: 16),
+                  const Icon(Icons.error_outline,
+                      color: AppColors.error, size: 16),
                   const SizedBox(width: 8),
-                  Expanded(child: Text(_error!,
-                      style: const TextStyle(fontFamily: 'Nunito',
-                          fontSize: 12, color: AppColors.error))),
+                  Expanded(
+                      child: Text(_error!,
+                          style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 12,
+                              color: AppColors.error))),
                 ]),
               ),
             ],
+
             if (_linkedName != null) ...[
               const SizedBox(height: 12),
               Container(
@@ -136,19 +207,24 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.successLight,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.success.withOpacity(0.3)),
+                  border: Border.all(
+                      color: AppColors.success.withOpacity(0.3)),
                 ),
                 child: Row(children: [
                   const Icon(Icons.check_circle_rounded,
                       color: AppColors.success, size: 24),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(_linkedName!,
-                      style: const TextStyle(fontFamily: 'Nunito',
-                          fontSize: 15, fontWeight: FontWeight.w700,
-                          color: AppColors.success))),
+                  Expanded(
+                      child: Text(_linkedName!,
+                          style: const TextStyle(
+                              fontFamily: 'Nunito',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AppColors.success))),
                 ]),
               ),
             ],
+
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
@@ -161,22 +237,30 @@ class _ParentLinkScreenState extends ConsumerState<ParentLinkScreen> {
                       borderRadius: BorderRadius.circular(14)),
                 ),
                 child: _isLoading
-                    ? const SizedBox(width: 20, height: 20,
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Text('Lier cet enfant',
-                        style: TextStyle(fontFamily: 'Nunito',
-                            fontSize: 15, fontWeight: FontWeight.w800)),
+                        style: TextStyle(
+                            fontFamily: 'Nunito',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800)),
               ),
             ),
+
             const SizedBox(height: 32),
             const Text('Comment obtenir le code ?',
-                style: TextStyle(fontFamily: 'Nunito', fontSize: 14,
-                    fontWeight: FontWeight.w700, color: AppColors.onSurface)),
+                style: TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.onSurface)),
             const SizedBox(height: 12),
-            _Step('1', 'Ton enfant ouvre l\'app yikri'),
+            _Step('1', 'Ton enfant ouvre l\'app yikri sur ce téléphone'),
             _Step('2', 'Il va dans Profil (icône en bas à droite)'),
-            _Step('3', 'Il copie son code YK-XXXX-BF'),
+            _Step('3', 'Il copie son code YK-XXXX-BF affiché'),
             _Step('4', 'Il te l\'envoie et tu le saisis ici'),
           ],
         ),
@@ -195,19 +279,27 @@ class _Step extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(children: [
         Container(
-          width: 26, height: 26,
+          width: 26,
+          height: 26,
           decoration: BoxDecoration(
             color: AppColors.accent.withOpacity(0.15),
             shape: BoxShape.circle,
           ),
-          child: Center(child: Text(num,
-              style: const TextStyle(color: AppColors.accent,
-                  fontFamily: 'Nunito', fontSize: 12, fontWeight: FontWeight.w800))),
+          child: Center(
+              child: Text(num,
+                  style: const TextStyle(
+                      color: AppColors.accent,
+                      fontFamily: 'Nunito',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800))),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(text,
-            style: const TextStyle(fontFamily: 'Nunito', fontSize: 13,
-                color: AppColors.onSurface))),
+        Expanded(
+            child: Text(text,
+                style: const TextStyle(
+                    fontFamily: 'Nunito',
+                    fontSize: 13,
+                    color: AppColors.onSurface))),
       ]),
     );
   }

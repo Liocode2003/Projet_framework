@@ -91,17 +91,6 @@ class GameScreen extends ConsumerWidget {
                 const SizedBox(height: 14),
 
                 _GameModeCard(
-                  icon: '⚔️',
-                  title: 'Duel',
-                  subtitle: 'Défie un autre élève — le meilleur score l\'emporte',
-                  tag: 'Asynchrone',
-                  colors: const [Color(0xFF1A0A3E), Color(0xFF4527A0)],
-                  badge: 'Bêta',
-                  onTap: () => context.go(RouteNames.gameDuel),
-                ),
-                const SizedBox(height: 14),
-
-                _GameModeCard(
                   icon: '🌿',
                   title: 'Défi Le Sage',
                   subtitle: 'Le Sage te pose des questions — réponds vite et bien',
