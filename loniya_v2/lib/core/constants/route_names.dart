@@ -55,7 +55,6 @@ class RouteNames {
   // Jeu éducatif
   static const String game      = '/jeu';
   static const String gameSprint = '/jeu/sprint';
-  static const String gameDuel   = '/jeu/duel';
   static const String gameSage   = '/jeu/sage';
 
   // Mode Examen
