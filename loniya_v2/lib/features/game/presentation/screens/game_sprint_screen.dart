@@ -8,7 +8,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../credits/presentation/providers/credit_provider.dart';
 
-// ── Game gem types ────────────────────────────────────────────────────────────
+// ── Gem types ─────────────────────────────────────────────────────────────────
 
 enum _GemType { rouge, bleu, vert, or, violet }
 
@@ -28,7 +28,33 @@ const _gemColors = {
   _GemType.violet: Color(0xFF6A1B9A),
 };
 
-// ── Game Sprint Screen ────────────────────────────────────────────────────────
+// ── Question bank ─────────────────────────────────────────────────────────────
+
+class _Q {
+  final String question, correct;
+  final List<String> choices;
+  const _Q(this.question, this.correct, this.choices);
+}
+
+const _qBank = [
+  _Q('7 × 8 = ?',                        '56',           ['42', '56', '64', '48']),
+  _Q('Capitale du Burkina Faso ?',        'Ouagadougou',  ['Bobo-Dioulasso', 'Ouagadougou', 'Koudougou', 'Banfora']),
+  _Q('45 ÷ 9 = ?',                        '5',            ['4', '5', '6', '7']),
+  _Q('"School" en français ?',            'école',        ['maison', 'école', 'jardin', 'marché']),
+  _Q('Jours dans une semaine ?',          '7',            ['5', '6', '7', '8']),
+  _Q('Formule chimique de l\'eau ?',      'H₂O',          ['CO₂', 'H₂O', 'O₂', 'N₂']),
+  _Q('15 + 27 = ?',                       '42',           ['40', '41', '42', '43']),
+  _Q('Continent du Burkina Faso ?',       'Afrique',      ['Europe', 'Asie', 'Afrique', 'Amérique']),
+  _Q('6 × 7 = ?',                         '42',           ['35', '40', '42', '48']),
+  _Q('Planète la plus proche du Soleil ?','Mercure',      ['Vénus', 'Mercure', 'Mars', 'Terre']),
+  _Q('18 ÷ 3 = ?',                        '6',            ['4', '5', '6', '7']),
+  _Q('Couleur du drapeau du BF (bande du haut) ?', 'Rouge', ['Vert', 'Rouge', 'Jaune', 'Bleu']),
+  _Q('Combien de côtés a un hexagone ?',  '6',            ['4', '5', '6', '8']),
+  _Q('"Water" en français ?',             'Eau',          ['Feu', 'Eau', 'Air', 'Terre']),
+  _Q('9 × 9 = ?',                         '81',           ['72', '81', '90', '99']),
+];
+
+// ── Sprint Screen ─────────────────────────────────────────────────────────────
 
 class GameSprintScreen extends ConsumerStatefulWidget {
   const GameSprintScreen({super.key});
@@ -38,16 +64,21 @@ class GameSprintScreen extends ConsumerStatefulWidget {
 }
 
 class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
-  static const int _gridSize = 6;
-  static const int _totalSeconds = 60;
+  static const int _gridSize    = 6;
+  static const int _totalSecs   = 60;
 
   late List<List<_GemType>> _grid;
-  int _score      = 0;
-  int _timeLeft   = _totalSeconds;
-  int _selected   = -1;
+  int  _score     = 0;
+  int  _timeLeft  = _totalSecs;
+  int  _selected  = -1;
   bool _started   = false;
   bool _finished  = false;
+  bool _paused    = false;   // true while question overlay is shown
   Timer? _timer;
+
+  // pending match data (waiting for question answer)
+  Set<int>? _pendingMatches;
+  int _swapR1 = 0, _swapC1 = 0, _swapR2 = 0, _swapC2 = 0;
 
   final _rng = Random();
 
@@ -75,15 +106,23 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
 
   void _startGame() {
     setState(() {
-      _started   = true;
-      _finished  = false;
-      _score     = 0;
-      _timeLeft  = _totalSeconds;
-      _selected  = -1;
+      _started  = true;
+      _finished = false;
+      _paused   = false;
+      _score    = 0;
+      _timeLeft = _totalSecs;
+      _selected = -1;
+      _pendingMatches = null;
       _initGrid();
     });
+    _runTimer();
+  }
+
+  void _runTimer() {
+    _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) { t.cancel(); return; }
+      if (_paused) return;
       setState(() => _timeLeft--);
       if (_timeLeft <= 0) {
         t.cancel();
@@ -93,15 +132,15 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
   }
 
   void _endGame() {
-    setState(() => _finished = true);
-    final creditsEarned = (_score ~/ 50).clamp(0, AppConstants.creditBonusCap);
-    if (creditsEarned > 0) {
-      ref.read(creditNotifierProvider.notifier).addBonus(creditsEarned);
-    }
+    _timer?.cancel();
+    setState(() { _finished = true; _paused = false; });
+    // Flat +3 credits per sprint completed (spec requirement)
+    ref.read(creditNotifierProvider.notifier)
+        .addBonus(AppConstants.creditPerSprint);
   }
 
   void _onGemTap(int index) {
-    if (!_started || _finished) return;
+    if (!_started || _finished || _paused) return;
     final row = index ~/ _gridSize;
     final col = index % _gridSize;
 
@@ -116,24 +155,55 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
         (col == selCol && (row - selRow).abs() == 1);
 
     if (isAdjacent) {
-      _swap(selRow, selCol, row, col);
+      _trySwap(selRow, selCol, row, col);
     }
     setState(() => _selected = -1);
   }
 
-  void _swap(int r1, int c1, int r2, int c2) {
+  void _trySwap(int r1, int c1, int r2, int c2) {
     final tmp = _grid[r1][c1];
     _grid[r1][c1] = _grid[r2][c2];
     _grid[r2][c2] = tmp;
+
     final matches = _findMatches();
     if (matches.isNotEmpty) {
-      _clearMatches(matches);
+      // Pause timer and show a question
+      _swapR1 = r1; _swapC1 = c1;
+      _swapR2 = r2; _swapC2 = c2;
+      _pendingMatches = matches;
+      setState(() { _paused = true; });
+      _showQuestion(matches);
     } else {
-      // Undo swap if no matches
+      // Undo — no matches
       _grid[r2][c2] = _grid[r1][c1];
       _grid[r1][c1] = tmp;
+      setState(() {});
     }
-    setState(() {});
+  }
+
+  void _showQuestion(Set<int> matches) {
+    final q = _qBank[_rng.nextInt(_qBank.length)];
+    final shuffled = [...q.choices]..shuffle(_rng);
+
+    showModalBottomSheet<bool>(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _QuestionSheet(question: q, shuffledChoices: shuffled),
+    ).then((correct) {
+      if (!mounted) return;
+      if (correct == true) {
+        _clearMatches(matches);
+        setState(() { _paused = false; });
+      } else {
+        // Undo swap
+        final tmp = _grid[_swapR1][_swapC1];
+        _grid[_swapR1][_swapC1] = _grid[_swapR2][_swapC2];
+        _grid[_swapR2][_swapC2] = tmp;
+        setState(() { _paused = false; _pendingMatches = null; });
+      }
+    });
   }
 
   Set<int> _findMatches() {
@@ -157,6 +227,7 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
 
   void _clearMatches(Set<int> matches) {
     _score += matches.length * 10;
+    _pendingMatches = null;
     for (final idx in matches) {
       final r = idx ~/ _gridSize;
       final c = idx % _gridSize;
@@ -165,6 +236,7 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
       }
       _grid[0][c] = _GemType.values[_rng.nextInt(_GemType.values.length)];
     }
+    setState(() {});
   }
 
   @override
@@ -186,15 +258,19 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
       ),
       body: Column(
         children: [
-          // Score
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text('$_score pts',
-                style: const TextStyle(color: AppColors.gold,
-                    fontFamily: 'Nunito', fontSize: 32, fontWeight: FontWeight.w900)),
+            child: Column(children: [
+              Text('$_score pts',
+                  style: const TextStyle(color: AppColors.gold,
+                      fontFamily: 'Nunito', fontSize: 32,
+                      fontWeight: FontWeight.w900)),
+              if (_paused)
+                const Text('⏸ Question en cours…',
+                    style: TextStyle(color: Colors.white54,
+                        fontFamily: 'Nunito', fontSize: 12)),
+            ]),
           ),
-
-          // Grid
           Expanded(
             child: Center(
               child: AspectRatio(
@@ -213,17 +289,20 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
                       final row = i ~/ _gridSize;
                       final col = i % _gridSize;
                       final gem = _grid[row][col];
-                      final isSelected = _selected == i;
+                      final isSelected  = _selected == i;
+                      final isPending   = _pendingMatches?.contains(i) ?? false;
                       return GestureDetector(
                         onTap: () => _onGemTap(i),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.white.withOpacity(0.3)
-                                : _gemColors[gem]!.withOpacity(0.85),
+                            color: isPending
+                                ? Colors.white.withOpacity(0.5)
+                                : isSelected
+                                    ? Colors.white.withOpacity(0.3)
+                                    : _gemColors[gem]!.withOpacity(0.85),
                             borderRadius: BorderRadius.circular(10),
-                            border: isSelected
+                            border: isSelected || isPending
                                 ? Border.all(color: Colors.white, width: 2)
                                 : null,
                             boxShadow: [
@@ -245,23 +324,109 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
               ),
             ),
           ),
-
-          // Start / result overlay
           if (!_started || _finished)
             _GameOverlay(
-              started: _started,
+              started:  _started,
               finished: _finished,
-              score: _score,
-              onStart: _startGame,
-              onBack: () => Navigator.pop(context),
+              score:    _score,
+              onStart:  _startGame,
+              onBack:   () => Navigator.pop(context),
             ),
-
           const SizedBox(height: 20),
         ],
       ),
     );
   }
 }
+
+// ── Question bottom sheet ──────────────────────────────────────────────────────
+
+class _QuestionSheet extends StatefulWidget {
+  final _Q question;
+  final List<String> shuffledChoices;
+  const _QuestionSheet({required this.question, required this.shuffledChoices});
+
+  @override
+  State<_QuestionSheet> createState() => _QuestionSheetState();
+}
+
+class _QuestionSheetState extends State<_QuestionSheet> {
+  String? _chosen;
+  bool _answered = false;
+
+  void _pick(String choice) {
+    if (_answered) return;
+    setState(() { _chosen = choice; _answered = true; });
+    Future.delayed(const Duration(milliseconds: 600), () {
+      if (mounted) Navigator.pop(context, choice == widget.question.correct);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: const Color(0xFF1A1A2E),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: Colors.white12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(children: [
+            const Text('🌿', style: TextStyle(fontSize: 22)),
+            const SizedBox(width: 8),
+            const Text('Le Sage demande…',
+                style: TextStyle(color: Colors.white54,
+                    fontFamily: 'Nunito', fontSize: 12)),
+          ]),
+          const SizedBox(height: 12),
+          Text(widget.question.question,
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.white,
+                  fontFamily: 'Nunito', fontSize: 18,
+                  fontWeight: FontWeight.w800)),
+          const SizedBox(height: 20),
+          ...widget.shuffledChoices.map((c) {
+            Color bg = Colors.white.withOpacity(0.08);
+            if (_answered && _chosen == c) {
+              bg = c == widget.question.correct
+                  ? AppColors.success.withOpacity(0.25)
+                  : AppColors.error.withOpacity(0.25);
+            } else if (_answered && c == widget.question.correct) {
+              bg = AppColors.success.withOpacity(0.25);
+            }
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: GestureDetector(
+                onTap: () => _pick(c),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  child: Text(c,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.white,
+                          fontFamily: 'Nunito', fontSize: 15,
+                          fontWeight: FontWeight.w700)),
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Widgets ───────────────────────────────────────────────────────────────────
 
 class _TimerChip extends StatelessWidget {
   final int timeLeft;
@@ -314,7 +479,13 @@ class _GameOverlay extends StatelessWidget {
               const SizedBox(height: 8),
               Text('Score final : $score pts',
                   style: const TextStyle(color: AppColors.gold,
-                      fontFamily: 'Nunito', fontSize: 24, fontWeight: FontWeight.w900)),
+                      fontFamily: 'Nunito', fontSize: 24,
+                      fontWeight: FontWeight.w900)),
+              const SizedBox(height: 4),
+              Text('+${AppConstants.creditPerSprint} crédits gagnés !',
+                  style: const TextStyle(color: AppColors.sage,
+                      fontFamily: 'Nunito', fontSize: 14,
+                      fontWeight: FontWeight.w700)),
               const SizedBox(height: 16),
               Row(children: [
                 Expanded(child: OutlinedButton(
@@ -331,25 +502,33 @@ class _GameOverlay extends StatelessWidget {
                   onPressed: onStart,
                   style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
                   child: const Text('Rejouer',
-                      style: TextStyle(fontFamily: 'Nunito', fontWeight: FontWeight.w700)),
+                      style: TextStyle(fontFamily: 'Nunito',
+                          fontWeight: FontWeight.w700)),
                 )),
               ]),
             ])
           : Column(mainAxisSize: MainAxisSize.min, children: [
-              const Text('💎 Sprint 60s', style: TextStyle(
+              const Text('⚡ Sprint 60s', style: TextStyle(
                   color: Colors.white, fontFamily: 'Nunito',
                   fontSize: 22, fontWeight: FontWeight.w900)),
               const SizedBox(height: 8),
-              const Text('Aligne 3 gemmes ou plus en 60 secondes !',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white60,
-                      fontFamily: 'Nunito', fontSize: 13)),
+              const Text(
+                'Aligne 3 gemmes · réponds à la question · gagne des points !',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white60,
+                    fontFamily: 'Nunito', fontSize: 13),
+              ),
+              const SizedBox(height: 4),
+              Text('+${AppConstants.creditPerSprint} crédits à la fin',
+                  style: const TextStyle(color: AppColors.gold,
+                      fontFamily: 'Nunito', fontSize: 12)),
               const SizedBox(height: 20),
               FilledButton.icon(
                 onPressed: onStart,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 32, vertical: 14),
                 ),
                 icon: const Icon(Icons.play_arrow_rounded),
                 label: const Text('Jouer !',

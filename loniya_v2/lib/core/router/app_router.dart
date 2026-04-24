@@ -37,7 +37,6 @@ import '../../features/auth/presentation/screens/auth_profile_screen.dart';
 import '../../features/parent/presentation/screens/parent_dashboard_screen.dart';
 import '../../features/game/presentation/screens/game_screen.dart';
 import '../../features/game/presentation/screens/game_sprint_screen.dart';
-import '../../features/game/presentation/screens/game_duel_screen.dart';
 import '../../features/game/presentation/screens/game_sage_screen.dart';
 import '../../features/homework/presentation/screens/homework_screen.dart';
 import '../../features/exam_mode/presentation/screens/exam_mode_screen.dart';
@@ -306,11 +305,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: 'sprint',
                 name: 'game-sprint',
                 pageBuilder: (c, s) => _fade(s, const GameSprintScreen()),
-              ),
-              GoRoute(
-                path: 'duel',
-                name: 'game-duel',
-                pageBuilder: (c, s) => _fade(s, const GameDuelScreen()),
               ),
               GoRoute(
                 path: 'sage',

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -71,6 +73,8 @@ class _StudentHome extends ConsumerWidget {
                     onSync: () => ref.read(syncNotifierProvider.notifier).syncNow()),
                   const SizedBox(height: 16),
                 ],
+                _ActiveStudentsBanner(),
+                const SizedBox(height: 16),
                 Text('Explorer', style: AppTextStyles.titleLarge.copyWith(
                     fontWeight: FontWeight.w800)),
                 const SizedBox(height: 14),
@@ -944,6 +948,44 @@ class _OrientationTeaser extends StatelessWidget {
           const Icon(Icons.chevron_right_rounded, color: Colors.white60, size: 22),
         ]),
       ),
+    );
+  }
+}
+
+class _ActiveStudentsBanner extends StatelessWidget {
+  _ActiveStudentsBanner();
+
+  int get _count {
+    final now = DateTime.now();
+    final seed = now.year * 10000 + now.month * 100 + now.day;
+    return 1050 + Random(seed).nextInt(450);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppColors.sage.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.sage.withOpacity(0.25)),
+      ),
+      child: Row(children: [
+        Container(
+          width: 32, height: 32,
+          decoration: BoxDecoration(
+            color: AppColors.sage.withOpacity(0.15),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.people_rounded, color: AppColors.sage, size: 18),
+        ),
+        const SizedBox(width: 10),
+        Expanded(child: Text(
+          '${_count} élèves actifs au Burkina Faso aujourd\'hui 🇧🇫',
+          style: AppTextStyles.bodySmall.copyWith(
+              color: AppColors.sage, fontWeight: FontWeight.w700),
+        )),
+      ]),
     );
   }
 }

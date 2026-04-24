@@ -128,6 +128,8 @@ class CreditsScreen extends ConsumerWidget {
 
             _EarnCard(icon: '🎮', label: 'Niveau de jeu complété',
                 gain: '+${AppConstants.creditPerGame}'),
+            _EarnCard(icon: '⚡', label: 'Sprint 60s terminé',
+                gain: '+${AppConstants.creditPerSprint}'),
             _EarnCard(icon: '🌿', label: 'Défi Le Sage réussi',
                 gain: '+${AppConstants.creditPerChallenge}'),
             _EarnCard(icon: '📝', label: 'QCM parfait (100%)',

@@ -16,7 +16,8 @@ class AppConstants {
   static const int creditPerPerfectQcm     = 3;   // QCM parfait
   static const int creditPerStreak3days    = 3;   // série 3 jours
   static const int creditPerStreak7days    = 10;  // série 7 jours
-  static const int creditUnlockThreshold   = 50;  // cumulatif → déblocage remises
+  static const int creditUnlockThreshold   = 30;  // cumulatif → déblocage remises
+  static const int creditPerSprint         = 3;   // sprint 60s réussi
 
   // Niveaux crédits
   static const int levelEruditThreshold   = 30;  // Apprenti → Érudit
