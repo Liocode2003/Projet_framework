@@ -1,19 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
+import '../../../../core/constants/hive_boxes.dart';
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/services/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../gamification/data/models/gamification_model.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
 
 final _childrenProvider =
     FutureProvider.autoDispose<List<_ChildData>>((ref) async {
-  final db = ref.read(databaseServiceProvider);
+  final db       = ref.read(databaseServiceProvider);
+  final parentId = ref.read(authNotifierProvider).userId ?? '';
+
+  // Only show children explicitly linked by this parent
+  final box    = Hive.box(HiveBoxes.settings);
+  final raw    = (box.get('parent_links_$parentId') as String?) ?? '';
+  final linked = raw.isEmpty
+      ? <String>[]
+      : raw.split(',').where((s) => s.isNotEmpty).toList();
+
+  if (linked.isEmpty) return <_ChildData>[];
+
   final students = db
       .getAllUsers()
-      .where((u) => u.role == AppConstants.roleStudent)
+      .where((u) => u.role == AppConstants.roleStudent && linked.contains(u.id))
       .toList();
 
   return students.map((u) {
@@ -42,7 +58,7 @@ class ParentDashboardScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Erreur: $e')),
         data: (children) => children.isEmpty
-            ? _EmptyState()
+            ? _EmptyState(onLink: () => context.push(RouteNames.parentLink))
             : _Body(children: children),
       ),
     );
@@ -255,6 +271,9 @@ class _StatItem extends StatelessWidget {
 }
 
 class _EmptyState extends StatelessWidget {
+  final VoidCallback? onLink;
+  const _EmptyState({this.onLink});
+
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -266,17 +285,35 @@ class _EmptyState extends StatelessWidget {
             const Icon(Icons.child_care_rounded,
                 size: 72, color: AppColors.grey400),
             const SizedBox(height: 20),
-            Text('Aucun enfant enregistré',
+            Text('Aucun enfant lié',
                 style: AppTextStyles.titleMedium,
                 textAlign: TextAlign.center),
             const SizedBox(height: 12),
             Text(
-              'Les enfants utilisant yikri sur cet appareil '
-              'apparaîtront ici automatiquement.',
+              'Lie le compte de ton enfant à l\'aide de son code '
+              'yikri (YK-XXXX-BF) pour suivre sa progression.',
               style: AppTextStyles.bodySmall
                   .copyWith(color: AppColors.onSurfaceVariant),
               textAlign: TextAlign.center,
             ),
+            if (onLink != null) ...[
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: onLink,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.accent,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)),
+                ),
+                icon: const Icon(Icons.link_rounded, size: 18),
+                label: const Text('Lier un enfant',
+                    style: TextStyle(
+                        fontFamily: 'Nunito',
+                        fontWeight: FontWeight.w700)),
+              ),
+            ],
           ],
         ),
       ),
