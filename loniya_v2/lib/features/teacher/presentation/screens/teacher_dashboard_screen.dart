@@ -223,7 +223,7 @@ class _VerificationCard extends ConsumerWidget {
       bg = AppColors.warningLight;
       icon = Icons.hourglass_top_rounded;
       title = 'Vérification en cours';
-      subtitle = 'Votre demande est en cours de traitement par l\'équipe LONIYA.';
+      subtitle = 'Votre demande est en cours de traitement par l\'équipe yikri.';
     } else {
       bg = AppColors.surfaceVariant;
       icon = Icons.verified_outlined;

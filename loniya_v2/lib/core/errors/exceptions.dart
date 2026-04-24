@@ -1,4 +1,4 @@
-// Custom exceptions for LONIYA V2 data layer
+// Custom exceptions for yikri data layer
 
 class CacheException implements Exception {
   final String message;

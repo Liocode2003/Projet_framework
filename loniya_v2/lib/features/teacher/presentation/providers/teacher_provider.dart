@@ -127,7 +127,7 @@ class TeacherNotifier extends StateNotifier<TeacherState> {
     await _db.saveSubscription(updated);
     state = state.copyWith(
       subscription: updated,
-      successMessage: 'Demande de vérification envoyée à l\'équipe LONIYA.',
+      successMessage: 'Demande de vérification envoyée à l\'équipe yikri.',
     );
   }
 

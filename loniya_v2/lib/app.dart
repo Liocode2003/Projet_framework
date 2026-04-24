@@ -7,8 +7,8 @@ import 'core/theme/app_text_styles.dart';
 import 'core/theme/app_theme.dart';
 import 'features/settings/presentation/providers/settings_provider.dart';
 
-class LoniyaApp extends ConsumerWidget {
-  const LoniyaApp({super.key});
+class YikriApp extends ConsumerWidget {
+  const YikriApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,7 +26,7 @@ class LoniyaApp extends ConsumerWidget {
         : (settings.darkMode ? ThemeMode.dark : ThemeMode.light);
 
     return MaterialApp.router(
-      title: 'LONIYA V2',
+      title: 'yikri',
       debugShowCheckedModeBanner: false,
 
       theme:     activeLight,

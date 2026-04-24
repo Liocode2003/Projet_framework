@@ -268,7 +268,7 @@ class _AiHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('LONIYA IA Tuteur', style: AppTextStyles.titleSmall),
+                  Text('Le Sage', style: AppTextStyles.titleSmall),
                   Row(children: [
                     AnimatedContainer(
                       duration: const Duration(milliseconds: 400),
@@ -455,7 +455,7 @@ class _InputBarState extends State<_InputBar> {
                 textInputAction: TextInputAction.send,
                 decoration: InputDecoration(
                   hintText: widget.isTyping
-                      ? 'LONIYA réfléchit…'
+                      ? 'Le Sage réfléchit…'
                       : 'Pose ta question…',
                   filled:    true,
                   fillColor: AppColors.surfaceVariant,

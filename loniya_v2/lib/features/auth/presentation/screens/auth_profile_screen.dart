@@ -120,7 +120,7 @@ class _AuthProfileScreenState extends ConsumerState<AuthProfileScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Personnalise ton expérience LONIYA',
+                    'Personnalise ton expérience yikri',
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.7),
                       fontSize: 13,

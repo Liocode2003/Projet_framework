@@ -82,7 +82,7 @@ class _AuthRoleScreenState extends ConsumerState<AuthRoleScreen> {
               ),
               const SizedBox(height: 6),
               Text(
-                'Choisis ton profil pour personnaliser LONIYA.',
+                'Choisis ton profil pour personnaliser yikri.',
                 style: AppTextStyles.bodyLarge
                     .copyWith(color: AppColors.onSurfaceVariant),
               ),

@@ -46,7 +46,6 @@ class AiTutorRepositoryImpl implements AiTutorRepository {
 
         if (llmResult.isRight()) {
           final response = llmResult.getOrElse(() => '');
-          // Cache the LLM response for offline reuse (72h)
           await _local.saveResponseToCache(
             userId: userId, question: question,
             stepId: stepId, response: response,
@@ -54,10 +53,9 @@ class AiTutorRepositoryImpl implements AiTutorRepository {
           return Right(response);
         }
 
-        // Auth failure = bad API key → surface error, don't fall through
+        // Only surface auth errors — all other failures fall through to local
         final failure = llmResult.fold((f) => f, (_) => null);
         if (failure is AuthFailure) return llmResult;
-        // Other LLM errors (timeout, server) → fall through to local engine
       }
 
       // 3. Offline fallback — rule-based Socratic engine

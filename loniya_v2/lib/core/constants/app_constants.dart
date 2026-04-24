@@ -9,15 +9,22 @@ class AppConstants {
   static const String appSlogan  = 'Le savoir, partout au Burkina';
 
   // ── Économie crédits ──────────────────────────────────────────────────
-  static const int creditBase           = 20;   // garantis, jamais déduits
-  static const int creditBonusCap       = 40;   // plafond mensuel bonus
-  static const int creditPerGame        = 2;    // par niveau de jeu
-  static const int creditPerChallenge   = 5;    // défi Le Sage réussi
-  static const int creditPerStreak      = 1;    // par jour de série
+  static const int creditBase              = 20;  // bienvenue, jamais déduits
+  static const int creditBonusCap          = 60;  // plafond cumulatif bonus
+  static const int creditPerGame           = 2;   // par niveau de jeu
+  static const int creditPerChallenge      = 5;   // défi Le Sage réussi
+  static const int creditPerPerfectQcm     = 3;   // QCM parfait
+  static const int creditPerStreak3days    = 3;   // série 3 jours
+  static const int creditPerStreak7days    = 10;  // série 7 jours
+  static const int creditUnlockThreshold   = 50;  // cumulatif → déblocage remises
 
-  // Seuils d'utilisation crédits
-  static const int creditThreshold50    = 20;   // 20 crédits → -50% (100 FCFA)
-  static const int creditThresholdFree  = 40;   // 40 crédits → gratuit
+  // Niveaux crédits
+  static const int levelEruditThreshold   = 30;  // Apprenti → Érudit
+  static const int levelSageThreshold     = 80;  // Érudit → Sage
+
+  // Seuils d'utilisation crédits (bonus seulement)
+  static const int creditThreshold50      = 20;  // 20 crédits → -50% (100 FCFA)
+  static const int creditThresholdFree    = 40;  // 40 crédits → gratuit
 
   // ── Prix (FCFA) ───────────────────────────────────────────────────────
   static const int coursePrice          = 200;  // prix unique tous cours
@@ -75,10 +82,15 @@ class AppConstants {
   ];
 
   // ── Le Sage ───────────────────────────────────────────────────────────
-  static const String sageName         = 'Le Sage';
-  static const String sageGreeting     = 'Bonjour ! Je suis Le Sage 🌿\nPose-moi une question, je te guiderai vers la réponse.';
-  static const int    sageCacheHours   = 72;
-  static const int    sageMaxHistory   = 12;
+  static const String sageName           = 'Le Sage';
+  static const String sageGreeting       = 'Bonjour ! Je suis Le Sage 🌿\nPose-moi une question, je te guiderai vers la réponse.';
+  static const int    sageCacheHours     = 72;
+  static const int    sageMaxHistory     = 12;
+  static const int    aiCacheExpiryHours = 72;   // durée cache réponses IA
+  static const int    maxCachedImages    = 100;  // quota images en cache
+
+  // ── Auth / OTP ────────────────────────────────────────────────────────
+  static const String mockOtpCode = '1234';  // code OTP mode démo
 
   // ── Réseau local (Classe Connectée) ──────────────────────────────────
   static const int    localServerPort  = 8080;

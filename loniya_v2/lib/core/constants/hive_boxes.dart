@@ -11,14 +11,17 @@ class HiveBoxes {
 
   // Non-encrypted boxes
   static const String gamification = 'gamification';
-  static const String syncQueue = 'sync_queue';
-  static const String aiCache = 'ai_cache';
-  static const String settings = 'settings';
-  static const String orientation = 'orientation';
-  static const String classroom = 'classroom';
-  static const String marketplace = 'marketplace';
+  static const String syncQueue    = 'sync_queue';
+  static const String aiCache      = 'ai_cache';
+  static const String settings     = 'settings';
+  static const String orientation  = 'orientation';
+  static const String classroom    = 'classroom';
+  static const String marketplace  = 'marketplace';
   static const String subscriptions = 'subscriptions';
-  static const String purchases = 'purchases';
+  static const String purchases    = 'purchases';
+  static const String credits      = 'credits';
+  static const String exams        = 'exams';
+  static const String homework     = 'homework';
 }
 
 // Hive type IDs — must be unique across all models

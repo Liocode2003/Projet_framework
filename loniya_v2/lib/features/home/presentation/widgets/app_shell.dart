@@ -17,28 +17,30 @@ class AppShell extends ConsumerStatefulWidget {
 }
 
 class _AppShellState extends ConsumerState<AppShell> {
-  static const List<_NavItem> _navItems = [
-    _NavItem(label: 'Accueil',   icon: Icons.home_outlined,          activeIcon: Icons.home_rounded,          route: RouteNames.home),
-    _NavItem(label: 'Contenus',  icon: Icons.store_outlined,         activeIcon: Icons.store_rounded,         route: RouteNames.marketplace),
-    _NavItem(label: 'Apprendre', icon: Icons.menu_book_outlined,     activeIcon: Icons.menu_book_rounded,     route: RouteNames.learning),
-    _NavItem(label: 'IA Tuteur', icon: Icons.psychology_outlined,    activeIcon: Icons.psychology_rounded,    route: RouteNames.aiTutor),
-    _NavItem(label: 'Profil',    icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded,        route: RouteNames.gamification),
+  // Élève: Accueil · Cours · Jeu · Devoirs · Profil
+  static const List<_NavItem> _studentNavItems = [
+    _NavItem(label: 'Accueil',  icon: Icons.home_outlined,             activeIcon: Icons.home_rounded,              route: RouteNames.home),
+    _NavItem(label: 'Cours',    icon: Icons.menu_book_outlined,        activeIcon: Icons.menu_book_rounded,         route: RouteNames.marketplace),
+    _NavItem(label: 'Jeu',      icon: Icons.sports_esports_outlined,   activeIcon: Icons.sports_esports_rounded,    route: RouteNames.game),
+    _NavItem(label: 'Devoirs',  icon: Icons.assignment_outlined,       activeIcon: Icons.assignment_rounded,        route: RouteNames.homework),
+    _NavItem(label: 'Profil',   icon: Icons.person_outline_rounded,    activeIcon: Icons.person_rounded,            route: RouteNames.profile),
   ];
 
+  // Enseignant: Tableau · Cours · Classes · Classement · Profil
   static const List<_NavItem> _teacherNavItems = [
-    _NavItem(label: 'Accueil',  icon: Icons.home_outlined,          activeIcon: Icons.home_rounded,       route: RouteNames.home),
-    _NavItem(label: 'Classe',   icon: Icons.class_outlined,         activeIcon: Icons.class_rounded,      route: RouteNames.teacherDashboard),
-    _NavItem(label: 'Contenus', icon: Icons.store_outlined,         activeIcon: Icons.store_rounded,      route: RouteNames.marketplace),
-    _NavItem(label: 'Wi-Fi',    icon: Icons.wifi_outlined,          activeIcon: Icons.wifi_rounded,       route: RouteNames.localClassroom),
-    _NavItem(label: 'Profil',   icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded,     route: RouteNames.gamification),
+    _NavItem(label: 'Tableau',    icon: Icons.dashboard_outlined,        activeIcon: Icons.dashboard_rounded,         route: RouteNames.teacherDashboard),
+    _NavItem(label: 'Cours',      icon: Icons.menu_book_outlined,        activeIcon: Icons.menu_book_rounded,         route: RouteNames.marketplace),
+    _NavItem(label: 'Classes',    icon: Icons.groups_outlined,           activeIcon: Icons.groups_rounded,            route: RouteNames.localClassroom),
+    _NavItem(label: 'Classement', icon: Icons.leaderboard_outlined,      activeIcon: Icons.leaderboard_rounded,       route: RouteNames.leaderboard),
+    _NavItem(label: 'Profil',     icon: Icons.person_outline_rounded,    activeIcon: Icons.person_rounded,            route: RouteNames.profile),
   ];
 
+  // Parent: Suivi · Devoirs · Alertes · Profil
   static const List<_NavItem> _parentNavItems = [
-    _NavItem(label: 'Accueil',   icon: Icons.home_outlined,          activeIcon: Icons.home_rounded,       route: RouteNames.home),
-    _NavItem(label: 'Enfants',   icon: Icons.child_care_outlined,    activeIcon: Icons.child_care_rounded, route: RouteNames.home),
-    _NavItem(label: 'Contenus',  icon: Icons.store_outlined,         activeIcon: Icons.store_rounded,      route: RouteNames.marketplace),
-    _NavItem(label: 'IA Tuteur', icon: Icons.psychology_outlined,    activeIcon: Icons.psychology_rounded, route: RouteNames.aiTutor),
-    _NavItem(label: 'Profil',    icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded,     route: RouteNames.gamification),
+    _NavItem(label: 'Suivi',    icon: Icons.remove_red_eye_outlined,   activeIcon: Icons.remove_red_eye_rounded,    route: RouteNames.parentDashboard),
+    _NavItem(label: 'Devoirs',  icon: Icons.assignment_outlined,       activeIcon: Icons.assignment_rounded,        route: RouteNames.homework),
+    _NavItem(label: 'Alertes',  icon: Icons.notifications_outlined,    activeIcon: Icons.notifications_rounded,     route: RouteNames.parentDashboard),
+    _NavItem(label: 'Profil',   icon: Icons.person_outline_rounded,    activeIcon: Icons.person_rounded,            route: RouteNames.profile),
   ];
 
   int _currentIndex = 0;
@@ -60,15 +62,11 @@ class _AppShellState extends ConsumerState<AppShell> {
   List<_NavItem> _itemsForRole(String? role) {
     if (role == 'teacher') return _teacherNavItems;
     if (role == 'parent')  return _parentNavItems;
-    return _navItems;
+    return _studentNavItems;
   }
 
   void _onItemTapped(int index, String? role) {
     if (index == _currentIndex) return;
-    if (role == 'parent' && index == 1) {
-      context.push(RouteNames.parentDashboard);
-      return;
-    }
     final items = _itemsForRole(role);
     context.go(items[index].route);
   }
@@ -92,7 +90,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.fromLTRB(20, 0, 20, bottom + 12),
         child: Container(
-          height: 62,
+          height: 64,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(32),

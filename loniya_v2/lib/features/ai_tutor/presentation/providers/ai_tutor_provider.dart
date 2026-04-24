@@ -151,7 +151,7 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
   }
 
   String _greeting() =>
-      'Bonjour ! Je suis LONIYA IA 🌟\n'
+      'Bonjour ! Je suis Le Sage 🌿\n'
       'Je suis là pour t\'aider à comprendre, pas te donner les réponses.\n'
       'Pose-moi une question sur ta leçon !';
 }

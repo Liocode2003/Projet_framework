@@ -66,8 +66,14 @@ class CreditNotifier extends StateNotifier<CreditModel?> {
   Future<void> onChallengeCompleted() =>
       addBonus(AppConstants.creditPerChallenge, reason: 'défi');
 
-  Future<void> onDailyStreak() =>
-      addBonus(AppConstants.creditPerStreak, reason: 'série');
+  Future<void> onPerfectQcm() =>
+      addBonus(AppConstants.creditPerPerfectQcm, reason: 'qcm_parfait');
+
+  Future<void> onStreak3Days() =>
+      addBonus(AppConstants.creditPerStreak3days, reason: 'série_3j');
+
+  Future<void> onStreak7Days() =>
+      addBonus(AppConstants.creditPerStreak7days, reason: 'série_7j');
 }
 
 final creditNotifierProvider =

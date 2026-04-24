@@ -122,7 +122,7 @@ class _AuthConsentScreenState extends ConsumerState<AuthConsentScreen> {
                 value: _termsConsent,
                 onChanged: (v) => setState(() => _termsConsent = v ?? false),
                 label: 'J\'ai lu et j\'accepte les conditions '
-                    'd\'utilisation de LONIYA V2.',
+                    'd\'utilisation de yikri.',
               ),
               const SizedBox(height: 12),
               _ConsentCheckbox(

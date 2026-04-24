@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
@@ -8,15 +9,17 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/services/storage/secure_key_service.dart';
 import '../../domain/entities/ai_message_entity.dart';
 
-/// Groq API client — uses llama-3.3-70b-versatile for fast, free inference.
-/// Requires a Groq API key (free at console.groq.com).
+/// Groq API client — llama-3.3-70b-versatile (primary) with
+/// llama-3.1-8b-instant fallback on timeout.
 class AiLlmService {
   final SecureKeyService _keys;
 
-  static const _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-  static const _model    = 'llama-3.3-70b-versatile';
-  static const _timeout  = Duration(seconds: 25);
-  static const _maxHistory = 12;
+  static const _endpoint       = 'https://api.groq.com/openai/v1/chat/completions';
+  static const _modelPrimary   = 'llama-3.3-70b-versatile';
+  static const _modelFast      = 'llama-3.1-8b-instant';   // fallback on timeout
+  static const _timeout        = Duration(seconds: 18);
+  static const _maxTokens      = 200;
+  static const _maxHistory     = 10;
 
   AiLlmService(this._keys);
 
@@ -34,29 +37,54 @@ class AiLlmService {
       return const Left(AuthFailure('Clé API Groq non configurée.'));
     }
 
-    try {
-      final messages = _buildPayload(
-        question: question,
-        history: history,
-        userRole: userRole,
-        grade: grade,
-        subject: subject,
-        stepTitle: stepTitle,
-        stepKeywords: stepKeywords,
+    final messages = _buildPayload(
+      question: question, history: history,
+      userRole: userRole, grade: grade,
+      subject: subject, stepTitle: stepTitle,
+      stepKeywords: stepKeywords,
+    );
+
+    // Try primary model, then fast model on timeout/idle error
+    for (final model in [_modelPrimary, _modelFast]) {
+      final result = await _post(
+        apiKey: apiKey.trim(),
+        model: model,
+        messages: messages,
       );
 
+      // Surface auth errors immediately — no retry
+      if (result.isLeft()) {
+        final failure = result.fold((f) => f, (_) => null);
+        if (failure is AuthFailure) return result;
+        if (failure is ServerFailure && model == _modelFast) return result;
+        // Timeout/network → try fast model next iteration
+        continue;
+      }
+
+      return result;
+    }
+
+    return const Left(OfflineFailure());
+  }
+
+  Future<Either<Failure, String>> _post({
+    required String apiKey,
+    required String model,
+    required List<Map<String, String>> messages,
+  }) async {
+    try {
       final response = await http
           .post(
             Uri.parse(_endpoint),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer ${apiKey.trim()}',
+              'Authorization': 'Bearer $apiKey',
             },
             body: jsonEncode({
-              'model': _model,
+              'model': model,
               'messages': messages,
-              'temperature': 0.72,
-              'max_tokens': 256,
+              'temperature': 0.70,
+              'max_tokens': _maxTokens,
               'stream': false,
             }),
           )
@@ -67,18 +95,19 @@ class AiLlmService {
         final content = (data['choices'] as List).first['message']['content'] as String;
         return Right(content.trim());
       }
-
       if (response.statusCode == 401) {
         return const Left(AuthFailure('Clé API invalide ou expirée.'));
       }
       if (response.statusCode == 429) {
-        return const Left(ServerFailure('Limite de requêtes atteinte — réessaie dans quelques secondes.'));
+        return const Left(ServerFailure('Limite de requêtes — réessaie dans quelques secondes.'));
       }
-      return Left(ServerFailure('Erreur Groq (${response.statusCode}).'));
+      return Left(ServerFailure('Groq ${response.statusCode}'));
     } on TimeoutException {
       return const Left(OfflineFailure());
-    } catch (e) {
-      return Left(UnknownFailure('Erreur réseau : $e'));
+    } on SocketException {
+      return const Left(OfflineFailure());
+    } catch (_) {
+      return const Left(OfflineFailure());
     }
   }
 
@@ -136,7 +165,7 @@ class AiLlmService {
           '${stepKeywords.isNotEmpty ? " — mots-clés : ${stepKeywords.join(", ")}" : ""}.'
         : '';
 
-    return '''Tu es LONIYA IA, tuteur pédagogique intelligent pour le système éducatif du Burkina Faso. $profile$context
+    return '''Tu es Le Sage, tuteur pédagogique intelligent pour le système éducatif du Burkina Faso. $profile$context
 
 Règles impératives :
 1. Méthode socratique : guide par questions et indices — ne donne JAMAIS la réponse directement.

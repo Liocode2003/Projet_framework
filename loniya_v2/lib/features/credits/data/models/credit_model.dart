@@ -1,5 +1,7 @@
 import 'package:hive/hive.dart';
 
+import '../../../../core/constants/app_constants.dart';
+
 part 'credit_model.g.dart';
 
 @HiveType(typeId: 20)
@@ -20,8 +22,8 @@ class CreditModel extends HiveObject {
     this.totalSpent   = 0,
   });
 
-  int get total        => base + bonus;
-  int get bonusRemaining => 40 - bonus;   // quota bonus restant ce mois
+  int get total          => base + bonus;
+  int get bonusRemaining => AppConstants.creditBonusCap - bonus;
 
   /// Vérifie et remet à zéro les crédits bonus si on a changé de mois.
   CreditModel checkMonthReset() {
@@ -33,7 +35,7 @@ class CreditModel extends HiveObject {
 
   /// Ajoute des crédits bonus (respecte le plafond mensuel de 40).
   CreditModel addBonus(int amount) {
-    final capped = (bonus + amount).clamp(0, 40);
+    final capped = (bonus + amount).clamp(0, AppConstants.creditBonusCap);
     final added  = capped - bonus;
     return copyWith(
       bonus:       capped,
