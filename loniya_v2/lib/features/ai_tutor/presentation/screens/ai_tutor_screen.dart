@@ -32,7 +32,6 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
 
   File?   _pendingImage;
   bool    _isRecording = false;
-  String? _recordingPath;
 
   @override
   void dispose() {
@@ -149,10 +148,7 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
       const RecordConfig(encoder: AudioEncoder.aacLc, bitRate: 64000),
       path: path,
     );
-    setState(() {
-      _isRecording    = true;
-      _recordingPath  = path;
-    });
+    setState(() => _isRecording = true);
   }
 
   Future<void> _stopRecording() async {
