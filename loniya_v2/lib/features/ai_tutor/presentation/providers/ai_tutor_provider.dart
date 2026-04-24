@@ -182,7 +182,8 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
           }
           return m;
         }).toList();
-        state = state.copyWith(messages: updated, isTyping: false);
+        // Keep isTyping: true — sendMessage will manage it from here
+        state = state.copyWith(messages: updated);
 
         // Now let Le Sage answer the transcribed text
         await sendMessage(transcript);

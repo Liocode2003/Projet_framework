@@ -44,4 +44,7 @@ class HiveTypeIds {
   static const int stepModel = 13;
   static const int subscriptionModel = 14;
   static const int purchaseModel = 15;
+  static const int creditModel = 20;
+  static const int examModeModel = 21;
+  static const int homeworkModel = 22;
 }
