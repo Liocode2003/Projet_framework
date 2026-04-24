@@ -20,14 +20,15 @@ class HomeworkNotifier extends StateNotifier<List<HomeworkModel>> {
 
   void _load() {
     final box = Hive.box(HiveBoxes.homework);
-    final all = box.values.cast<HomeworkModel>().toList();
+    final all = box.values.whereType<HomeworkModel>().toList();
 
     if (role == 'student') {
       state = all
           .where((h) => h.studentId.isEmpty || h.studentId == userId)
           .toList()
         ..sort((a, b) => a.deadline.compareTo(b.deadline));
-      if (state.isEmpty) _seedDemo();
+      // Idempotent seed: check specific IDs, not just emptiness
+      if (!box.containsKey('demo_hw_1')) _seedDemo();
     } else {
       state = all
           .where((h) => h.teacherId == userId)

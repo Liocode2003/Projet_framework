@@ -68,9 +68,9 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   Future<void> _pickImage(ImageSource source) async {
     try {
       final xFile = await _picker.pickImage(
-        source:    source,
-        imageQuality: 70,
-        maxWidth:  1024,
+        source:       source,
+        imageQuality: 60,
+        maxWidth:     800,
       );
       if (xFile == null) return;
       setState(() => _pendingImage = File(xFile.path));
@@ -155,7 +155,13 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
     final path = await _recorder.stop();
     setState(() => _isRecording = false);
 
-    if (path == null) return;
+    if (path == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Enregistrement échoué — réessaie.')),
+      );
+      return;
+    }
     ref.read(aiTutorNotifierProvider.notifier).sendAudioMessage(path);
     _scrollToBottom();
   }

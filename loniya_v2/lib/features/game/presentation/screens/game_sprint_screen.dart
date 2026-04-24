@@ -63,7 +63,8 @@ class GameSprintScreen extends ConsumerStatefulWidget {
   ConsumerState<GameSprintScreen> createState() => _GameSprintScreenState();
 }
 
-class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
+class _GameSprintScreenState extends ConsumerState<GameSprintScreen>
+    with WidgetsBindingObserver {
   static const int _gridSize    = 6;
   static const int _totalSecs   = 60;
 
@@ -85,13 +86,25 @@ class _GameSprintScreenState extends ConsumerState<GameSprintScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initGrid();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState lifecycle) {
+    if (lifecycle == AppLifecycleState.paused ||
+        lifecycle == AppLifecycleState.inactive) {
+      _paused = true;
+    } else if (lifecycle == AppLifecycleState.resumed) {
+      if (_started && !_finished) setState(() => _paused = false);
+    }
   }
 
   void _initGrid() {

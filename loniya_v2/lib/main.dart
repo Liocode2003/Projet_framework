@@ -11,7 +11,6 @@ import 'core/services/database/database_service.dart';
 import 'core/services/storage/hive_storage_service.dart';
 import 'core/services/encryption/aes_encryption_service.dart';
 import 'core/services/encryption/encryption_provider.dart';
-import 'core/services/storage/secure_key_service.dart';
 
 // ─── Hive model imports ───────────────────────────────────────────────────────
 import 'core/data/models/sync_action_model.dart';
@@ -59,17 +58,6 @@ Future<void> main() async {
   final encryptionService = AesEncryptionService();
   await encryptionService.init();
   await HiveStorageService.openBoxes(encryptionService);
-
-  // ── Pre-seed AI key (first launch only) ─────────────────────────────────
-  final keyService = SecureKeyService();
-  final existingKey = await keyService.getApiKey();
-  if (existingKey == null || existingKey.trim().isEmpty) {
-    await keyService.saveApiKey(String.fromCharCodes(const [
-      103,115,107,95,84,75,69,82,73,75,97,116,118,97,52,115,86,105,53,
-      116,71,106,100,68,87,71,100,121,98,51,70,89,98,79,80,108,52,52,
-      113,114,114,68,115,82,82,116,83,101,52,102,85,84,49,54,51,75,
-    ]));
-  }
 
   // ── Startup cache maintenance (non-blocking) ─────────────────────────────
   final db = const DatabaseService();

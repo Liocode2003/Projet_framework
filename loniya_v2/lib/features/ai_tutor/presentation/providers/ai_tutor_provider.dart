@@ -115,6 +115,16 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
 
   /// Send an image to Le Sage. Shows image in chat then calls vision API.
   Future<void> sendImageMessage(String imagePath, {String caption = ''}) async {
+    // Guard: vision requires an active internet connection
+    final isOnline = _ref.read(connectivityServiceProvider).isConnected;
+    if (!isOnline) {
+      state = state.copyWith(
+        errorMessage: 'Analyse d\'image indisponible hors-ligne. '
+            'Connecte-toi à internet pour utiliser la vision IA.',
+      );
+      return;
+    }
+
     _addAttachmentMessage(
       content:        caption.trim().isEmpty ? '📷 Image envoyée' : caption.trim(),
       type:           AiMessageType.image,
@@ -158,37 +168,46 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
     final llm    = _ref.read(aiLlmServiceProvider);
     final result = await llm.transcribeAudio(audioPath);
 
-    result.fold(
-      (failure) {
-        state = state.copyWith(
-          isTyping: false,
-          errorMessage: failure is AuthFailure
-              ? failure.message
-              : 'Transcription indisponible hors-ligne.',
-        );
-      },
-      (transcript) async {
-        // Replace the audio bubble content with the transcript
-        final updated = state.messages.map((m) {
-          if (m.attachmentPath == audioPath) {
-            return AiMessageEntity(
-              id:             m.id,
-              role:           m.role,
-              content:        '🎤 "$transcript"',
-              createdAt:      m.createdAt,
-              type:           AiMessageType.audio,
-              attachmentPath: audioPath,
-            );
-          }
-          return m;
-        }).toList();
-        // Keep isTyping: true — sendMessage will manage it from here
-        state = state.copyWith(messages: updated);
+    // Extract transcript synchronously — avoids async closure inside fold()
+    final failure   = result.fold((f) => f, (_) => null);
+    final transcript = result.fold((_) => null, (t) => t);
 
-        // Now let Le Sage answer the transcribed text
-        await sendMessage(transcript);
-      },
-    );
+    if (failure != null) {
+      state = state.copyWith(
+        isTyping: false,
+        errorMessage: failure is AuthFailure
+            ? failure.message
+            : 'Transcription indisponible hors-ligne.',
+      );
+      return;
+    }
+
+    if (transcript == null || transcript.trim().isEmpty) {
+      state = state.copyWith(
+        isTyping: false,
+        errorMessage: 'Audio non reconnu — réessaie.',
+      );
+      return;
+    }
+
+    // Update audio bubble to show the transcribed text
+    final updated = state.messages.map((m) {
+      if (m.attachmentPath == audioPath) {
+        return AiMessageEntity(
+          id:             m.id,
+          role:           m.role,
+          content:        '🎤 "$transcript"',
+          createdAt:      m.createdAt,
+          type:           AiMessageType.audio,
+          attachmentPath: audioPath,
+        );
+      }
+      return m;
+    }).toList();
+    // Keep isTyping: true — sendMessage manages typing state from here
+    state = state.copyWith(messages: updated);
+
+    await sendMessage(transcript);
   }
 
   void clearContext() {
