@@ -316,6 +316,7 @@ class DatabaseService {
       HiveBoxes.aiCache, HiveBoxes.settings, HiveBoxes.orientation,
       HiveBoxes.classroom, HiveBoxes.marketplace,
       HiveBoxes.subscriptions, HiveBoxes.purchases,
+      HiveBoxes.credits, HiveBoxes.exams, HiveBoxes.homework,
     ]) {
       await Hive.box(boxName).clear();
     }
