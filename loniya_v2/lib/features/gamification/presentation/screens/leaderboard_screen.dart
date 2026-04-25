@@ -24,7 +24,6 @@ final _leaderboardProvider = FutureProvider.autoDispose<List<_RankEntry>>((ref) 
       totalXp: g.totalXp,
       level: g.level,
       streak: g.currentStreak,
-      lessonsCompleted: g.lessonsCompleted,
       isCurrentUser: g.userId == currentId,
     );
   }).toList();
@@ -288,7 +287,6 @@ class _RankEntry {
   final int totalXp;
   final int level;
   final int streak;
-  final int lessonsCompleted;
   final bool isCurrentUser;
 
   const _RankEntry({
@@ -298,7 +296,6 @@ class _RankEntry {
     required this.totalXp,
     required this.level,
     required this.streak,
-    required this.lessonsCompleted,
     required this.isCurrentUser,
   });
 }

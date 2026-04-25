@@ -125,7 +125,11 @@ class AiLlmService {
 
       if (response.statusCode == 200) {
         final data    = jsonDecode(response.body) as Map<String, dynamic>;
-        final content = (data['choices'] as List).first['message']['content'] as String;
+        final choices = data['choices'] as List?;
+        if (choices == null || choices.isEmpty) {
+          return const Left(ServerFailure('Réponse invalide de l\'IA.'));
+        }
+        final content = choices.first['message']['content'] as String;
         return Right(content.trim());
       }
       if (response.statusCode == 401) {
@@ -206,7 +210,11 @@ class AiLlmService {
 
       if (response.statusCode == 200) {
         final data    = jsonDecode(response.body) as Map<String, dynamic>;
-        final content = (data['choices'] as List).first['message']['content'] as String;
+        final choices = data['choices'] as List?;
+        if (choices == null || choices.isEmpty) {
+          return const Left(ServerFailure('Réponse invalide de l\'IA.'));
+        }
+        final content = choices.first['message']['content'] as String;
         return Right(content.trim());
       }
       if (response.statusCode == 401) {
