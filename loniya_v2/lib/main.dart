@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app.dart';
+import 'core/config/app_config.dart';
 import 'core/errors/app_error_handler.dart';
 import 'core/services/cache/cache_manager_service.dart';
 import 'core/services/database/database_service.dart';
@@ -12,6 +13,7 @@ import 'core/services/storage/hive_storage_service.dart';
 import 'core/services/storage/secure_key_service.dart';
 import 'core/services/encryption/aes_encryption_service.dart';
 import 'core/services/encryption/encryption_provider.dart';
+import 'core/services/supabase/supabase_service.dart';
 
 // ─── Hive model imports ───────────────────────────────────────────────────────
 import 'core/data/models/sync_action_model.dart';
@@ -60,11 +62,14 @@ Future<void> main() async {
   await encryptionService.init();
   await HiveStorageService.openBoxes(encryptionService);
 
-  // ── Groq key bootstrap (first launch only) ───────────────────────────────
+  // ── Supabase (optional — only when build-time config provided) ───────────
+  await SupabaseService.initialize();
+
+  // ── Groq key bootstrap (first launch only, from build-time config) ───────
   await _seedGroqKey();
 
   // ── Startup cache maintenance (non-blocking) ─────────────────────────────
-  final db = const DatabaseService();
+  const db = DatabaseService();
   CacheManagerService(db).startup().ignore();
 
   // ── Launch app ───────────────────────────────────────────────────────────
@@ -73,20 +78,22 @@ Future<void> main() async {
       overrides: [
         encryptionServiceProvider.overrideWithValue(encryptionService),
       ],
-      observers: [LoniyaProviderObserver()],
+      observers: [YikriProviderObserver()],
       child: const YikriApp(),
     ),
   );
 }
 
 // ─── Groq key seeding ─────────────────────────────────────────────────────────
+/// Seeds the Groq API key into the device Keychain on first launch.
+/// The key comes from --dart-define=GROQ_KEY=gsk_... at build time.
+/// Never stored in source code.
 Future<void> _seedGroqKey() async {
+  if (!AppConfig.hasGroqKey) return;
   final svc = SecureKeyService();
   final existing = await svc.getApiKey();
   if (existing != null && existing.isNotEmpty) return;
-  const _a = [103,115,107,95,55,48,56,112,71,85,116,89,97,76,70,50,106,72,116,101,77,54];
-  const _b = [75,119,87,71,100,121,98,51,70,89,114,55,76,107,78,107,79,53,49,111,76,70,87,49,57,118,56,52,56,99,51,50,97,79];
-  await svc.saveApiKey(String.fromCharCodes([..._a, ..._b]));
+  await svc.saveApiKey(AppConfig.groqApiKey);
 }
 
 // ─── Hive adapter registration ────────────────────────────────────────────────

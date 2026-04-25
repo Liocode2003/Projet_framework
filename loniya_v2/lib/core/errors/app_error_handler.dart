@@ -33,7 +33,7 @@ bool onPlatformError(Object error, StackTrace stack) {
 }
 
 /// Riverpod observer — logs provider lifecycle and errors to the console.
-class LoniyaProviderObserver extends ProviderObserver {
+class YikriProviderObserver extends ProviderObserver {
   @override
   void providerDidFail(
     ProviderBase<Object?> provider,

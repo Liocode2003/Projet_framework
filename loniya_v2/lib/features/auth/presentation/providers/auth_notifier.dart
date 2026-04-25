@@ -5,6 +5,7 @@ import '../../../../core/services/encryption/aes_encryption_service.dart';
 import '../../../../core/services/encryption/encryption_provider.dart';
 import '../../../../core/services/storage/secure_key_service.dart';
 import '../../data/datasources/auth_local_datasource.dart';
+import '../../data/datasources/auth_remote_datasource.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/send_otp_usecase.dart';
@@ -25,8 +26,14 @@ final authLocalDataSourceProvider = Provider<AuthLocalDataSource>((ref) {
   );
 });
 
+final authRemoteDataSourceProvider =
+    Provider<AuthRemoteDataSource>((_) => AuthRemoteDataSource());
+
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
-  return AuthRepositoryImpl(ref.read(authLocalDataSourceProvider));
+  return AuthRepositoryImpl(
+    ref.read(authLocalDataSourceProvider),
+    ref.read(authRemoteDataSourceProvider),
+  );
 });
 
 // ─── Use case providers ────────────────────────────────────────────────────────
