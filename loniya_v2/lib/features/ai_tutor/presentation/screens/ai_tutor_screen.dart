@@ -292,11 +292,17 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
     // Auto-scroll + TTS on new messages
     ref.listen<AiTutorState>(aiTutorNotifierProvider, (prev, next) {
       _scrollToBottom();
+      // Fire TTS when readyTutorId changes — works for both streamed and
+      // non-streamed replies without double-firing on every token.
       if (ttsEnabled &&
-          next.messages.length > (prev?.messages.length ?? 0)) {
-        final last = next.messages.last;
-        if (!last.isUser) {
-          ref.read(ttsServiceProvider).speak(last.content);
+          next.readyTutorId != null &&
+          next.readyTutorId != prev?.readyTutorId) {
+        final msg = next.messages.lastWhere(
+          (m) => m.id == next.readyTutorId,
+          orElse: () => next.messages.last,
+        );
+        if (!msg.isUser && msg.content.isNotEmpty) {
+          ref.read(ttsServiceProvider).speak(msg.content);
         }
       }
     });

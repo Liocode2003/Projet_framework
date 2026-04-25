@@ -53,11 +53,15 @@ class AiTutorState {
   final List<AiMessageEntity> messages;
   final bool isTyping;
   final String? errorMessage;
+  /// ID of the last tutor message that is fully ready (streaming done or
+  /// non-streamed). Listeners use this to trigger TTS exactly once per reply.
+  final String? readyTutorId;
 
   const AiTutorState({
     this.messages     = const [],
     this.isTyping     = false,
     this.errorMessage,
+    this.readyTutorId,
   });
 
   AiTutorState copyWith({
@@ -65,11 +69,14 @@ class AiTutorState {
     bool? isTyping,
     String? errorMessage,
     bool clearError = false,
+    String? readyTutorId,
+    bool clearReadyTutor = false,
   }) =>
       AiTutorState(
         messages:     messages     ?? this.messages,
         isTyping:     isTyping     ?? this.isTyping,
         errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+        readyTutorId: clearReadyTutor ? null : (readyTutorId ?? this.readyTutorId),
       );
 }
 
@@ -153,7 +160,11 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
         },
       );
     }
-    if (gotContent) _saveHistory();
+    if (gotContent) {
+      // Signal TTS that this message is fully streamed
+      state = state.copyWith(readyTutorId: tutorMsgId);
+      _saveHistory();
+    }
   }
 
   /// Send an image to Le Sage. Shows image in chat then calls vision API.
@@ -377,15 +388,19 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
   }
 
   void _addTutorMessage(String text) {
-    state = state.copyWith(messages: [
-      ...state.messages,
-      AiMessageEntity(
-        id:        _uuid.v4(),
-        role:      MessageRole.tutor,
-        content:   text,
-        createdAt: DateTime.now(),
-      ),
-    ]);
+    final id = _uuid.v4();
+    state = state.copyWith(
+      messages: [
+        ...state.messages,
+        AiMessageEntity(
+          id:        id,
+          role:      MessageRole.tutor,
+          content:   text,
+          createdAt: DateTime.now(),
+        ),
+      ],
+      readyTutorId: id,
+    );
   }
 
   String _greeting() =>
