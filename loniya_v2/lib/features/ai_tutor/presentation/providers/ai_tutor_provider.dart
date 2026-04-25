@@ -12,6 +12,7 @@ import '../../domain/entities/ai_message_entity.dart';
 import '../../domain/repositories/ai_tutor_repository.dart';
 import '../../domain/usecases/ask_question_usecase.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../../core/errors/failures.dart';
 
 // ─── Infrastructure providers ─────────────────────────────────────────────────
 final aiTutorEngineProvider = Provider<AiTutorEngine>((_) => AiTutorEngine());
