@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
@@ -11,6 +12,7 @@ import '../../../../core/services/storage/secure_key_service.dart';
 import '../../../../core/services/tts/tts_provider.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
+import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/ai_message_entity.dart';
 import '../providers/ai_tutor_provider.dart';
 import '../widgets/chat_bubble.dart';
@@ -31,15 +33,46 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   final _recorder = AudioRecorder();
 
   File?   _pendingImage;
-  bool    _isRecording = false;
+  bool    _isRecording   = false;
+  int     _prevTextLength = 0;
+  bool    _pasteDetected  = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl.addListener(_detectPaste);
+  }
 
   @override
   void dispose() {
+    _ctrl.removeListener(_detectPaste);
     _ctrl.dispose();
     _focus.dispose();
     _scroll.dispose();
     _recorder.dispose();
     super.dispose();
+  }
+
+  // ─── Copy-paste detection ───────────────────────────────────────────────────
+
+  void _detectPaste() {
+    final current = _ctrl.text.length;
+    final delta   = current - _prevTextLength;
+
+    if (delta < -5 && _pasteDetected) {
+      // User edited the pasted text substantially — give benefit of the doubt
+      setState(() => _pasteDetected = false);
+    } else if (delta > 20 && !_pasteDetected) {
+      // Large single insertion → check clipboard to confirm it's a paste
+      Clipboard.getData(Clipboard.kTextPlain).then((clip) {
+        if (!mounted) return;
+        final clipText = clip?.text?.trim() ?? '';
+        if (clipText.length > 10 && _ctrl.text.contains(clipText)) {
+          setState(() => _pasteDetected = true);
+        }
+      });
+    }
+    _prevTextLength = current;
   }
 
   // ─── Send text ──────────────────────────────────────────────────────────────
@@ -57,8 +90,14 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
       ref.read(aiTutorNotifierProvider.notifier)
           .sendImageMessage(imgPath, caption: caption);
     } else {
+      final wasPasted = _pasteDetected;
       _ctrl.clear();
-      ref.read(aiTutorNotifierProvider.notifier).sendMessage(text);
+      setState(() { _pasteDetected = false; _prevTextLength = 0; });
+      if (wasPasted) {
+        ref.read(aiTutorNotifierProvider.notifier).handleCopiedMessage(text);
+      } else {
+        ref.read(aiTutorNotifierProvider.notifier).sendMessage(text);
+      }
     }
     _scrollToBottom();
   }
@@ -288,6 +327,10 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
     final isOnline   = ref.watch(isOnlineProvider).valueOrNull
         ?? ref.read(connectivityServiceProvider).isConnected;
     final hasKey     = ref.watch(hasApiKeyProvider).valueOrNull ?? false;
+    final userRole   = ref.watch(currentUserRoleProvider);
+    final userGrade  = ref.watch(currentUserProvider)?.gradeLevel ?? '';
+    final canPredict = userRole == 'student' &&
+        (userGrade.contains('3') || userGrade.toLowerCase().contains('terminale'));
 
     // Auto-scroll + TTS on new messages
     ref.listen<AiTutorState>(aiTutorNotifierProvider, (prev, next) {
@@ -315,6 +358,8 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
             isOnline:    isOnline,
             hasKey:      hasKey,
             ttsEnabled:  ttsEnabled,
+            canPredict:  canPredict,
+            userGrade:   userGrade,
             onClear:     () =>
                 ref.read(aiTutorNotifierProvider.notifier).clearChat(),
             onToggleTts: () {
@@ -324,6 +369,12 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
               if (!v) ref.read(ttsServiceProvider).stop();
             },
             onSetupKey: _showApiKeyDialog,
+            onPredict:  () {
+              final exam = userGrade.toLowerCase().contains('terminale')
+                  ? 'BAC' : 'BEPC';
+              ref.read(aiTutorNotifierProvider.notifier).predictExamResult(exam);
+              _scrollToBottom();
+            },
           ),
 
           if (!hasKey) _SetupBanner(onTap: _showApiKeyDialog),
@@ -354,6 +405,11 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
             _AttachmentPreview(
               file:    _pendingImage!,
               onClear: () => setState(() => _pendingImage = null),
+            ),
+
+          if (_pasteDetected)
+            _PasteWarningBanner(
+              onDismiss: () => setState(() => _pasteDetected = false),
             ),
 
           _InputBar(
@@ -404,6 +460,41 @@ class _AttachmentPreview extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ─── Paste warning ────────────────────────────────────────────────────────────
+
+class _PasteWarningBanner extends StatelessWidget {
+  final VoidCallback onDismiss;
+  const _PasteWarningBanner({required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width:   double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 7, 6, 7),
+      color:   const Color(0xFFFFF3E0),
+      child:   Row(children: [
+        const Icon(Icons.content_paste_rounded,
+            size: 15, color: Color(0xFFE65100)),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            '📋 Texte collé détecté — Le Sage préfère tes propres mots',
+            style: AppTextStyles.labelSmall
+                .copyWith(color: const Color(0xFFE65100)),
+          ),
+        ),
+        IconButton(
+          constraints: const BoxConstraints(minWidth: 30, minHeight: 30),
+          padding:     EdgeInsets.zero,
+          icon: const Icon(Icons.close_rounded,
+              size: 15, color: Color(0xFFE65100)),
+          onPressed: onDismiss,
+        ),
+      ]),
     );
   }
 }
@@ -602,16 +693,20 @@ class _RecordButton extends StatelessWidget {
 // ─── Header ───────────────────────────────────────────────────────────────────
 
 class _AiHeader extends StatelessWidget {
-  final bool isOnline, hasKey, ttsEnabled;
-  final VoidCallback onClear, onToggleTts, onSetupKey;
+  final bool isOnline, hasKey, ttsEnabled, canPredict;
+  final String userGrade;
+  final VoidCallback onClear, onToggleTts, onSetupKey, onPredict;
 
   const _AiHeader({
     required this.isOnline,
     required this.hasKey,
     required this.ttsEnabled,
+    required this.canPredict,
+    required this.userGrade,
     required this.onClear,
     required this.onToggleTts,
     required this.onSetupKey,
+    required this.onPredict,
   });
 
   @override
@@ -687,6 +782,17 @@ class _AiHeader extends StatelessWidget {
               ),
               onPressed: onToggleTts,
             ),
+            if (canPredict)
+              Tooltip(
+                message: userGrade.toLowerCase().contains('terminale')
+                    ? 'Prédiction BAC'
+                    : 'Prédiction BEPC',
+                child: IconButton(
+                  icon: const Icon(Icons.emoji_events_rounded),
+                  color: AppColors.warning,
+                  onPressed: onPredict,
+                ),
+              ),
             IconButton(
               tooltip:   'Nouvelle conversation',
               icon: const Icon(Icons.refresh_rounded),

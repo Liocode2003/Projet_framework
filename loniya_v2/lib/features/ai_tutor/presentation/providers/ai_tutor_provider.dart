@@ -17,6 +17,7 @@ import '../../domain/entities/ai_message_entity.dart';
 import '../../domain/repositories/ai_tutor_repository.dart';
 import '../../domain/usecases/ask_question_usecase.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../homework/presentation/providers/homework_provider.dart';
 
 // ─── Infrastructure providers ─────────────────────────────────────────────────
 final aiTutorEngineProvider = Provider<AiTutorEngine>((_) => AiTutorEngine());
@@ -261,6 +262,71 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
     state = state.copyWith(messages: updated);
 
     await sendMessage(transcript);
+  }
+
+  /// Generates a BEPC/BAC success prediction from the student's in-app data.
+  Future<void> predictExamResult(String examName) async {
+    final user       = _ref.read(currentUserProvider);
+    final homework   = _ref.read(homeworkProvider);
+    final grade      = user?.gradeLevel ?? (examName == 'BAC' ? 'Terminale' : '3ème');
+
+    final done    = homework.where((h) => h.isDone).toList();
+    final scored  = done.where((h) => h.score != null).toList();
+    final avgScore = scored.isEmpty
+        ? 0.0
+        : scored.map((h) => h.score!).reduce((a, b) => a + b) / scored.length;
+
+    // Derive weak/strong subjects from scored homework
+    final subjectScores = <String, List<int>>{};
+    for (final h in scored) {
+      subjectScores.putIfAbsent(h.subject, () => []).add(h.score!);
+    }
+    final subjectAvg = subjectScores.map(
+      (s, scores) => MapEntry(s, scores.reduce((a, b) => a + b) / scores.length));
+    final weakSubjects   = subjectAvg.entries
+        .where((e) => e.value < 10).map((e) => e.key).toList();
+    final strongSubjects = subjectAvg.entries
+        .where((e) => e.value >= 14).map((e) => e.key).toList();
+
+    final totalSessions = state.messages.where((m) => m.isUser).length;
+
+    state = state.copyWith(isTyping: true, clearError: true);
+
+    final result = await _ref.read(aiLlmServiceProvider).predictExamResult(
+      examName:       examName,
+      grade:          grade,
+      totalSessions:  totalSessions,
+      homeworkDone:   done.length,
+      homeworkTotal:  homework.length,
+      avgScore:       avgScore,
+      quizCorrect:    0,
+      quizTotal:      0,
+      weakSubjects:   weakSubjects,
+      strongSubjects: strongSubjects,
+    );
+
+    state = state.copyWith(isTyping: false);
+    result.fold(
+      (failure) => state = state.copyWith(errorMessage: failure.message),
+      (prediction) { _addTutorMessage(prediction); _saveHistory(); },
+    );
+  }
+
+  /// Called when the user sends a copy-pasted message.
+  /// Le Sage refuses and requires the student to rephrase in their own words.
+  void handleCopiedMessage(String pastedText) {
+    _addUserMessage(pastedText);
+    const refusals = [
+      'Tu viens de copier cette question. Je ne répondrai pas. '
+      'Pose-la avec tes propres mots — c\'est comme ça qu\'on apprend vraiment. 🌿',
+      'Hmm, cette question a été copiée quelque part. Je préfère que tu me dises, '
+      'avec tes propres mots, ce que TU veux comprendre. 😊',
+      'Je remarque que tu as collé ce texte. Reformule-le à ta façon : '
+      'qu\'est-ce qui te pose problème exactement ? 🤔',
+    ];
+    final idx = state.messages.length % refusals.length;
+    _addTutorMessage(refusals[idx]);
+    _saveHistory();
   }
 
   void clearContext() {
