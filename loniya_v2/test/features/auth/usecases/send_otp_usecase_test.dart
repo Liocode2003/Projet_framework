@@ -25,7 +25,7 @@ void main() {
     });
 
     test('strips non-digit characters before calling repository', () async {
-      when(() => mockRepo.sendOtp('70123456'))
+      when(() => mockRepo.sendOtp('22670123456'))
           .thenAnswer((_) async => const Right('req'));
       await useCase.call('+226 70-123-456');
       verify(() => mockRepo.sendOtp('22670123456')).called(1);

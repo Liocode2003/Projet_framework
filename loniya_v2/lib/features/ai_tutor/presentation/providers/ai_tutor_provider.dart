@@ -267,7 +267,7 @@ class AiTutorNotifier extends StateNotifier<AiTutorState> {
   /// Generates a BEPC/BAC success prediction from the student's in-app data.
   Future<void> predictExamResult(String examName) async {
     final user       = _ref.read(currentUserProvider);
-    final homework   = _ref.read(homeworkProvider);
+    final homework   = _ref.read(homeworkNotifierProvider);
     final grade      = user?.gradeLevel ?? (examName == 'BAC' ? 'Terminale' : '3ème');
 
     final done    = homework.where((h) => h.isDone).toList();
