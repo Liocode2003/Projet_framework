@@ -2,14 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/hive_boxes.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../data/models/credit_model.dart';
 
-const _boxName = 'credits';
-
 // ── Box provider ──────────────────────────────────────────────────────────────
 final creditBoxProvider = Provider<Box<CreditModel>>((ref) {
-  return Hive.box<CreditModel>(_boxName);
+  return Hive.box<CreditModel>(HiveBoxes.credits);
 });
 
 // ── Credit notifier ───────────────────────────────────────────────────────────

@@ -205,6 +205,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     state = state.copyWith(isLoading: true);
     await _ref.read(logoutUseCaseProvider).call();
+    await _ref.read(databaseServiceProvider).clearAll();
     state = const AuthState.initial().copyWith(
       status: AuthStatus.unauthenticated,
     );

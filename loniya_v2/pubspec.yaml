@@ -49,6 +49,10 @@ dependencies:
   shimmer: ^3.0.0
   flutter_svg: ^2.0.10+1
 
+  # Media input
+  image_picker: ^1.1.2
+  record: ^5.1.2
+
   # Utilities
   path_provider: ^2.1.2
   shared_preferences: ^2.2.2
