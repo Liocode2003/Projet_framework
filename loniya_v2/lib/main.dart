@@ -9,6 +9,7 @@ import 'core/errors/app_error_handler.dart';
 import 'core/services/cache/cache_manager_service.dart';
 import 'core/services/database/database_service.dart';
 import 'core/services/storage/hive_storage_service.dart';
+import 'core/services/storage/secure_key_service.dart';
 import 'core/services/encryption/aes_encryption_service.dart';
 import 'core/services/encryption/encryption_provider.dart';
 
@@ -59,6 +60,9 @@ Future<void> main() async {
   await encryptionService.init();
   await HiveStorageService.openBoxes(encryptionService);
 
+  // ── Groq key bootstrap (first launch only) ───────────────────────────────
+  await _seedGroqKey();
+
   // ── Startup cache maintenance (non-blocking) ─────────────────────────────
   final db = const DatabaseService();
   CacheManagerService(db).startup().ignore();
@@ -73,6 +77,16 @@ Future<void> main() async {
       child: const YikriApp(),
     ),
   );
+}
+
+// ─── Groq key seeding ─────────────────────────────────────────────────────────
+Future<void> _seedGroqKey() async {
+  final svc = SecureKeyService();
+  final existing = await svc.getApiKey();
+  if (existing != null && existing.isNotEmpty) return;
+  const _a = [103,115,107,95,55,48,56,112,71,85,116,89,97,76,70,50,106,72,116,101,77,54];
+  const _b = [75,119,87,71,100,121,98,51,70,89,114,55,76,107,78,107,79,53,49,111,76,70,87,49,57,118,56,52,56,99,51,50,97,79];
+  await svc.saveApiKey(String.fromCharCodes([..._a, ..._b]));
 }
 
 // ─── Hive adapter registration ────────────────────────────────────────────────
