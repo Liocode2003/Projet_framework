@@ -148,6 +148,55 @@ class _AudioContent extends StatelessWidget {
   }
 }
 
+// ─── Streaming dots (shown while tutor message is being filled) ───────────────
+class _StreamingDots extends StatefulWidget {
+  const _StreamingDots();
+
+  @override
+  State<_StreamingDots> createState() => _StreamingDotsState();
+}
+
+class _StreamingDotsState extends State<_StreamingDots>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (_, __) {
+        final frame  = (_ctrl.value * 3).floor().clamp(0, 2);
+        final dots   = '.' * (frame + 1);
+        return Text(
+          dots,
+          style: TextStyle(
+            color:      AppColors.aiTutor,
+            fontSize:   22,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'Nunito',
+            letterSpacing: 4,
+          ),
+        );
+      },
+    );
+  }
+}
+
 // ─── Tutor bubble (left-aligned, surface color with accent) ──────────────────
 class _TutorBubble extends StatelessWidget {
   final AiMessageEntity msg;
@@ -205,13 +254,15 @@ class _TutorBubble extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    msg.content,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color:  AppColors.onSurface,
-                      height: 1.5,
-                    ),
-                  ),
+                  msg.content.isEmpty
+                      ? const _StreamingDots()
+                      : Text(
+                          msg.content,
+                          style: AppTextStyles.bodyMedium.copyWith(
+                            color:  AppColors.onSurface,
+                            height: 1.5,
+                          ),
+                        ),
                   if (msg.fromCache) ...[
                     const SizedBox(height: 4),
                     Row(children: [

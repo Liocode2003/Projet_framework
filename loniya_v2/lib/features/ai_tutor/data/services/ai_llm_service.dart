@@ -65,6 +65,91 @@ class AiLlmService {
     return const Left(OfflineFailure());
   }
 
+  // ─── Streaming text chat (SSE) ─────────────────────────────────────────────
+
+  /// Yields token strings as they arrive from the Groq SSE endpoint.
+  /// Emits a single Left(failure) and closes on any API/network error.
+  Stream<Either<Failure, String>> chatStream({
+    required String question,
+    required List<AiMessageEntity> history,
+    String userRole      = 'student',
+    String grade         = '',
+    String subject       = '',
+    String stepTitle     = '',
+    List<String> stepKeywords = const [],
+  }) async* {
+    final apiKey = await _keys.getApiKey();
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      yield const Left(AuthFailure('Clé API Groq non configurée.'));
+      return;
+    }
+
+    final messages = _buildTextPayload(
+      question: question, history: history,
+      userRole: userRole, grade: grade,
+      subject: subject, stepTitle: stepTitle,
+      stepKeywords: stepKeywords,
+    );
+
+    final client = http.Client();
+    try {
+      final request = http.Request('POST', Uri.parse(_endpoint))
+        ..headers.addAll({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${apiKey.trim()}',
+        })
+        ..body = jsonEncode({
+          'model':       _modelPrimary,
+          'messages':    messages,
+          'temperature': 0.70,
+          'max_tokens':  _maxTokens,
+          'stream':      true,
+        });
+
+      final streamed = await client.send(request).timeout(_timeout);
+
+      if (streamed.statusCode == 401) {
+        yield const Left(AuthFailure('Clé API invalide ou expirée.'));
+        return;
+      }
+      if (streamed.statusCode == 429) {
+        yield const Left(
+            ServerFailure('Limite de requêtes — réessaie dans quelques secondes.'));
+        return;
+      }
+      if (streamed.statusCode != 200) {
+        yield Left(ServerFailure('Groq ${streamed.statusCode}'));
+        return;
+      }
+
+      await for (final line in streamed.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())) {
+        if (!line.startsWith('data: ')) continue;
+        final payload = line.substring(6).trim();
+        if (payload == '[DONE]') break;
+        try {
+          final data    = jsonDecode(payload) as Map<String, dynamic>;
+          final choices = data['choices'] as List?;
+          if (choices == null || choices.isEmpty) continue;
+          final delta = choices.first['delta'] as Map<String, dynamic>?;
+          final token = delta?['content'] as String?;
+          if (token != null && token.isNotEmpty) yield Right(token);
+        } catch (_) {
+          continue;
+        }
+      }
+    } on TimeoutException {
+      yield const Left(OfflineFailure());
+    } on SocketException {
+      yield const Left(OfflineFailure());
+    } catch (_) {
+      yield const Left(OfflineFailure());
+    } finally {
+      client.close();
+    }
+  }
+
   // ─── Vision chat (image + optional text) ───────────────────────────────────
 
   Future<Either<Failure, String>> chatWithImage({
