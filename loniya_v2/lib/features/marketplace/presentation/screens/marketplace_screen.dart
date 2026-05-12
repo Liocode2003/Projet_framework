@@ -6,7 +6,7 @@ import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
-import '../../../../core/widgets/error_widget.dart';
+import '../../../../core/widgets/error_widget.dart' hide EmptyStateWidget;
 import '../../../../core/widgets/loading_overlay.dart';
 import '../../domain/entities/content_entity.dart';
 import '../providers/marketplace_provider.dart';

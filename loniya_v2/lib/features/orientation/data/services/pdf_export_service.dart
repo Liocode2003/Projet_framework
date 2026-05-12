@@ -95,8 +95,8 @@ class PdfExportService {
               ),
               pw.Text(
                 'Date : $dateStr',
-                style: const pw.TextStyle(
-                  color: PdfColors.white70,
+                style: pw.TextStyle(
+                  color: const PdfColor(1, 1, 1, 0.7),
                   fontSize: 10,
                 ),
               ),
@@ -106,7 +106,7 @@ class PdfExportService {
             padding: const pw.EdgeInsets.symmetric(
                 horizontal: 12, vertical: 6),
             decoration: pw.BoxDecoration(
-              color: PdfColors.white24,
+              color: const PdfColor(1, 1, 1, 0.24),
               borderRadius: pw.BorderRadius.circular(6),
             ),
             child: pw.Text(
@@ -261,10 +261,10 @@ class PdfExportService {
               color: PdfColor.fromHex('2E7D32'),
             ),
           ),
-          if (result.alternativeFilières.isNotEmpty) ...[
+          if (result.alternativeFilieres.isNotEmpty) ...[
             pw.SizedBox(height: 6),
             pw.Text(
-              'Alternatives : ${result.alternativeFilières.join(' · ')}',
+              'Alternatives : ${result.alternativeFilieres.join(' · ')}',
               style: const pw.TextStyle(
                 fontSize: 9,
                 color: PdfColors.grey700,

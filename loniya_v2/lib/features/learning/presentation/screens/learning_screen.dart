@@ -7,7 +7,7 @@ import '../../../../core/services/database/database_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/widgets/loading_overlay.dart';
-import '../../../../core/widgets/error_widget.dart';
+import '../../../../core/widgets/error_widget.dart' hide EmptyStateWidget;
 import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/lesson_entity.dart';

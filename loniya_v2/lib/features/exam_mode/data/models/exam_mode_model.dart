@@ -11,7 +11,7 @@ class ExamModeModel extends HiveObject {
   @HiveField(4) final List<String> subjects;
   @HiveField(5) final bool parentNotified;
 
-  const ExamModeModel({
+  ExamModeModel({
     required this.userId,
     this.active          = false,
     this.startDate       = '',

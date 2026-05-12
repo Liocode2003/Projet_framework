@@ -180,7 +180,7 @@ class _StudentHero extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
                 child: LinearProgressIndicator(
                   value: progress,
-                  backgroundColor: Colors.white15,
+                  backgroundColor: Colors.white.withOpacity(0.15),
                   valueColor: const AlwaysStoppedAnimation(AppColors.gold),
                   minHeight: 7,
                 ),

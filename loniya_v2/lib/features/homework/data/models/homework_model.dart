@@ -19,7 +19,7 @@ class HomeworkModel extends HiveObject {
   @HiveField(10) final int?   score;        // score obtenu si done
   @HiveField(11) final String assignedAt;
 
-  const HomeworkModel({
+  HomeworkModel({
     required this.id,
     required this.studentId,
     required this.teacherId,

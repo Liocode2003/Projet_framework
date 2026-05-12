@@ -37,7 +37,7 @@ class OrientationLocalDataSource {
       examType: existing.examType,
       scores: existing.scores,
       recommendedFiliere: existing.recommendedFiliere,
-      alternativeFilières: existing.alternativeFilières,
+      alternativeFilieres: existing.alternativeFilieres,
       successProbability: existing.successProbability,
       analysisText: existing.analysisText,
       createdAt: existing.createdAt,
