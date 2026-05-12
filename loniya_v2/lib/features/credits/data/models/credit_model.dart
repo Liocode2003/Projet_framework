@@ -13,7 +13,7 @@ class CreditModel extends HiveObject {
   @HiveField(4) final int totalEarned;    // cumulatif all-time
   @HiveField(5) final int totalSpent;     // cumulatif all-time
 
-  const CreditModel({
+  CreditModel({
     required this.userId,
     this.base         = 20,
     this.bonus        = 0,

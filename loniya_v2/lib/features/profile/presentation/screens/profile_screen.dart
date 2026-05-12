@@ -28,7 +28,7 @@ class ProfileScreen extends ConsumerWidget {
     final level    = gData?.level ?? 1;
     final xp       = gData?.totalXp ?? 0;
     final streak   = gData?.currentStreak ?? 0;
-    final badges   = gData?.badges.length ?? 0;
+    final badges   = gData?.unlockedBadgeIds.length ?? 0;
 
     final creditLevel = _creditLevel(totalEarned);
     final ykCode = _generateYkCode(user?.id ?? '');
@@ -334,7 +334,7 @@ class _ProfileHero extends StatelessWidget {
                       _HeroBadge(label: _roleLabel, color: Colors.white24),
                       if (grade.isNotEmpty) ...[
                         const SizedBox(width: 6),
-                        _HeroBadge(label: grade, color: Colors.white15),
+                        _HeroBadge(label: grade, color: Colors.white.withOpacity(0.15)),
                       ],
                     ]),
                     const SizedBox(height: 4),

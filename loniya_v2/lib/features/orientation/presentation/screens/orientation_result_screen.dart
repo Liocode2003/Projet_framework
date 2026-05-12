@@ -131,7 +131,7 @@ class OrientationResultScreen extends ConsumerWidget {
                 ),
 
                 // ── Alternative filières ─────────────────────────────────
-                if (result.alternativeFilières.isNotEmpty) ...[
+                if (result.alternativeFilieres.isNotEmpty) ...[
                   const SizedBox(height: 16),
                   Text('Alternatives possibles',
                       style: AppTextStyles.titleMedium),
@@ -139,7 +139,7 @@ class OrientationResultScreen extends ConsumerWidget {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: result.alternativeFilières
+                    children: result.alternativeFilieres
                         .map((f) => _FiliereChip(label: f))
                         .toList(),
                   ),

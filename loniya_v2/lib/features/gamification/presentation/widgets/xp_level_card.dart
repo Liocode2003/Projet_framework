@@ -159,7 +159,7 @@ class XpLevelCard extends StatelessWidget {
           ],
         ],
       ),
-    );
+    ));
   }
 }
 
@@ -185,6 +185,6 @@ class _SubjectChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    ));
+    );
   }
 }

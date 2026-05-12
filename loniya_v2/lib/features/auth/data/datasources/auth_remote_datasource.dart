@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthException;
 
 import '../../../../core/errors/exceptions.dart';
 import '../../../../core/services/supabase/supabase_service.dart';
@@ -21,8 +21,6 @@ class AuthRemoteDataSource {
       await SupabaseService.client.auth.signInWithOtp(
         phone: _toE164(phone),
       );
-    } on AuthException catch (e) {
-      throw AuthException(e.message);
     } catch (e) {
       throw AuthException('Envoi OTP échoué : $e');
     }
@@ -46,8 +44,6 @@ class AuthRemoteDataSource {
       }, onConflict: 'id');
 
       return userId;
-    } on AuthException catch (e) {
-      throw AuthException(e.message);
     } catch (e) {
       throw AuthException('Vérification OTP échouée : $e');
     }

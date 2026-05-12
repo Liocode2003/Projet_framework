@@ -57,7 +57,7 @@ class OrientationEngine {
       examType:             examType,
       scores:               scores,
       recommendedFiliere:   filiere,
-      alternativeFilières:  alts,
+      alternativeFilieres:  alts,
       successProbability:   prob,
       analysisText:         text,
       createdAt:            DateTime.now().toIso8601String(),
