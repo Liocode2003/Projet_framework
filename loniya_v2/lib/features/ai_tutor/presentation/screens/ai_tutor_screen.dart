@@ -19,7 +19,8 @@ import '../widgets/chat_bubble.dart';
 import '../widgets/typing_indicator.dart';
 
 class AiTutorScreen extends ConsumerStatefulWidget {
-  const AiTutorScreen({super.key});
+  final String? initialPrompt;
+  const AiTutorScreen({super.key, this.initialPrompt});
 
   @override
   ConsumerState<AiTutorScreen> createState() => _AiTutorScreenState();
@@ -41,6 +42,13 @@ class _AiTutorScreenState extends ConsumerState<AiTutorScreen> {
   void initState() {
     super.initState();
     _ctrl.addListener(_detectPaste);
+    if (widget.initialPrompt != null && widget.initialPrompt!.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ref.read(aiTutorNotifierProvider.notifier).sendMessage(widget.initialPrompt!);
+        }
+      });
+    }
   }
 
   @override

@@ -7,6 +7,19 @@ import '../../../../core/theme/app_text_styles.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../data/models/gamification_model.dart';
 
+const _demoNames = {
+  'demo_001': 'Aminata K.',
+  'demo_002': 'Ibrahim S.',
+  'demo_003': 'Fatimata O.',
+  'demo_004': 'Moussa T.',
+  'demo_005': 'Mariama D.',
+  'demo_006': 'Seydou B.',
+  'demo_007': 'Adama N.',
+  'demo_008': 'Kofi Z.',
+  'demo_009': 'Salimata W.',
+  'demo_010': 'Oumar P.',
+};
+
 final _leaderboardProvider = FutureProvider.autoDispose<List<_RankEntry>>((ref) async {
   final db = ref.read(databaseServiceProvider);
   final currentId = ref.read(authNotifierProvider).userId ?? '';
@@ -20,7 +33,7 @@ final _leaderboardProvider = FutureProvider.autoDispose<List<_RankEntry>>((ref) 
     return _RankEntry(
       rank: rank,
       userId: g.userId,
-      displayName: userMap[g.userId] ?? 'Anonyme',
+      displayName: userMap[g.userId] ?? _demoNames[g.userId] ?? 'Anonyme',
       totalXp: g.totalXp,
       level: g.level,
       streak: g.currentStreak,

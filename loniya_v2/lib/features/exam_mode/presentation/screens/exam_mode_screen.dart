@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/constants/route_names.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import 'exam_composition_screen.dart';
@@ -78,6 +81,37 @@ class _ExamModeScreenState extends ConsumerState<ExamModeScreen> {
       icon: '🌿',
       text: 'Le Sage peut générer des annales et corriger tes réponses.',
       color: AppColors.sage,
+    ),
+    const SizedBox(height: 16),
+    GestureDetector(
+      onTap: () => context.push(RouteNames.examLibrary),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: const Color(0xFF4A1500).withOpacity(0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+              color: const Color(0xFFCC4400).withOpacity(0.3)),
+        ),
+        child: const Row(children: [
+          Text('📚', style: TextStyle(fontSize: 20)),
+          SizedBox(width: 12),
+          Expanded(child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Bibliothèque BEPC & BAC',
+                  style: TextStyle(fontFamily: 'Nunito', fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF4A1500))),
+              Text('Vrais sujets d\'examen + correction avec Le Sage',
+                  style: TextStyle(fontFamily: 'Nunito', fontSize: 11,
+                      color: AppColors.onSurfaceVariant)),
+            ],
+          )),
+          Icon(Icons.arrow_forward_ios_rounded, size: 14,
+              color: AppColors.onSurfaceVariant),
+        ]),
+      ),
     ),
   ];
 
