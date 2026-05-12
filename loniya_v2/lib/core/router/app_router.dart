@@ -38,8 +38,11 @@ import '../../features/parent/presentation/screens/parent_dashboard_screen.dart'
 import '../../features/game/presentation/screens/game_screen.dart';
 import '../../features/game/presentation/screens/game_sprint_screen.dart';
 import '../../features/game/presentation/screens/game_sage_screen.dart';
+import '../../features/game/presentation/screens/game_duel_screen.dart';
+import '../../features/gamification/presentation/screens/certificate_screen.dart';
 import '../../features/homework/presentation/screens/homework_screen.dart';
 import '../../features/exam_mode/presentation/screens/exam_mode_screen.dart';
+import '../../features/exam_mode/presentation/screens/exam_library_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/credits/presentation/screens/credits_screen.dart';
 import '../../features/teacher/presentation/screens/teacher_publish_screen.dart';
@@ -223,7 +226,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: RouteNames.aiTutor,
             name: 'ai-tutor',
-            pageBuilder: (c, s) => _fade(s, const AiTutorScreen()),
+            pageBuilder: (c, s) => _fade(s, AiTutorScreen(
+              initialPrompt: s.extra as String?,
+            )),
           ),
           GoRoute(
             path: RouteNames.gamification,
@@ -234,6 +239,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: 'leaderboard',
                 name: 'leaderboard',
                 pageBuilder: (c, s) => _fade(s, const LeaderboardScreen()),
+              ),
+              GoRoute(
+                path: 'certificat',
+                name: 'certificate',
+                pageBuilder: (c, s) => _fade(s, const CertificateScreen()),
               ),
             ],
           ),
@@ -311,6 +321,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 name: 'game-sage',
                 pageBuilder: (c, s) => _fade(s, const GameSageScreen()),
               ),
+              GoRoute(
+                path: 'duel',
+                name: 'game-duel',
+                pageBuilder: (c, s) => _fade(s, const GameDuelScreen()),
+              ),
             ],
           ),
           GoRoute(
@@ -322,6 +337,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             path: RouteNames.examMode,
             name: 'exam-mode',
             pageBuilder: (c, s) => _fade(s, const ExamModeScreen()),
+          ),
+          GoRoute(
+            path: RouteNames.examLibrary,
+            name: 'exam-library',
+            pageBuilder: (c, s) => _fade(s, const ExamLibraryScreen()),
           ),
           GoRoute(
             path: RouteNames.profile,

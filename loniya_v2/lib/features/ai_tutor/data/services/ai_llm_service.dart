@@ -22,8 +22,9 @@ class AiLlmService {
   static const _modelFast      = 'llama-3.1-8b-instant';
   static const _modelVision    = 'meta-llama/llama-4-scout-17b-16e-instruct';
   static const _modelWhisper   = 'whisper-large-v3-turbo';
-  static const _timeout        = Duration(seconds: 25);
-  static const _maxTokens      = 200;
+  static const _timeout        = Duration(seconds: 30);
+  static const _maxTokens      = 250;
+  static const _maxTokensLong  = 500;
   static const _maxHistory     = 10;
 
   AiLlmService(this._keys);
@@ -65,6 +66,91 @@ class AiLlmService {
     return const Left(OfflineFailure());
   }
 
+  // ─── Streaming text chat (SSE) ─────────────────────────────────────────────
+
+  /// Yields token strings as they arrive from the Groq SSE endpoint.
+  /// Emits a single Left(failure) and closes on any API/network error.
+  Stream<Either<Failure, String>> chatStream({
+    required String question,
+    required List<AiMessageEntity> history,
+    String userRole      = 'student',
+    String grade         = '',
+    String subject       = '',
+    String stepTitle     = '',
+    List<String> stepKeywords = const [],
+  }) async* {
+    final apiKey = await _keys.getApiKey();
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      yield const Left(AuthFailure('Clé API Groq non configurée.'));
+      return;
+    }
+
+    final messages = _buildTextPayload(
+      question: question, history: history,
+      userRole: userRole, grade: grade,
+      subject: subject, stepTitle: stepTitle,
+      stepKeywords: stepKeywords,
+    );
+
+    final client = http.Client();
+    try {
+      final request = http.Request('POST', Uri.parse(_endpoint))
+        ..headers.addAll({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${apiKey.trim()}',
+        })
+        ..body = jsonEncode({
+          'model':       _modelPrimary,
+          'messages':    messages,
+          'temperature': 0.70,
+          'max_tokens':  _maxTokens,
+          'stream':      true,
+        });
+
+      final streamed = await client.send(request).timeout(_timeout);
+
+      if (streamed.statusCode == 401) {
+        yield const Left(AuthFailure('Clé API invalide ou expirée.'));
+        return;
+      }
+      if (streamed.statusCode == 429) {
+        yield const Left(
+            ServerFailure('Limite de requêtes — réessaie dans quelques secondes.'));
+        return;
+      }
+      if (streamed.statusCode != 200) {
+        yield Left(ServerFailure('Groq ${streamed.statusCode}'));
+        return;
+      }
+
+      await for (final line in streamed.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())) {
+        if (!line.startsWith('data: ')) continue;
+        final payload = line.substring(6).trim();
+        if (payload == '[DONE]') break;
+        try {
+          final data    = jsonDecode(payload) as Map<String, dynamic>;
+          final choices = data['choices'] as List?;
+          if (choices == null || choices.isEmpty) continue;
+          final delta = choices.first['delta'] as Map<String, dynamic>?;
+          final token = delta?['content'] as String?;
+          if (token != null && token.isNotEmpty) yield Right(token);
+        } catch (_) {
+          continue;
+        }
+      }
+    } on TimeoutException {
+      yield const Left(OfflineFailure());
+    } on SocketException {
+      yield const Left(OfflineFailure());
+    } catch (_) {
+      yield const Left(OfflineFailure());
+    } finally {
+      client.close();
+    }
+  }
+
   // ─── Vision chat (image + optional text) ───────────────────────────────────
 
   Future<Either<Failure, String>> chatWithImage({
@@ -86,7 +172,8 @@ class AiLlmService {
       final mime = ext == 'png' ? 'image/png' : 'image/jpeg';
 
       final userText = prompt.trim().isEmpty
-          ? 'Analyse cette image et aide-moi à comprendre ce qu\'elle montre.'
+          ? 'Voici une photo de mon exercice ou de ma leçon. '
+            'Engage une conversation pédagogique avec moi — ne me donne pas la réponse.'
           : prompt.trim();
 
       final messages = <Map<String, dynamic>>[
@@ -125,7 +212,11 @@ class AiLlmService {
 
       if (response.statusCode == 200) {
         final data    = jsonDecode(response.body) as Map<String, dynamic>;
-        final content = (data['choices'] as List).first['message']['content'] as String;
+        final choices = data['choices'] as List?;
+        if (choices == null || choices.isEmpty) {
+          return const Left(ServerFailure('Réponse invalide de l\'IA.'));
+        }
+        final content = choices.first['message']['content'] as String;
         return Right(content.trim());
       }
       if (response.statusCode == 401) {
@@ -181,6 +272,55 @@ class AiLlmService {
     }
   }
 
+  // ─── Exam result prediction ─────────────────────────────────────────────────
+
+  /// Predicts the student's BEPC/BAC success probability and gives a
+  /// personalised improvement plan based on their in-app performance data.
+  Future<Either<Failure, String>> predictExamResult({
+    required String examName,       // 'BEPC' or 'BAC'
+    required String grade,          // e.g. '3ème', 'Terminale'
+    required int    totalSessions,  // total study sessions done
+    required int    homeworkDone,   // homework submitted
+    required int    homeworkTotal,
+    required double avgScore,       // 0-20
+    required int    quizCorrect,
+    required int    quizTotal,
+    required List<String> weakSubjects,
+    required List<String> strongSubjects,
+  }) async {
+    final apiKey = await _keys.getApiKey();
+    if (apiKey == null || apiKey.trim().isEmpty) {
+      return const Left(AuthFailure('Clé API Groq non configurée.'));
+    }
+
+    final prompt = '''Tu es Le Sage, tuteur IA pour les élèves burkinabè.
+Un élève de $grade va passer le $examName. Voici ses données de performance dans l\'application Yikri :
+
+- Sessions d\'étude complétées : $totalSessions
+- Devoirs rendus : $homeworkDone / $homeworkTotal (${homeworkTotal > 0 ? (homeworkDone * 100 ~/ homeworkTotal) : 0}%)
+- Note moyenne : $avgScore / 20
+- QCM réussis : $quizCorrect / $quizTotal (${quizTotal > 0 ? (quizCorrect * 100 ~/ quizTotal) : 0}%)
+- Matières solides : ${strongSubjects.isEmpty ? 'aucune identifiée' : strongSubjects.join(', ')}
+- Matières à améliorer : ${weakSubjects.isEmpty ? 'aucune identifiée' : weakSubjects.join(', ')}
+
+Donne une prédiction honnête et motivante en 3 parties :
+1. "À ce rythme, tu as X% de chances de réussir ton $examName." (donne un pourcentage précis basé sur les données)
+2. Deux ou trois points forts à valoriser.
+3. "Pour passer à Y%, voici ce qu'il faut faire :" suivi de 2 à 3 actions concrètes et prioritaires.
+
+Sois direct, bienveillant, précis. 4 à 6 phrases au total. Pas de listes à puces.''';
+
+    final messages = <Map<String, String>>[
+      {'role': 'user', 'content': prompt},
+    ];
+
+    return _postTextLong(
+      apiKey:   apiKey.trim(),
+      model:    _modelPrimary,
+      messages: messages,
+    );
+  }
+
   // ─── Internal helpers ───────────────────────────────────────────────────────
 
   Future<Either<Failure, String>> _postText({
@@ -206,7 +346,11 @@ class AiLlmService {
 
       if (response.statusCode == 200) {
         final data    = jsonDecode(response.body) as Map<String, dynamic>;
-        final content = (data['choices'] as List).first['message']['content'] as String;
+        final choices = data['choices'] as List?;
+        if (choices == null || choices.isEmpty) {
+          return const Left(ServerFailure('Réponse invalide de l\'IA.'));
+        }
+        final content = choices.first['message']['content'] as String;
         return Right(content.trim());
       }
       if (response.statusCode == 401) {
@@ -214,6 +358,53 @@ class AiLlmService {
       }
       if (response.statusCode == 429) {
         return const Left(ServerFailure('Limite de requêtes — réessaie dans quelques secondes.'));
+      }
+      return Left(ServerFailure('Groq ${response.statusCode}'));
+    } on TimeoutException {
+      return const Left(OfflineFailure());
+    } on SocketException {
+      return const Left(OfflineFailure());
+    } catch (_) {
+      return const Left(OfflineFailure());
+    }
+  }
+
+  Future<Either<Failure, String>> _postTextLong({
+    required String apiKey,
+    required String model,
+    required List<Map<String, String>> messages,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse(_endpoint),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $apiKey',
+        },
+        body: jsonEncode({
+          'model':       model,
+          'messages':    messages,
+          'temperature': 0.65,
+          'max_tokens':  _maxTokensLong,
+          'stream':      false,
+        }),
+      ).timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final data    = jsonDecode(response.body) as Map<String, dynamic>;
+        final choices = data['choices'] as List?;
+        if (choices == null || choices.isEmpty) {
+          return const Left(ServerFailure('Réponse invalide de l\'IA.'));
+        }
+        final content = choices.first['message']['content'] as String;
+        return Right(content.trim());
+      }
+      if (response.statusCode == 401) {
+        return const Left(AuthFailure('Clé API invalide ou expirée.'));
+      }
+      if (response.statusCode == 429) {
+        return const Left(
+            ServerFailure('Limite de requêtes — réessaie dans quelques secondes.'));
       }
       return Left(ServerFailure('Groq ${response.statusCode}'));
     } on TimeoutException {
@@ -289,6 +480,6 @@ Règles impératives :
 5. Si un contexte de leçon est fourni : utilise ses mots-clés comme fil conducteur.
 6. Adapte la complexité : simple et imagé pour le primaire, rigoureux pour le lycée.
 7. Tu peux mentionner des exemples de la vie quotidienne au Burkina Faso pour ancrer les concepts.
-8. Si une image est partagée : décris ce que tu observes et pose des questions pédagogiques à l'élève.''';
+8. Si une image d\'exercice est partagée : identifie l\'exercice à voix haute, puis dis EXACTEMENT "Je vois cet exercice. Je ne vais pas te donner la réponse — dis-moi par quelle étape tu veux commencer." Guide ensuite étape par étape, sans jamais livrer la solution.''';
   }
 }

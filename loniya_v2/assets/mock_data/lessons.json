@@ -4,79 +4,688 @@
     "title": "Les Fractions — Introduction",
     "subject": "Mathématiques",
     "grade_level": "CM2",
-    "situation": "Aminata partage une tarte en 8 parts égales. Elle en mange 3. Quelle partie de la tarte a-t-elle mangée ?",
+    "situation": "Aminata partage une tarte en 8 parts égales au marché de Ouagadougou. Elle en mange 3. Quelle partie a-t-elle mangée ?",
     "content_item_id": "item_001",
     "estimated_minutes": 45,
-    "competencies": [
-      "Représenter une fraction comme partie d'un entier",
-      "Comparer des fractions simples",
-      "Résoudre des problèmes concrets avec des fractions"
-    ],
-    "tags": ["fractions", "cm2", "maths"],
+    "competencies": ["Représenter une fraction", "Comparer des fractions simples", "Résoudre des problèmes concrets"],
+    "tags": ["fractions", "cm2", "maths", "apc"],
     "created_at": "2024-09-01T08:00:00.000Z",
     "steps": [
       {
         "index": 0,
-        "title": "La situation",
-        "content": "Aminata a une tarte ronde. Elle la coupe en **8 parts égales**.\n\nElle mange **3 parts**.\n\nComment écrire ce qu'elle a mangé en mathématiques ?",
+        "title": "La situation d'Aminata",
+        "content": "Aminata a une tarte ronde. Elle la coupe en **8 parts égales** et en mange **3 parts**.\n\nComment écrire en mathématiques ce qu'elle a mangé ?",
         "type": "read",
         "image_path": null,
         "expected_answer": null,
-        "hints": [
-          "Pense à comment on écrit une partie d'un tout en maths",
-          "Le total de parts est le dénominateur",
-          "Les parts mangées sont le numérateur"
-        ],
-        "keywords": ["tarte", "parts", "partager", "fractions", "écrire"],
+        "hints": ["Pense à comment écrire une partie d'un tout", "Le total de parts est en bas", "Les parts prises sont en haut"],
+        "keywords": ["tarte", "parts", "partager"],
         "xp_reward": 5
       },
       {
         "index": 1,
-        "title": "Découverte : Qu'est-ce qu'une fraction ?",
-        "content": "Une **fraction** s'écrit avec deux nombres séparés par une barre :\n\n$$\\frac{numérateur}{dénominateur}$$\n\n- Le **dénominateur** (bas) = nombre total de parts égales\n- Le **numérateur** (haut) = nombre de parts prises\n\nPour Aminata : elle a mangé **3/8** (trois huitièmes) de la tarte.",
+        "title": "Définition de la fraction",
+        "content": "Une **fraction** s'écrit : $$\\frac{numérateur}{dénominateur}$$\n\n- **Dénominateur** (bas) = nombre total de parts égales\n- **Numérateur** (haut) = nombre de parts prises\n\nAminata a mangé **3/8** (trois huitièmes) de la tarte.",
         "type": "read",
         "image_path": null,
         "expected_answer": null,
         "hints": [],
-        "keywords": ["fraction", "numérateur", "dénominateur", "définition"],
+        "keywords": ["fraction", "numérateur", "dénominateur"],
         "xp_reward": 10
       },
       {
         "index": 2,
-        "title": "Exercice : Écris la fraction",
-        "content": "Un gâteau est partagé en **6 parts égales**. Kofi en prend **2**.\n\nQuelle fraction représente ce que Kofi a pris ?",
+        "title": "Exercice : Kofi et le gâteau",
+        "content": "Un gâteau est coupé en **6 parts égales**. Kofi en prend **2**.\n\nQuelle fraction représente ce que Kofi a pris ?",
         "type": "question",
         "image_path": null,
         "expected_answer": "2/6",
-        "hints": [
-          "Combien de parts au total ?",
-          "Combien de parts Kofi a-t-il pris ?",
-          "La fraction s'écrit : parts prises / total de parts"
-        ],
-        "keywords": ["gâteau", "parts", "fraction", "exercice"],
+        "hints": ["Combien de parts au total ?", "Combien de parts Kofi a-t-il prises ?", "Écris : parts prises / total"],
+        "keywords": ["gâteau", "fraction", "exercice"],
         "xp_reward": 20
       },
       {
         "index": 3,
-        "title": "Comparer des fractions",
-        "content": "Pour comparer deux fractions avec le **même dénominateur**, on compare les numérateurs.\n\nExemple : 3/8 et 5/8\n- Les dénominateurs sont les mêmes (8)\n- On compare 3 et 5\n- 5 > 3 donc **5/8 > 3/8**",
-        "type": "read",
+        "title": "Comparer deux fractions",
+        "content": "Pour comparer deux fractions avec le **même dénominateur**, compare les numérateurs.\n\nExemple : 3/8 et 5/8 — même dénominateur (8), donc 5 > 3, donc **5/8 > 3/8**\n\nMoussa a mangé 5/8 de son pain, Seydou 3/8 du sien. Qui a mangé le plus ?",
+        "type": "question",
         "image_path": null,
-        "expected_answer": null,
-        "hints": [],
-        "keywords": ["comparer", "fractions", "dénominateur", "numérateur", "plus grand"],
-        "xp_reward": 10
+        "expected_answer": "Moussa",
+        "hints": ["Compare les numérateurs", "5 > 3"],
+        "keywords": ["comparer", "fractions"],
+        "xp_reward": 20
       },
       {
         "index": 4,
-        "title": "Validation finale",
-        "content": "**Bravo !** Tu as appris les fractions.\n\nRécapitulatif :\n- Une fraction = numérateur / dénominateur\n- Numérateur = parties prises\n- Dénominateur = total de parts égales\n- Pour comparer (même dénominateur) : comparer les numérateurs\n\nTu gagnes **50 XP** pour avoir terminé cette leçon !",
+        "title": "Bravo ! Résumé",
+        "content": "**Félicitations !** Tu as appris les fractions.\n\n✅ Fraction = numérateur / dénominateur\n✅ Numérateur = parties prises\n✅ Dénominateur = total de parts égales\n✅ Même dénominateur → comparer les numérateurs\n\nTu gagnes **50 XP** !",
         "type": "validation",
         "image_path": null,
         "expected_answer": null,
         "hints": [],
-        "keywords": ["validation", "fin", "résumé", "fractions"],
+        "keywords": ["résumé", "validation"],
         "xp_reward": 50
+      }
+    ]
+  },
+  {
+    "id": "lesson_002",
+    "title": "Le Texte Narratif",
+    "subject": "Français",
+    "grade_level": "6ème",
+    "situation": "Ibrahim veut raconter comment il a aidé sa mère au champ de karité à Koudougou. Comment structurer son récit ?",
+    "content_item_id": "item_002",
+    "estimated_minutes": 50,
+    "competencies": ["Identifier la structure d'un texte narratif", "Repérer les personnages et le cadre", "Rédiger un texte narratif court"],
+    "tags": ["narration", "6eme", "francais", "expression-ecrite", "apc"],
+    "created_at": "2024-09-05T10:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "La situation d'Ibrahim",
+        "content": "Ibrahim, 12 ans, élève à l'école de Koudougou, veut raconter son aventure au champ de karité.\n\nUn texte qui raconte une histoire s'appelle un **texte narratif**.\n\nAs-tu déjà raconté une histoire à quelqu'un ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["texte narratif", "raconter", "histoire"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "La structure du récit",
+        "content": "Tout texte narratif a **3 parties** :\n\n1. **La situation initiale** — Qui ? Où ? Quand ? (état de départ)\n2. **Le nœud / les péripéties** — Que se passe-t-il ? (actions, problèmes)\n3. **La situation finale** — Comment ça se termine ?\n\nExemple :\n- *Initiale* : Ibrahim aide sa mère au champ le matin.\n- *Nœud* : Un serpent apparaît près du karité.\n- *Finale* : Ibrahim appelle son père qui chasse le serpent.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["situation initiale", "nœud", "finale", "structure"],
+        "xp_reward": 10
+      },
+      {
+        "index": 2,
+        "title": "Exercice : Identifier les parties",
+        "content": "Lis ce passage :\n\n*« Un matin, Fatimata allait chercher de l'eau au puits. En chemin, elle trouva un bébé oiseau tombé de son nid. Elle le recueillit dans son habit et le rapporta à sa mère. »*\n\nQuelle est la **situation initiale** de ce texte ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "Un matin, Fatimata allait chercher de l'eau au puits.",
+        "hints": ["La situation initiale décrit le début", "Cherche qui fait quoi au départ", "Première phrase"],
+        "keywords": ["situation initiale", "identifier", "exercice"],
+        "xp_reward": 25
+      },
+      {
+        "index": 3,
+        "title": "Les indicateurs de temps",
+        "content": "Dans un récit, on utilise des **indicateurs de temps** pour ordonner les actions :\n\n- **Début** : *Un matin, Il était une fois, Un jour...*\n- **Suite** : *Ensuite, Puis, Après cela...*\n- **Fin** : *Finalement, À la fin, Alors...*\n\nCes mots aident le lecteur à suivre l'histoire.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["indicateurs de temps", "connecteurs", "récit"],
+        "xp_reward": 10
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé",
+        "content": "**Excellent travail !** Tu maîtrises le texte narratif.\n\n✅ Texte narratif = raconte une histoire\n✅ 3 parties : situation initiale → nœud → situation finale\n✅ Indicateurs de temps : *un matin, ensuite, finalement...*\n\nTu gagnes **55 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "validation"],
+        "xp_reward": 55
+      }
+    ]
+  },
+  {
+    "id": "lesson_003",
+    "title": "La Reproduction chez les Êtres Vivants",
+    "subject": "Sciences de la Vie et de la Terre",
+    "grade_level": "3ème",
+    "situation": "Dans le champ de mil de la famille de Mariama à Dédougou, des plants naissent chaque année sans qu'on les sème. Comment les plantes se reproduisent-elles ?",
+    "content_item_id": "item_003",
+    "estimated_minutes": 55,
+    "competencies": ["Distinguer reproduction sexuée et végétative", "Décrire le cycle de reproduction des plantes à fleurs", "Expliquer la fécondation"],
+    "tags": ["reproduction", "3eme", "svt", "biologie", "apc"],
+    "created_at": "2024-09-10T09:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Observation du champ de Mariama",
+        "content": "Mariama remarque que des plants de mil poussent seuls chaque saison. Elle voit aussi des fleurs sur les karités voisins.\n\n**Question** : Comment ces plantes se sont-elles formées ? Y a-t-il plusieurs façons de se reproduire ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["reproduction", "plante", "observation"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "La reproduction végétative (asexuée)",
+        "content": "La **reproduction végétative** se fait **sans cellules reproductrices** :\n\n- **Stolons** : tiges rampantes (fraisier)\n- **Bulbes** : oignon, ail\n- **Boutures** : couper une branche → nouvelle plante\n- **Rhizomes** : tiges souterraines (gingembre)\n\n➡️ La nouvelle plante est **identique** à la plante mère (clone).",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["végétative", "asexuée", "stolon", "bouture", "clone"],
+        "xp_reward": 10
+      },
+      {
+        "index": 2,
+        "title": "La reproduction sexuée",
+        "content": "La **reproduction sexuée** nécessite deux cellules :\n- **Gamète mâle** : pollen (plantes), spermatozoïde (animaux)\n- **Gamète femelle** : ovule\n\nLeur fusion = **fécondation** → **zygote** → nouvel être vivant.\n\nChez les plantes à fleurs : le pollen (vent ou insectes) féconde l'ovule → graine → nouvelle plante.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["sexuée", "gamète", "fécondation", "zygote", "pollen"],
+        "xp_reward": 15
+      },
+      {
+        "index": 3,
+        "title": "Exercice : Quelle reproduction ?",
+        "content": "Adama coupe une branche de manguier et la plante en terre. Quelques semaines plus tard, des racines poussent et elle devient un jeune arbre.\n\nDe quel type de reproduction s'agit-il ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "Reproduction végétative",
+        "hints": ["Y a-t-il des cellules reproductrices (pollen/ovule) ?", "Une seule plante est impliquée", "C'est une bouture"],
+        "keywords": ["végétative", "bouture", "exercice"],
+        "xp_reward": 25
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé",
+        "content": "**Excellent !** Tu connais la reproduction des êtres vivants.\n\n✅ **Végétative** (asexuée) : 1 parent, clone identique\n✅ **Sexuée** : 2 gamètes → fécondation → zygote\n✅ Avantage végétative : rapide, identique\n✅ Avantage sexuée : diversité génétique\n\nTu gagnes **60 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "validation"],
+        "xp_reward": 60
+      }
+    ]
+  },
+  {
+    "id": "lesson_004",
+    "title": "La Mondialisation",
+    "subject": "Histoire-Géographie",
+    "grade_level": "Terminale",
+    "situation": "Les pagnes en coton produits à Bobo-Dioulasso sont vendus en Europe et en Asie, tandis que des téléphones chinois arrivent dans les marchés de Ouagadougou. Qu'est-ce que la mondialisation ?",
+    "content_item_id": "item_004",
+    "estimated_minutes": 60,
+    "competencies": ["Définir la mondialisation", "Analyser les flux mondiaux", "Évaluer les inégalités de la mondialisation"],
+    "tags": ["mondialisation", "terminale", "histoire-geo", "bac", "apc"],
+    "created_at": "2024-09-15T11:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Bobo-Dioulasso et le monde",
+        "content": "Les artisans de Bobo-Dioulasso exportent leurs tissus. Les supermarchés de Ouagadougou vendent des produits fabriqués en Chine, en France ou en Turquie.\n\n**Problématique** : Comment le monde est-il devenu un espace économique interconnecté ? Qui en profite ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["mondialisation", "échanges", "interconnexion"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Définition et acteurs",
+        "content": "La **mondialisation** = processus d'intégration économique, sociale et culturelle à l'échelle mondiale.\n\n**Acteurs :**\n- **FMN** (Firmes Multinationales) : Nike, TotalEnergies\n- **États** : fixent les règles douanières\n- **OMC** : régule le commerce mondial\n- **FMI / Banque Mondiale** : financement\n\n**Flux :**\n- Marchandises (coton, or, pétrole)\n- Capitaux (investissements)\n- Informations (internet)\n- Personnes (migrations)",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["FMN", "flux", "OMC", "acteurs"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "Inégalités Nord / Sud",
+        "content": "La mondialisation profite **inégalement** aux pays :\n\n**Nord** : centres de décision, produits finis, valeur ajoutée élevée\n**Sud** : fournisseurs de matières premières, faibles revenus\n\n**Burkina Faso :**\n- Exporte : coton (1er produit), or, karité\n- Importe : produits manufacturés, pétrole\n- Défi : dépendance aux cours mondiaux du coton",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["inégalités", "Nord", "Sud", "coton", "dépendance"],
+        "xp_reward": 15
+      },
+      {
+        "index": 3,
+        "title": "Question BAC",
+        "content": "Quel est le principal produit d'exportation du Burkina Faso qui l'intègre dans les circuits de la mondialisation ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "Le coton (ou l'or)",
+        "hints": ["Matière première cultivée dans l'Ouest", "Les tisserands de Bobo travaillent avec cette matière", "Blanc et fibreux"],
+        "keywords": ["coton", "exportation", "BF"],
+        "xp_reward": 20
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé BAC",
+        "content": "**Parfait !** Points clés pour le BAC :\n\n✅ Mondialisation = intégration économique et culturelle mondiale\n✅ Acteurs : FMN, États, OMC, FMI\n✅ Flux : marchandises, capitaux, informations, personnes\n✅ Inégalités Nord/Sud\n✅ BF : exportateur de coton et d'or\n\nTu gagnes **65 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "bac", "validation"],
+        "xp_reward": 65
+      }
+    ]
+  },
+  {
+    "id": "lesson_005",
+    "title": "La Multiplication avec Retenues",
+    "subject": "Mathématiques",
+    "grade_level": "CM1",
+    "situation": "Seydou vend des oranges au marché de Banfora. Il a 6 caisses de 24 oranges chacune. Combien d'oranges a-t-il au total ?",
+    "content_item_id": "item_005",
+    "estimated_minutes": 40,
+    "competencies": ["Poser et effectuer une multiplication", "Gérer les retenues", "Résoudre des problèmes multiplicatifs"],
+    "tags": ["multiplication", "cm1", "maths", "calcul", "apc"],
+    "created_at": "2024-08-20T08:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Le problème de Seydou",
+        "content": "Seydou a **6 caisses** d'oranges avec **24 oranges** dans chaque caisse.\n\nAdditionner 24 six fois est long. La **multiplication** est plus rapide : **24 × 6 = ?**",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["multiplication", "total", "marché"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "La technique : poser la multiplication",
+        "content": "Pour calculer **24 × 6** :\n\n**Étape 1** : 6 × 4 = 24 → j'écris **4**, je retiens **2**\n**Étape 2** : 6 × 2 = 12, + retenue 2 = **14** → j'écris **14**\n\nRésultat : **144**\n\nSeydou a **144 oranges** au total.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["technique", "retenue", "multiplication", "poser"],
+        "xp_reward": 10
+      },
+      {
+        "index": 2,
+        "title": "Exercice : Aminata et les mangues",
+        "content": "Aminata a **7 paniers** avec **35 mangues** chacun.\n\nCalcule : **35 × 7 = ?**",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "245",
+        "hints": ["7 × 5 = 35 → pose 5, retiens 3", "7 × 3 = 21, + 3 = 24 → pose 4, retiens 2", "Résultat : 245"],
+        "keywords": ["exercice", "multiplication", "mangues"],
+        "xp_reward": 25
+      },
+      {
+        "index": 3,
+        "title": "Vérification par la division",
+        "content": "Pour **vérifier** ta multiplication :\n\nSi **35 × 7 = 245**, alors **245 ÷ 7 = 35** ✓\n\n**À retenir** : la multiplication est une addition répétée, la division est sa réciproque.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["vérification", "division"],
+        "xp_reward": 10
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé",
+        "content": "**Super !** Tu sais multiplier avec retenues.\n\n✅ Multiplier chiffre par chiffre, de droite à gauche\n✅ Gérer les retenues en les ajoutant au chiffre suivant\n✅ Vérifier avec la division\n\nTu gagnes **50 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "validation"],
+        "xp_reward": 50
+      }
+    ]
+  },
+  {
+    "id": "lesson_006",
+    "title": "Les Circuits Électriques Simples",
+    "subject": "Physique-Chimie",
+    "grade_level": "4ème",
+    "situation": "À Dori, le village de Kofi n'a pas d'électricité. Une ONG installe des panneaux solaires. Kofi veut comprendre comment le courant allume une ampoule.",
+    "content_item_id": "item_006",
+    "estimated_minutes": 55,
+    "competencies": ["Identifier les composants d'un circuit", "Distinguer circuit ouvert et fermé", "Appliquer la loi d'Ohm"],
+    "tags": ["electricite", "4eme", "physique", "circuit", "loi-ohm", "apc"],
+    "created_at": "2024-09-20T14:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Le village de Kofi",
+        "content": "Kofi observe le technicien brancher une ampoule LED à un panneau solaire.\n\nIl voit : un panneau (source d'énergie), des fils électriques, et l'ampoule.\n\n**Question** : Pourquoi l'ampoule s'allume-t-elle quand les fils sont branchés ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["circuit", "courant", "ampoule", "panneau solaire"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Les composants du circuit",
+        "content": "Un circuit électrique simple comprend :\n\n- **Générateur** : source d'énergie (pile, panneau solaire)\n- **Conducteurs** : fils électriques en cuivre\n- **Récepteur** : ampoule, moteur, résistance\n- **Interrupteur** : ouvre ou ferme le circuit\n\n**Circuit fermé** → courant circule → ampoule brille\n**Circuit ouvert** → courant ne passe pas → ampoule éteinte",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["générateur", "conducteur", "récepteur", "interrupteur"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "La loi d'Ohm",
+        "content": "La **loi d'Ohm** : $$U = R \\times I$$\n\n- **U** = tension (Volts, V)\n- **R** = résistance (Ohms, Ω)\n- **I** = intensité (Ampères, A)\n\nFormules dérivées :\n- I = U/R\n- R = U/I\n\n**Exemple** : pile 4,5 V, résistance 10 Ω → I = 4,5/10 = **0,45 A**",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["loi Ohm", "tension", "résistance", "intensité"],
+        "xp_reward": 15
+      },
+      {
+        "index": 3,
+        "title": "Application : panneau solaire de Kofi",
+        "content": "Le panneau solaire produit **12 V**. L'ampoule a une résistance de **60 Ω**.\n\nQuelle est l'intensité du courant dans le circuit ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "0,2 A",
+        "hints": ["Utilise I = U / R", "I = 12 / 60", "Résultat = 0,2 A"],
+        "keywords": ["loi Ohm", "exercice", "intensité"],
+        "xp_reward": 25
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé",
+        "content": "**Excellent !** Tu maîtrises les circuits électriques.\n\n✅ Circuit fermé = courant passe\n✅ Composants : générateur, fils, récepteur, interrupteur\n✅ Loi d'Ohm : U = R × I\n✅ I = U/R | R = U/I\n\nTu gagnes **60 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "validation"],
+        "xp_reward": 60
+      }
+    ]
+  },
+  {
+    "id": "lesson_007",
+    "title": "Équations du 1er Degré",
+    "subject": "Mathématiques",
+    "grade_level": "3ème",
+    "situation": "Ibrahim veut acheter un téléphone. Il a économisé 8 000 F CFA. Il lui manque encore 5 000 F CFA. Combien coûte le téléphone ? On écrit : x - 8000 = 5000.",
+    "content_item_id": "item_007",
+    "estimated_minutes": 50,
+    "competencies": ["Résoudre une équation du 1er degré", "Vérifier une solution", "Modéliser un problème par une équation"],
+    "tags": ["equations", "3eme", "maths", "algebre", "bepc", "apc"],
+    "created_at": "2024-09-25T09:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Le problème d'Ibrahim",
+        "content": "Ibrahim a économisé **8 000 F CFA**.\nIl lui manque **5 000 F CFA** pour son téléphone.\n\nSoit **x** le prix du téléphone.\nOn écrit l'équation : **x − 8 000 = 5 000**\n\nComment trouver x ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["équation", "inconnue", "x", "problème"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Principe de résolution",
+        "content": "**Règle d'or** : ce qu'on fait d'un côté de l'égalité, on le fait de l'autre.\n\nRésolution de **x − 8 000 = 5 000** :\n\nx − 8 000 + 8 000 = 5 000 + 8 000\n\n**x = 13 000 F CFA**\n\nLe téléphone coûte **13 000 F CFA**.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résolution", "règle", "isolation"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "Vérification",
+        "content": "**Toujours vérifier** en remplaçant x par la valeur trouvée :\n\nx − 8 000 = 5 000\n13 000 − 8 000 = 5 000\n**5 000 = 5 000** ✓\n\nLa solution est correcte.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["vérification", "substitution"],
+        "xp_reward": 10
+      },
+      {
+        "index": 3,
+        "title": "Exercice : Fatimata et les sachets",
+        "content": "Fatimata vend des tisanes. Après avoir vendu 3 sachets, il lui en reste 8.\n\nL'équation est : **x − 3 = 8**\n\nCombien de sachets avait-elle au départ ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "11",
+        "hints": ["x − 3 = 8", "Ajoute 3 des deux côtés", "x = 8 + 3 = 11"],
+        "keywords": ["équation", "exercice"],
+        "xp_reward": 25
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé BEPC",
+        "content": "**Parfait !** Tu résous des équations du 1er degré.\n\n✅ Équation = égalité avec une inconnue\n✅ Règle d'or : même opération des deux côtés\n✅ Isoler l'inconnue\n✅ Toujours vérifier par substitution\n\nTu gagnes **55 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "bepc", "validation"],
+        "xp_reward": 55
+      }
+    ]
+  },
+  {
+    "id": "lesson_008",
+    "title": "Le Texte Argumentatif",
+    "subject": "Français",
+    "grade_level": "3ème",
+    "situation": "Moussa doit convaincre ses parents de le laisser continuer l'école au lycée. Il doit rédiger une lettre argumentée.",
+    "content_item_id": "item_008",
+    "estimated_minutes": 55,
+    "competencies": ["Identifier thèse, arguments et exemples", "Utiliser les connecteurs logiques", "Rédiger un paragraphe argumentatif"],
+    "tags": ["argumentation", "3eme", "francais", "bepc", "expression-ecrite", "apc"],
+    "created_at": "2024-10-01T10:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Moussa doit convaincre",
+        "content": "Moussa, élève en 3ème à Ouagadougou, veut continuer au lycée. Ses parents préfèrent qu'il travaille au champ.\n\nIl rédige une lettre pour les convaincre.\n\n**Question** : Comment organiser des idées pour convaincre ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["argumentatif", "convaincre", "thèse"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Structure du texte argumentatif",
+        "content": "Un texte argumentatif contient :\n\n1. **La thèse** : l'opinion défendue\n   *Ex. : « L'éducation est indispensable pour l'avenir de Moussa. »*\n\n2. **Les arguments** : raisons qui soutiennent la thèse\n   *Ex. : « Le diplôme permet d'accéder à de meilleurs emplois. »*\n\n3. **Les exemples** : faits concrets\n   *Ex. : « Un bachelier gagne en moyenne 3× plus. »*\n\n4. **La conclusion** : rappel de la thèse et appel à l'action",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["thèse", "argument", "exemple", "structure"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "Les connecteurs logiques",
+        "content": "Pour articuler les arguments :\n\n- **Ajout** : *De plus, En outre, Également*\n- **Cause** : *Car, Parce que, Puisque*\n- **Conséquence** : *Donc, Ainsi, C'est pourquoi*\n- **Opposition** : *Mais, Cependant, Néanmoins*\n- **Illustration** : *Par exemple, Notamment*",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["connecteurs", "logiques"],
+        "xp_reward": 10
+      },
+      {
+        "index": 3,
+        "title": "Exercice : Identifier la thèse",
+        "content": "Lis ce texte :\n\n*« L'école primaire doit être obligatoire au Burkina Faso. En effet, l'alphabétisation réduit la pauvreté. De plus, un enfant instruit peut lire les notices de médicaments. Ainsi, l'éducation de base est un investissement national. »*\n\nQuelle est la **thèse** de ce texte ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "L'école primaire doit être obligatoire au Burkina Faso.",
+        "hints": ["La thèse est l'opinion principale", "Elle est souvent en début de texte", "Cherche une affirmation générale"],
+        "keywords": ["thèse", "identifier", "exercice"],
+        "xp_reward": 25
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé BEPC",
+        "content": "**Excellent !** Tu maîtrises le texte argumentatif.\n\n✅ Structure : thèse → arguments → exemples → conclusion\n✅ Connecteurs : *de plus, car, donc, cependant...*\n✅ Toujours appuyer chaque argument par un exemple\n\nTu gagnes **60 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "bepc", "validation"],
+        "xp_reward": 60
+      }
+    ]
+  },
+  {
+    "id": "lesson_009",
+    "title": "Le Burkina Faso Indépendant",
+    "subject": "Histoire",
+    "grade_level": "3ème",
+    "situation": "Adama trouve une vieille photo de son grand-père avec un drapeau inconnu. Son grand-père avait 15 ans quand la Haute-Volta est devenue indépendante. Quelle est l'histoire du Burkina Faso ?",
+    "content_item_id": "item_009",
+    "estimated_minutes": 50,
+    "competencies": ["Dater l'indépendance de la Haute-Volta", "Identifier les grandes étapes politiques", "Analyser l'héritage de Sankara"],
+    "tags": ["histoire", "burkina-faso", "independance", "3eme", "bepc", "apc"],
+    "created_at": "2024-10-05T09:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "La photo du grand-père",
+        "content": "Le grand-père d'Adama raconte : *« Le 5 août 1960, nous avons hissé notre drapeau pour la première fois. Nous n'étions plus une colonie française. »*\n\n**Questions** : Qu'est-ce que l'indépendance ? Comment la Haute-Volta est-elle devenue le Burkina Faso ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["indépendance", "Haute-Volta", "1960", "colonisation"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Chronologie clé",
+        "content": "**De la Haute-Volta au Burkina Faso :**\n\n- **1919** : Création de la colonie Haute-Volta par la France\n- **1947** : Reconstitution de la Haute-Volta\n- **5 août 1960** : **Indépendance** — Maurice Yaméogo, 1er président\n- **4 août 1983** : Révolution — Thomas Sankara prend le pouvoir\n- **4 août 1984** : Haute-Volta → **Burkina Faso** (« pays des hommes intègres »)\n- **1987** : Assassinat de Sankara, Blaise Compaoré\n- **2014** : Soulèvement populaire, fin de Compaoré",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["chronologie", "Yaméogo", "Sankara", "Compaoré"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "Thomas Sankara et la révolution",
+        "content": "**Thomas Sankara** (1949–1987) a profondément transformé le pays :\n\n- Autosuffisance alimentaire\n- Campagnes de vaccination massives\n- Reboisement (lutte contre la désertification)\n- Émancipation des femmes\n- Refus de la dette extérieure\n\nIl est appelé le *« Che Guevara de l'Afrique »*.",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["Sankara", "révolution", "développement"],
+        "xp_reward": 15
+      },
+      {
+        "index": 3,
+        "title": "Question : Date clé",
+        "content": "En quelle année la Haute-Volta a-t-elle changé de nom pour devenir le **Burkina Faso** ?",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "1984",
+        "hints": ["C'est sous Thomas Sankara", "La révolution était en 1983", "Un an après"],
+        "keywords": ["1984", "Burkina Faso", "Sankara"],
+        "xp_reward": 20
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé BEPC",
+        "content": "**Excellent !** Tu connais l'histoire du Burkina Faso.\n\n✅ Indépendance : **5 août 1960** (Yaméogo)\n✅ Révolution : **4 août 1983** (Sankara)\n✅ Nouveau nom : **4 août 1984** (Burkina Faso)\n✅ 2014 : Soulèvement populaire\n\nTu gagnes **55 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "bepc", "validation"],
+        "xp_reward": 55
+      }
+    ]
+  },
+  {
+    "id": "lesson_010",
+    "title": "Les Fonctions Dérivées",
+    "subject": "Mathématiques",
+    "grade_level": "Terminale C",
+    "situation": "Aminata gère sa boutique à Ouagadougou. Le bénéfice suit f(x) = 3x² − 12x + 5. À quelle quantité vendue le bénéfice est-il minimum ?",
+    "content_item_id": "item_010",
+    "estimated_minutes": 65,
+    "competencies": ["Calculer la dérivée d'une fonction polynôme", "Dresser un tableau de variations", "Résoudre un problème d'optimisation"],
+    "tags": ["derivees", "terminale", "maths", "bac-c", "optimisation", "apc"],
+    "created_at": "2024-10-10T10:00:00.000Z",
+    "steps": [
+      {
+        "index": 0,
+        "title": "Le problème d'Aminata",
+        "content": "Le bénéfice d'Aminata (en milliers de F CFA) est :\n\n$$f(x) = 3x^2 - 12x + 5$$\n\noù x est la quantité vendue (en dizaines).\n\n**Problème** : Pour quelle valeur de x le bénéfice est-il minimum ?",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["dérivée", "optimisation", "bénéfice"],
+        "xp_reward": 5
+      },
+      {
+        "index": 1,
+        "title": "Formules de dérivation",
+        "content": "**Formules fondamentales :**\n- f(x) = xⁿ → f'(x) = n·xⁿ⁻¹\n- f(x) = ax² + bx + c → f'(x) = 2ax + b\n- Constante → dérivée = 0\n\n**Application :**\nf(x) = 3x² − 12x + 5\nf'(x) = 2×3·x − 12 = **6x − 12**",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["dérivée", "formule", "polynôme"],
+        "xp_reward": 15
+      },
+      {
+        "index": 2,
+        "title": "Tableau de variations",
+        "content": "On résout f'(x) = 0 :\n\n6x − 12 = 0 → x = **2**\n\n**Signe de f'(x) = 6x − 12 :**\n- x < 2 : f'(x) < 0 → f décroît ↘\n- x > 2 : f'(x) > 0 → f croît ↗\n\nEn x = 2 : f(2) = 12 − 24 + 5 = **−7** (minimum)",
+        "type": "read",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["tableau de variations", "minimum", "dérivée nulle"],
+        "xp_reward": 15
+      },
+      {
+        "index": 3,
+        "title": "Exercice : Calculer f'(x)",
+        "content": "Calcule la dérivée de :\n\n$$g(x) = 2x^3 - 5x + 1$$",
+        "type": "question",
+        "image_path": null,
+        "expected_answer": "g'(x) = 6x² - 5",
+        "hints": ["Dérive terme par terme", "Dérivée de 2x³ = 6x²", "Dérivée de -5x = -5, dérivée de 1 = 0"],
+        "keywords": ["dérivée", "exercice", "polynôme"],
+        "xp_reward": 30
+      },
+      {
+        "index": 4,
+        "title": "Bravo ! Résumé BAC C",
+        "content": "**Excellent !** Maîtrise des dérivées pour le BAC C.\n\n✅ f(x) = axⁿ → f'(x) = n·axⁿ⁻¹\n✅ f'(x) = 0 → extremum\n✅ Signe de f' → sens de variation\n✅ Tableau de variations indispensable au BAC\n\nTu gagnes **70 XP** !",
+        "type": "validation",
+        "image_path": null,
+        "expected_answer": null,
+        "hints": [],
+        "keywords": ["résumé", "bac", "validation"],
+        "xp_reward": 70
       }
     ]
   }

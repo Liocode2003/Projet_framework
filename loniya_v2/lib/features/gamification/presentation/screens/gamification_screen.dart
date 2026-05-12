@@ -65,6 +65,12 @@ class GamificationScreen extends ConsumerWidget {
               pinned: true,
               actions: [
                 IconButton(
+                  tooltip: 'Mon certificat',
+                  icon: const Icon(Icons.workspace_premium_rounded,
+                      color: AppColors.xpGold),
+                  onPressed: () => context.push(RouteNames.certificate),
+                ),
+                IconButton(
                   tooltip: 'Classement',
                   icon: const Icon(Icons.leaderboard_rounded,
                       color: Colors.white),

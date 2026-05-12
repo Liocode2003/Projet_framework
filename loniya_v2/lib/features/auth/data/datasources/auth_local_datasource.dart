@@ -150,6 +150,46 @@ class AuthLocalDataSource {
 
   bool get hasActiveSession => _db.hasActiveSession;
 
+  // ─── Remote user mirror ───────────────────────────────────────────────
+  /// Creates or updates a local Hive user from Supabase data (cross-device).
+  Future<void> upsertRemoteUser(
+    String userId,
+    String phone, {
+    String? name,
+    String role      = 'student',
+    String? gradeLevel,
+  }) async {
+    final existing = _db.getUser(userId);
+    if (existing != null) {
+      final updated = UserModel(
+        id: existing.id, phone: existing.phone,
+        role:         role.isNotEmpty ? role : existing.role,
+        name:         name ?? existing.name,
+        avatarPath:   existing.avatarPath,
+        pinHash:      existing.pinHash,
+        createdAt:    existing.createdAt,
+        schoolName:   existing.schoolName,
+        gradeLevel:   gradeLevel ?? existing.gradeLevel,
+        consentGiven: existing.consentGiven,
+        deviceId:     existing.deviceId,
+      );
+      await _db.saveUser(updated);
+    } else {
+      final deviceId = await _secureKeys.getOrCreateDeviceId();
+      await _db.saveUser(UserModel(
+        id:          userId,
+        phone:       phone,
+        role:        role,
+        name:        name,
+        pinHash:     '',
+        createdAt:   DateTime.now().toIso8601String(),
+        consentGiven: false,
+        deviceId:    deviceId,
+        gradeLevel:  gradeLevel,
+      ));
+    }
+  }
+
   // ─── Helpers ──────────────────────────────────────────────────────────
   UserModel? _findUserByPhone(String phone) {
     return _db.getAllUsers().where((u) => u.phone == phone).firstOrNull;

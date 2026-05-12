@@ -5,12 +5,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'app.dart';
+import 'core/config/app_config.dart';
 import 'core/errors/app_error_handler.dart';
 import 'core/services/cache/cache_manager_service.dart';
 import 'core/services/database/database_service.dart';
 import 'core/services/storage/hive_storage_service.dart';
+import 'core/services/storage/secure_key_service.dart';
 import 'core/services/encryption/aes_encryption_service.dart';
 import 'core/services/encryption/encryption_provider.dart';
+import 'core/services/supabase/supabase_service.dart';
 
 // ─── Hive model imports ───────────────────────────────────────────────────────
 import 'core/data/models/sync_action_model.dart';
@@ -59,8 +62,14 @@ Future<void> main() async {
   await encryptionService.init();
   await HiveStorageService.openBoxes(encryptionService);
 
+  // ── Supabase (optional — only when build-time config provided) ───────────
+  await SupabaseService.initialize();
+
+  // ── Groq key bootstrap (first launch only, from build-time config) ───────
+  await _seedGroqKey();
+
   // ── Startup cache maintenance (non-blocking) ─────────────────────────────
-  final db = const DatabaseService();
+  const db = DatabaseService();
   CacheManagerService(db).startup().ignore();
 
   // ── Launch app ───────────────────────────────────────────────────────────
@@ -69,10 +78,22 @@ Future<void> main() async {
       overrides: [
         encryptionServiceProvider.overrideWithValue(encryptionService),
       ],
-      observers: [LoniyaProviderObserver()],
+      observers: [YikriProviderObserver()],
       child: const YikriApp(),
     ),
   );
+}
+
+// ─── Groq key seeding ─────────────────────────────────────────────────────────
+/// Seeds the Groq API key into the device Keychain on first launch.
+/// The key comes from --dart-define=GROQ_KEY=gsk_... at build time.
+/// Never stored in source code.
+Future<void> _seedGroqKey() async {
+  if (!AppConfig.hasGroqKey) return;
+  final svc = SecureKeyService();
+  final existing = await svc.getApiKey();
+  if (existing != null && existing.isNotEmpty) return;
+  await svc.saveApiKey(AppConfig.groqApiKey);
 }
 
 // ─── Hive adapter registration ────────────────────────────────────────────────

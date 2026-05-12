@@ -98,6 +98,16 @@ class GameScreen extends ConsumerWidget {
                   colors: const [Color(0xFF1A3A2A), Color(0xFF2E7D32)],
                   onTap: () => context.go(RouteNames.gameSage),
                 ),
+                const SizedBox(height: 14),
+
+                _GameModeCard(
+                  icon: '⚔️',
+                  title: 'Duel',
+                  subtitle: 'Défie un(e) ami(e) — crée un code, compare vos scores',
+                  tag: 'Asynchrone · 10 questions',
+                  colors: const [Color(0xFF1A0A2E), Color(0xFF4A148C)],
+                  onTap: () => context.go(RouteNames.gameDuel),
+                ),
 
                 const SizedBox(height: 28),
 

@@ -1,0 +1,487 @@
+[
+  {
+    "id": "bepc_2023_maths",
+    "exam_type": "BEPC",
+    "year": 2023,
+    "subject": "Mathématiques",
+    "duration_hours": 3,
+    "coefficient": 4,
+    "parts": [
+      {
+        "title": "Partie A — Algèbre (8 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Exercice 1 (4 points)",
+            "content": "1. Résoudre dans ℝ l'équation : 3x − 7 = 2x + 5\n2. Résoudre dans ℝ l'inéquation : 2x + 3 > x − 1. Représenter les solutions sur une droite numérique.\n3. Factoriser l'expression : A = x² − 9\n4. Ibrahim a économisé une somme s. Après avoir dépensé 4 500 F CFA, il lui reste 7 800 F CFA. Écrire l'équation correspondante et trouver s.",
+            "points": 4
+          },
+          {
+            "number": 2,
+            "title": "Exercice 2 (4 points)",
+            "content": "Soit f la fonction définie par f(x) = 2x² − 8x + 6.\n1. Calculer f(0), f(1), f(3).\n2. Calculer f'(x) (dérivée de f).\n3. Résoudre f'(x) = 0.\n4. Dresser le tableau de variations de f sur ℝ et déterminer son minimum.",
+            "points": 4
+          }
+        ]
+      },
+      {
+        "title": "Partie B — Géométrie (6 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Exercice 3 (6 points)",
+            "content": "Un champ rectangulaire à Bobo-Dioulasso a une longueur de 120 m et une largeur de 80 m.\n1. Calculer le périmètre du champ.\n2. Calculer l'aire du champ en m² puis en ha.\n3. On veut clôturer le champ. Le prix du grillage est 1 500 F CFA le mètre. Calculer le coût total de la clôture.\n4. Calculer la longueur de la diagonale du rectangle (arrondir au dixième).",
+            "points": 6
+          }
+        ]
+      },
+      {
+        "title": "Partie C — Statistiques (6 points)",
+        "exercises": [
+          {
+            "number": 4,
+            "title": "Exercice 4 (6 points)",
+            "content": "Les notes de 20 élèves d'une classe de 3ème en mathématiques sont :\n8, 12, 15, 7, 10, 14, 18, 6, 11, 13, 9, 16, 12, 10, 14, 8, 15, 11, 13, 17\n1. Construire le tableau des effectifs et des fréquences.\n2. Calculer la moyenne de cette série.\n3. Déterminer la médiane.\n4. Calculer l'étendue de cette série.\n5. Tracer le diagramme en bâtons des effectifs.",
+            "points": 6
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bepc_2023_francais",
+    "exam_type": "BEPC",
+    "year": 2023,
+    "subject": "Français",
+    "duration_hours": 3,
+    "coefficient": 4,
+    "parts": [
+      {
+        "title": "Texte support",
+        "exercises": [
+          {
+            "number": 0,
+            "title": "Texte à étudier",
+            "content": "« La savane burkinabè, en saison sèche, offre un spectacle de désolation que rien ne prépare. Les arbres, dépouillés de leurs feuilles, dressent leurs branches noires vers un ciel d'un bleu dur. La terre craquelée ressemble à une vieille poterie brisée. Pourtant, sous cette apparence de mort, la vie se prépare. Dans les profondeurs du sol, les graines attendent les premières pluies. Les animaux, réfugiés près des marigots qui subsistent, gardent une patience millénaire. Et un jour, les nuages s'amoncellent à l'horizon. L'air se charge d'une odeur de terre humide — l'odeur de l'hivernage. Alors la savane renaît, verdoyante, bruyante, généreuse. » — Texte d'un auteur burkinabè fictif",
+            "points": 0
+          }
+        ]
+      },
+      {
+        "title": "Partie I — Compréhension et langue (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Compréhension du texte (5 points)",
+            "content": "1. Quel est le thème principal de ce texte ? (1 pt)\n2. Relève deux images (comparaisons ou métaphores) utilisées par l'auteur. (2 pts)\n3. Explique ce que l'auteur veut dire par « la savane renaît ». (1 pt)\n4. Quel sentiment l'auteur cherche-t-il à transmettre au lecteur ? Justifie ta réponse. (1 pt)",
+            "points": 5
+          },
+          {
+            "number": 2,
+            "title": "Langue (5 points)",
+            "content": "1. Relève dans le texte deux adjectifs qualificatifs et précise leur rôle. (1 pt)\n2. Conjugue au passé composé et au plus-que-parfait : « Les nuages s'amoncellent ». (2 pts)\n3. Transforme à la forme passive : « Les premières pluies réveillent les graines ». (1 pt)\n4. Identifie la proposition subordonnée dans la phrase : « Un jour où les nuages s'amoncellent, la savane renaît ». (1 pt)",
+            "points": 5
+          }
+        ]
+      },
+      {
+        "title": "Partie II — Expression écrite (10 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Rédaction (10 points)",
+            "content": "**Sujet au choix :**\n\n**Sujet A (Texte narratif)** : Raconte une journée mémorable que tu as vécue dans ton village ou ta ville pendant la saison des pluies. Tu utiliseras des indicateurs de temps et des descriptions précises. (15 à 20 lignes)\n\n**Sujet B (Texte argumentatif)** : « La scolarisation des filles est une priorité pour le développement du Burkina Faso. » Développe cette thèse en deux arguments illustrés chacun par un exemple. (15 à 20 lignes)",
+            "points": 10
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bepc_2023_svt",
+    "exam_type": "BEPC",
+    "year": 2023,
+    "subject": "Sciences de la Vie et de la Terre",
+    "duration_hours": 2,
+    "coefficient": 3,
+    "parts": [
+      {
+        "title": "Partie I — Biologie (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "La Reproduction des Plantes à Fleurs (5 points)",
+            "content": "Le karité (Vitellaria paradoxa) est un arbre fruitier indispensable à l'économie burkinabè. Sa reproduction se fait par voie sexuée.\n\n1. Nommer les organes de reproduction mâle et femelle de la fleur du karité. (1 pt)\n2. Définir la pollinisation et préciser comment elle se réalise chez le karité. (2 pts)\n3. Décrire les étapes de la fécondation chez les plantes à fleurs. (2 pts)",
+            "points": 5
+          },
+          {
+            "number": 2,
+            "title": "La Digestion chez l'Homme (5 points)",
+            "content": "1. Schématiser simplement l'appareil digestif humain en nommant ses organes principaux. (2 pts)\n2. Définir la digestion et distinguer digestion mécanique et chimique. (2 pts)\n3. Nommer l'enzyme qui commence la digestion de l'amidon dans la bouche et préciser l'organe qui la produit. (1 pt)",
+            "points": 5
+          }
+        ]
+      },
+      {
+        "title": "Partie II — Géologie et Environnement (10 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Dégradation des Sols au Burkina Faso (5 points)",
+            "content": "Le Burkina Faso est confronté à une grave érosion de ses sols, notamment dans le Sahel.\n\n1. Définir l'érosion hydrique et l'érosion éolienne. (2 pts)\n2. Citer deux causes humaines de la dégradation des sols. (1 pt)\n3. Proposer deux techniques de lutte contre l'érosion pratiquées au Burkina Faso (ex. zaï, cordons pierreux). (2 pts)",
+            "points": 5
+          },
+          {
+            "number": 4,
+            "title": "Le Paludisme au Burkina Faso (5 points)",
+            "content": "Le paludisme reste la première cause de mortalité au Burkina Faso.\n\n1. Nommer l'agent pathogène du paludisme et son vecteur. (1 pt)\n2. Décrire le cycle de transmission du paludisme de façon schématique. (2 pts)\n3. Citer trois moyens de prévention individuels et collectifs. (2 pts)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bepc_2023_physchim",
+    "exam_type": "BEPC",
+    "year": 2023,
+    "subject": "Physique-Chimie",
+    "duration_hours": 2,
+    "coefficient": 3,
+    "parts": [
+      {
+        "title": "Partie A — Physique (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Circuits Électriques (6 points)",
+            "content": "Un technicien installe un système d'éclairage solaire dans un village du Nord du Burkina Faso. Il dispose d'une batterie de 12 V et de deux ampoules identiques de résistance R = 40 Ω chacune.\n\n1. Calculer l'intensité du courant si les deux ampoules sont montées en série. (2 pts)\n2. Calculer l'intensité dans chaque ampoule si elles sont montées en parallèle. (2 pts)\n3. Quel montage est préférable pour que les ampoules brillent davantage ? Justifier. (2 pts)",
+            "points": 6
+          },
+          {
+            "number": 2,
+            "title": "Mécanique : le poids et la masse (4 points)",
+            "content": "Un sac de coton de masse 50 kg est posé sur une bascule à Bobo-Dioulasso.\n\n1. Calculer le poids P de ce sac (g = 10 N/kg). (1 pt)\n2. Définir la différence entre masse et poids. (2 pts)\n3. Quel serait le poids de ce même sac sur la Lune (g_Lune = 1,6 N/kg) ? (1 pt)",
+            "points": 4
+          }
+        ]
+      },
+      {
+        "title": "Partie B — Chimie (10 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "L'Eau et ses Propriétés (5 points)",
+            "content": "L'accès à l'eau potable est un défi majeur dans de nombreuses régions du Burkina Faso.\n\n1. Donner la formule chimique de l'eau et décrire sa structure moléculaire. (1 pt)\n2. Distinguer eau douce, eau salée et eau potable. (2 pts)\n3. Décrire deux méthodes de purification de l'eau accessibles dans les villages (filtration, chloration). (2 pts)",
+            "points": 5
+          },
+          {
+            "number": 4,
+            "title": "Les Réactions Chimiques (5 points)",
+            "content": "La combustion du bois (cellulose C₆H₁₀O₅) est très utilisée au Burkina Faso pour la cuisine.\n\n1. Écrire l'équation de combustion complète de la cellulose en présence d'oxygène. (2 pts)\n2. Citer les produits de cette combustion. (1 pt)\n3. Expliquer pourquoi l'utilisation excessive du bois contribue à la déforestation et proposer une alternative. (2 pts)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bepc_2023_histgeo",
+    "exam_type": "BEPC",
+    "year": 2023,
+    "subject": "Histoire-Géographie",
+    "duration_hours": 2,
+    "coefficient": 3,
+    "parts": [
+      {
+        "title": "Partie I — Histoire (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Le Burkina Faso de l'Indépendance à nos jours (10 points)",
+            "content": "**Document** : *« Le 5 août 1960, dans une atmosphère de liesse populaire, Maurice Yaméogo proclamait l'indépendance de la République de Haute-Volta devant une foule enthousiaste à Ouagadougou. Le drapeau tricolore (noir, blanc, rouge) fut hissé pour la première fois. »*\n\n1. Quelle est la date de l'indépendance de la Haute-Volta ? (1 pt)\n2. Quel était le nom du premier président de la Haute-Volta indépendante ? (1 pt)\n3. En quelle année et sous quel dirigeant la Haute-Volta a-t-elle changé de nom pour devenir le Burkina Faso ? (2 pts)\n4. Cite trois réalisations importantes de Thomas Sankara durant sa révolution (1983-1987). (3 pts)\n5. Décris en quelques lignes le soulèvement populaire d'octobre 2014 et ses causes. (3 pts)",
+            "points": 10
+          }
+        ]
+      },
+      {
+        "title": "Partie II — Géographie (10 points)",
+        "exercises": [
+          {
+            "number": 2,
+            "title": "La Population du Burkina Faso (5 points)",
+            "content": "1. Donner la population approximative du Burkina Faso en 2023. (1 pt)\n2. Nommer les deux principales villes du Burkina Faso. (1 pt)\n3. Expliquer le phénomène d'exode rural et ses causes au Burkina Faso. (2 pts)\n4. Citer deux problèmes liés à la forte croissance démographique. (1 pt)",
+            "points": 5
+          },
+          {
+            "number": 3,
+            "title": "L'Agriculture au Burkina Faso (5 points)",
+            "content": "1. Nommer les deux principales cultures d'exportation du Burkina Faso. (1 pt)\n2. Définir l'agriculture de subsistance et la distinguer de l'agriculture commerciale. (2 pts)\n3. Cite deux contraintes naturelles qui limitent la production agricole burkinabè. (2 pts)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_c_maths",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Mathématiques",
+    "serie": "C",
+    "duration_hours": 4,
+    "coefficient": 7,
+    "parts": [
+      {
+        "title": "Exercice 1 — Analyse (6 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Étude d'une fonction (6 points)",
+            "content": "Soit f la fonction définie sur ℝ par f(x) = x³ − 3x² − 9x + 11.\n\n1. Calculer f'(x).\n2. Résoudre f'(x) = 0. En déduire le tableau de variations de f.\n3. Déterminer les coordonnées des extrema locaux de f.\n4. Calculer f''(x) et trouver le point d'inflexion de la courbe.\n5. Tracer l'allure de la courbe de f (les valeurs calculées suffisent).",
+            "points": 6
+          }
+        ]
+      },
+      {
+        "title": "Exercice 2 — Probabilités (4 points)",
+        "exercises": [
+          {
+            "number": 2,
+            "title": "Probabilités conditionnelles (4 points)",
+            "content": "Dans un lycée de Ouagadougou, 60 % des élèves sont des filles. Parmi les filles, 70 % réussissent le BAC. Parmi les garçons, 65 % réussissent le BAC.\n\n1. Calculer la probabilité qu'un élève choisi au hasard soit une fille qui réussit le BAC.\n2. Calculer la probabilité de réussite au BAC pour un élève quelconque.\n3. Sachant qu'un élève a réussi le BAC, quelle est la probabilité que ce soit une fille ? (Formule de Bayes)",
+            "points": 4
+          }
+        ]
+      },
+      {
+        "title": "Exercice 3 — Géométrie dans l'espace (5 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Vecteurs et droites dans l'espace (5 points)",
+            "content": "On donne les points A(1; 0; 2), B(3; 1; 0) et C(0; 2; 1) dans un repère orthonormé de l'espace.\n\n1. Calculer les coordonnées des vecteurs AB et AC.\n2. Calculer AB · AC (produit scalaire).\n3. Calculer |AB| et |AC|.\n4. En déduire l'angle BAC (en degrés, arrondi à 1°).",
+            "points": 5
+          }
+        ]
+      },
+      {
+        "title": "Problème — Optimisation économique (5 points)",
+        "exercises": [
+          {
+            "number": 4,
+            "title": "Optimisation du profit d'une coopérative (5 points)",
+            "content": "Une coopérative cotonnière de l'Ouest du Burkina Faso produit x tonnes de coton. Son profit en millions de F CFA est :\nP(x) = −2x² + 20x − 30, pour 0 ≤ x ≤ 8.\n\n1. Calculer P'(x).\n2. Déterminer la quantité x qui maximise le profit.\n3. Calculer le profit maximum.\n4. Pour quelles valeurs de x la coopérative est-elle bénéficiaire (P(x) > 0) ?",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_c_physchim",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Physique-Chimie",
+    "serie": "C",
+    "duration_hours": 4,
+    "coefficient": 6,
+    "parts": [
+      {
+        "title": "Partie Physique (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Électricité : circuits RC (5 points)",
+            "content": "Un condensateur de capacité C = 100 μF est chargé sous une tension E = 9 V à travers une résistance R = 10 kΩ.\n\n1. Définir la constante de temps τ du circuit RC et calculer sa valeur.\n2. Écrire l'équation différentielle régissant la charge du condensateur.\n3. Donner l'expression de la tension u_c(t) aux bornes du condensateur en fonction du temps.\n4. Calculer u_c pour t = τ, t = 2τ, t = 5τ.",
+            "points": 5
+          },
+          {
+            "number": 2,
+            "title": "Mécanique : chute libre (5 points)",
+            "content": "Un colis humanitaire est largué depuis un avion en vol horizontal à une altitude h = 500 m au-dessus de la plaine du Sahel (g = 9,8 m/s²). La vitesse horizontale de l'avion est v₀ = 72 km/h.\n\n1. Convertir v₀ en m/s.\n2. Établir les équations horaires x(t) et y(t) du mouvement.\n3. Calculer le temps de chute.\n4. Calculer la distance horizontale parcourue par le colis.",
+            "points": 5
+          }
+        ]
+      },
+      {
+        "title": "Partie Chimie (10 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Dosage acido-basique (5 points)",
+            "content": "On dose une solution d'acide chlorhydrique HCl par une solution de soude NaOH de concentration C_b = 0,1 mol/L. On verse le volume V_b = 20 mL de NaOH pour atteindre l'équivalence avec V_a = 25 mL de HCl.\n\n1. Écrire l'équation de la réaction de neutralisation.\n2. À l'équivalence, écrire la relation entre les quantités de matière de HCl et NaOH.\n3. En déduire la concentration molaire C_a de la solution de HCl.\n4. Calculer le pH de la solution de NaOH avant dosage.",
+            "points": 5
+          },
+          {
+            "number": 4,
+            "title": "Cinétique chimique (5 points)",
+            "content": "La combustion du propane (C₃H₈) est utilisée comme source d'énergie dans les ménages burkinabè.\n\n1. Écrire et équilibrer l'équation de combustion complète du propane.\n2. Calculer l'énergie dégagée par la combustion de 1 mol de propane sachant que ΔH = −2220 kJ/mol.\n3. Quelle masse de propane faut-il brûler pour chauffer 10 litres d'eau de 20°C à 100°C ? (M(C₃H₈) = 44 g/mol, c_eau = 4185 J/kg·K)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_c_svt",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Sciences de la Vie et de la Terre",
+    "serie": "C",
+    "duration_hours": 4,
+    "coefficient": 5,
+    "parts": [
+      {
+        "title": "Partie I — Génétique (8 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Hérédité mendélienne (8 points)",
+            "content": "Chez l'arachide (cultivée au Burkina Faso), la couleur des graines est déterminée par un gène à deux allèles : R (rouge, dominant) et r (blanc, récessif).\n\nOn croise deux plantes homozygotes : une à graines rouges (RR) × une à graines blanches (rr).\n\n1. Écrire les génotypes des parents et des gamètes. (2 pts)\n2. Réaliser l'échiquier de croisement de F1. Donner le génotype et le phénotype de F1. (2 pts)\n3. On croise deux plantes F1 entre elles. Réaliser l'échiquier de F2 et donner les proportions phénotypiques. (2 pts)\n4. Définir : allèle dominant, allèle récessif, homozygote, hétérozygote. (2 pts)",
+            "points": 8
+          }
+        ]
+      },
+      {
+        "title": "Partie II — Immunologie (7 points)",
+        "exercises": [
+          {
+            "number": 2,
+            "title": "Le Système Immunitaire (7 points)",
+            "content": "Dans le cadre de la lutte contre le paludisme au Burkina Faso, des chercheurs étudient les réponses immunitaires.\n\n1. Définir antigène et anticorps. (2 pts)\n2. Distinguer immunité innée (non spécifique) et immunité adaptative (spécifique). (2 pts)\n3. Décrire le mécanisme de la réponse immunitaire humorale lors d'une primo-infection par Plasmodium falciparum. (3 pts)",
+            "points": 7
+          }
+        ]
+      },
+      {
+        "title": "Partie III — Géologie (5 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Ressources Minières du Burkina Faso (5 points)",
+            "content": "Le Burkina Faso est l'un des principaux producteurs d'or en Afrique de l'Ouest.\n\n1. Nommer deux autres ressources minières importantes du Burkina Faso. (1 pt)\n2. Expliquer brièvement comment l'or se forme dans les roches (gisements hydrothermaux). (2 pts)\n3. Citer deux impacts environnementaux de l'exploitation minière. (2 pts)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_a_francais",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Français",
+    "serie": "A",
+    "duration_hours": 4,
+    "coefficient": 5,
+    "parts": [
+      {
+        "title": "Texte support",
+        "exercises": [
+          {
+            "number": 0,
+            "title": "Texte",
+            "content": "« L'Afrique de demain ne sera pas celle des armes ni de la mendicité. Elle sera celle de la créativité, de l'innovation et du travail. Nos jeunes, trop souvent regardés comme un fardeau, sont en réalité notre richesse la plus précieuse. Chaque enfant qui va à l'école, chaque fille qui apprend à lire, chaque jeune entrepreneur qui ose créer une entreprise dans son village — tous ces actes discrets construisent le continent de demain. Nous n'attendrons plus que des solutions viennent de l'extérieur. Nous serons les artisans de notre propre destin. » — Discours inspiré de Thomas Sankara, adapté",
+            "points": 0
+          }
+        ]
+      },
+      {
+        "title": "Partie I — Étude du texte (12 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Compréhension et analyse (8 points)",
+            "content": "1. Dégager la thèse principale défendue dans ce texte. (2 pts)\n2. Relever deux arguments développés par l'auteur et les résumer en une phrase chacun. (4 pts)\n3. Identifier et analyser une figure de style présente dans le texte. (2 pts)",
+            "points": 8
+          },
+          {
+            "number": 2,
+            "title": "Langue et style (4 points)",
+            "content": "1. Relevez trois connecteurs logiques dans le texte et précisez leur valeur (addition, opposition, conséquence). (2 pts)\n2. Transformez la phrase « Nos jeunes sont en réalité notre richesse » en phrase exclamative, puis interrogative. (2 pts)",
+            "points": 4
+          }
+        ]
+      },
+      {
+        "title": "Partie II — Expression écrite (8 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "Dissertation (8 points)",
+            "content": "**Sujet :** « La jeunesse africaine doit être le moteur du développement de son continent et non en attendre les solutions de l'extérieur. » Dans une dissertation organisée et argumentée, tu discuteras de cette affirmation en t'appuyant sur des exemples précis tirés de l'histoire africaine et de la vie contemporaine.\n\n*Consigne : 40 à 50 lignes, plan en 2 ou 3 parties clairement annoncé.*",
+            "points": 8
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_a_histgeo",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Histoire-Géographie",
+    "serie": "A",
+    "duration_hours": 4,
+    "coefficient": 4,
+    "parts": [
+      {
+        "title": "Partie Histoire (10 points)",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "L'Afrique dans la Guerre Froide (5 points)",
+            "content": "1. Définir la Guerre Froide et préciser ses dates principales (1947-1991). (1 pt)\n2. Expliquer comment les deux superpuissances (USA et URSS) ont influencé les pays africains nouvellement indépendants. (2 pts)\n3. Citer deux conflits africains directement liés à la Guerre Froide et les pays impliqués. (2 pts)",
+            "points": 5
+          },
+          {
+            "number": 2,
+            "title": "La Décolonisation en Afrique de l'Ouest (5 points)",
+            "content": "1. Définir la décolonisation et donner la décennie des indépendances africaines. (1 pt)\n2. Comparer deux formes de décolonisation : pacifique (Gold Coast/Ghana) et violente (Algérie). (3 pts)\n3. Citer le nom du premier président du Ghana et l'année de son indépendance. (1 pt)",
+            "points": 5
+          }
+        ]
+      },
+      {
+        "title": "Partie Géographie (10 points)",
+        "exercises": [
+          {
+            "number": 3,
+            "title": "La Mondialisation et l'Afrique de l'Ouest (5 points)",
+            "content": "1. Définir la mondialisation. (1 pt)\n2. Identifier les principaux produits d'exportation de l'Afrique de l'Ouest (cacao, coton, pétrole, or). (2 pts)\n3. Expliquer pourquoi l'Afrique de l'Ouest reste en position défavorable dans les échanges mondiaux. (2 pts)",
+            "points": 5
+          },
+          {
+            "number": 4,
+            "title": "Urbanisation en Afrique Subsaharienne (5 points)",
+            "content": "1. Définir l'urbanisation et donner le taux d'urbanisation approximatif de l'Afrique subsaharienne. (1 pt)\n2. Nommer les deux plus grandes métropoles d'Afrique de l'Ouest. (1 pt)\n3. Citer et expliquer deux problèmes liés à la croissance rapide des villes africaines (bidonvilles, chômage, déchets). (3 pts)",
+            "points": 5
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bac_2023_a_philo",
+    "exam_type": "BAC",
+    "year": 2023,
+    "subject": "Philosophie",
+    "serie": "A",
+    "duration_hours": 4,
+    "coefficient": 4,
+    "parts": [
+      {
+        "title": "Sujet 1 — Dissertation",
+        "exercises": [
+          {
+            "number": 1,
+            "title": "Dissertation philosophique (20 points)",
+            "content": "**Sujet A :** « La liberté est-elle une illusion ? »\n\nDans une dissertation philosophique, tu analyseras cette question en mobilisant tes connaissances de cours (déterminisme, libre arbitre, liberté politique et morale). Tu utiliseras au moins deux auteurs philosophiques étudiés (Descartes, Spinoza, Sartre, Kant...).\n\n*Plan suggéré : I. Thèse : la liberté semble illusoire (déterminisme, conditionnements sociaux) — II. Antithèse : l'homme peut se libérer (Sartre, conscience) — III. Synthèse : une liberté conquise, pas donnée.*\n\n**Sujet B :** « Le travail est-il une nécessité ou une valeur ? »\n\n*Analysez la valeur du travail pour l'individu et la société en vous appuyant sur les philosophies de Marx, Hegel et les réalités burkinabè.*",
+            "points": 20
+          }
+        ]
+      }
+    ]
+  }
+]

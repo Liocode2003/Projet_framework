@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 import '../../../../core/constants/hive_boxes.dart';
 import '../../../../core/constants/route_names.dart';
@@ -272,9 +275,112 @@ class _ChildCard extends StatelessWidget {
             ),
           ),
         ]),
+
+        const SizedBox(height: 14),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () => _generateReport(context, data),
+            icon: const Icon(Icons.picture_as_pdf_rounded, size: 16),
+            label: const Text('Rapport mensuel PDF',
+                style: TextStyle(fontFamily: 'Nunito', fontSize: 13,
+                    fontWeight: FontWeight.w700)),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.secondary,
+              side: const BorderSide(color: AppColors.secondary),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              padding: const EdgeInsets.symmetric(vertical: 10),
+            ),
+          ),
+        ),
       ]),
     );
   }
+
+  static Future<void> _generateReport(
+      BuildContext context, _ChildData data) async {
+    final g    = data.gamification;
+    final name = data.user.name ?? data.user.phone;
+    final date = DateTime.now();
+
+    final pdf = pw.Document();
+    pdf.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.all(40),
+      build: (pw.Context ctx) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text('YIKRI — Rapport de Progression',
+              style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold,
+                  color: const PdfColor.fromInt(0xFF7B2D8B))),
+          pw.SizedBox(height: 4),
+          pw.Text(
+              'Généré le ${date.day.toString().padLeft(2,'0')}/${date.month.toString().padLeft(2,'0')}/${date.year}',
+              style: pw.TextStyle(fontSize: 11,
+                  color: const PdfColor.fromInt(0xFF888888))),
+          pw.Divider(color: const PdfColor.fromInt(0xFF7B2D8B), thickness: 1.5),
+          pw.SizedBox(height: 16),
+
+          pw.Text('Élève : $name',
+              style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 4),
+          if (data.user.gradeLevel != null)
+            pw.Text('Classe : ${data.user.gradeLevel}',
+                style: pw.TextStyle(fontSize: 12,
+                    color: const PdfColor.fromInt(0xFF555555))),
+          pw.SizedBox(height: 16),
+
+          pw.Text('Statistiques du mois',
+              style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+          pw.SizedBox(height: 8),
+          _pdfRow('Niveau actuel', '${g.level}'),
+          _pdfRow('Points XP total', '${g.totalXp}'),
+          _pdfRow('Leçons terminées', '${data.completedLessons}'),
+          _pdfRow('Série de jours consécutifs', '${g.currentStreak} jour(s)'),
+          _pdfRow('Plus longue série', '${g.longestStreak} jour(s)'),
+          _pdfRow('Temps d\'apprentissage', '${g.totalTimeMinutes} min'),
+          _pdfRow('Badges débloqués', '${g.unlockedBadgeIds.length}'),
+          pw.SizedBox(height: 16),
+
+          if (g.xpBySubject.isNotEmpty) ...[
+            pw.Text('XP par matière',
+                style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.SizedBox(height: 8),
+            ...g.xpBySubject.entries.map(
+                (e) => _pdfRow(e.key, '${e.value} XP')),
+          ],
+
+          pw.SizedBox(height: 24),
+          pw.Divider(color: const PdfColor.fromInt(0xFFCCCCCC), thickness: 0.5),
+          pw.SizedBox(height: 8),
+          pw.Text(
+              'Ce rapport a été généré automatiquement par l\'application Yikri. '
+              'Pour toute question, contactez l\'enseignant de votre enfant.',
+              style: pw.TextStyle(fontSize: 10,
+                  color: const PdfColor.fromInt(0xFF999999))),
+        ],
+      ),
+    ));
+
+    final bytes = await pdf.save();
+    await Printing.sharePdf(
+        bytes: bytes, filename: 'rapport_yikri_$name.pdf');
+  }
+
+  static pw.Widget _pdfRow(String label, String value) => pw.Padding(
+    padding: const pw.EdgeInsets.only(bottom: 5),
+    child: pw.Row(
+      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+      children: [
+        pw.Text(label, style: pw.TextStyle(fontSize: 12,
+            color: const PdfColor.fromInt(0xFF444444))),
+        pw.Text(value, style: pw.TextStyle(fontSize: 12,
+            fontWeight: pw.FontWeight.bold,
+            color: const PdfColor.fromInt(0xFF7B2D8B))),
+      ],
+    ),
+  );
 }
 
 // ── Pending card (linked but different device) ────────────────────────────────

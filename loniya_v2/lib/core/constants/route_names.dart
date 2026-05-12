@@ -31,8 +31,9 @@ class RouteNames {
   static const String aiTutor = '/le-sage';
 
   // Gamification & classement
-  static const String gamification = '/gamification';
-  static const String leaderboard  = '/gamification/leaderboard';
+  static const String gamification  = '/gamification';
+  static const String leaderboard   = '/gamification/leaderboard';
+  static const String certificate   = '/gamification/certificat';
 
   // Orientation
   static const String orientation       = '/orientation';
@@ -56,9 +57,11 @@ class RouteNames {
   static const String game      = '/jeu';
   static const String gameSprint = '/jeu/sprint';
   static const String gameSage   = '/jeu/sage';
+  static const String gameDuel   = '/jeu/duel';
 
   // Mode Examen
-  static const String examMode = '/examen';
+  static const String examMode    = '/examen';
+  static const String examLibrary = '/examen/bibliotheque';
 
   // Parent
   static const String parentDashboard = '/parent';

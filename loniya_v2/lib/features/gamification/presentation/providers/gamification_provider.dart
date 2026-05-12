@@ -85,6 +85,9 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
       badges:    badges,
       isLoading: false,
     );
+
+    // Seed demo leaderboard entries on first launch
+    await _seedDemoLeaderboard();
   }
 
   /// Refreshes from Hive (call after lesson completion or XP gain).
@@ -112,6 +115,58 @@ class GamificationNotifier extends StateNotifier<GamificationState> {
 
   void clearNewlyUnlocked() =>
       state = state.copyWith(newlyUnlockedIds: []);
+
+  // ─── Demo leaderboard seeding ─────────────────────────────────────────────
+
+  Future<void> _seedDemoLeaderboard() async {
+    final db = _ref.read(databaseServiceProvider);
+    if (db.getLeaderboard().any((g) => g.userId.startsWith('demo_'))) return;
+
+    final demos = [
+      _demoEntry('demo_001', 5240, 8, 15),
+      _demoEntry('demo_002', 4180, 7,  9),
+      _demoEntry('demo_003', 3650, 6, 21),
+      _demoEntry('demo_004', 2870, 5,  6),
+      _demoEntry('demo_005', 2140, 4, 12),
+      _demoEntry('demo_006', 1620, 3,  4),
+      _demoEntry('demo_007', 1100, 2, 18),
+      _demoEntry('demo_008',  780, 2,  3),
+      _demoEntry('demo_009',  450, 1,  7),
+      _demoEntry('demo_010',  210, 1,  1),
+    ];
+    for (final g in demos) {
+      await db.saveGamification(g);
+    }
+  }
+
+  static GamificationModel _demoEntry(
+      String id, int xp, int level, int streak) =>
+      GamificationModel(
+        userId:           id,
+        totalXp:          xp,
+        level:            level,
+        currentStreak:    streak,
+        longestStreak:    streak + 3,
+        unlockedBadgeIds: [
+          'badge_first_lesson',
+          if (xp >  800) 'badge_streak_3',
+          if (xp > 2000) 'badge_streak_7',
+          if (level >= 5) 'badge_level_5',
+          if (level >= 10) 'badge_level_10',
+        ],
+        lessonsCompleted: xp ~/ 50,
+        totalTimeMinutes: xp ~/ 8,
+        xpBySubject: {
+          'Mathématiques': xp ~/ 3,
+          'Français':      xp ~/ 4,
+          'Sciences':      xp ~/ 6,
+        },
+        lastActivityDate: DateTime.now()
+            .subtract(Duration(days: level % 4))
+            .toIso8601String()
+            .substring(0, 10),
+        version: 1,
+      );
 
   // ─── Private ──────────────────────────────────────────────────────────────
   Future<GamificationModel> _unlockBadges(
